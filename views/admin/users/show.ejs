@@ -1,0 +1,106 @@
+<% include ../../partials/header %>
+<link type="text/css" href="/admin-style.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="ml-3">
+        <h3>
+           דף ניהול משתמשים
+        </h3>
+        <a href="/admin" class="btn btn-default btn-round mr-2">חזרה</a>
+        <div id="create-company" class="btn btn-primary btn-round">צור משתמש חדשה</div>
+    </div>
+    
+    <div id="new-company" class="container mt-2">
+        <div class="row justify-content-md-center">
+            <div class="col-12 col-md-6">
+                <form action="/admin/user" method="POST">
+                    <div class="form-group">
+                        <label for="username">
+                            שם משתמש (ת.ז.)
+                        </label>
+                        <input type="text" class="form-control" name="username" placeholder="הכנס שם משתמש">
+                        <label for="username">
+                            סיסמה
+                        </label>
+                        <input type="password" class="form-control" name="password" placeholder="הכנס סיסמה">
+                        <label for="firstName">
+                            שם פרטי
+                        </label>
+                        <input type="text" class="form-control" name="firstName" placeholder="הכנס שם חברה">
+                        <label for="lastName">
+                            שם משפחה
+                        </label>
+                        <input type="text" class="form-control" name="lastName" placeholder="הכנס שם חברה">
+                        <label for="personalID">
+                            תג זיהוי עובד
+                        </label>
+                        <input type="number" readonly="readonly" class="form-control" name="personalID" value="<%= Number(userIdNumber) %>">
+                        <label for="phoneNumber">
+                            טלפון
+                        </label>
+                        <input type="text" class="form-control" name="phoneNumber" aria-describedby="company-address" placeholder="כתובת">
+                        <label for="company">
+                            שייכות לחברה
+                        </label>
+                        <select id="company" name="company" class="form-control">
+                            <% companies.forEach(function(company){ %>
+                                <option value="<%= company._id %>"><%= company.name %></option>
+                            <% }) %>
+                        </select>
+                        <label for="role">
+                            תפקיד
+                        </label>
+                        <select id="role" name="role" class="form-control">
+                            <option value="steward">
+                                סדרן
+                            </option>
+                            <option value="driver">
+                                נהג
+                            </option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-round btn-block">שלח</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+     
+    <!--<input class="form-control" id="myInput" type="text" placeholder="Search..">-->
+    <!--<br>-->
+    <table id="myTable" class="table borderless table-responsive-sm mt-2 align-items-center">
+        <tbody>
+            <% users.forEach(function(user){ %>
+                <tr class="d-flex align-items-center">
+                    <td class="col-sm-1">
+                        <div class="rounded-circle cover-image-sm mx-auto" style="background-image: url(<%= user.userPic.url %>);">&nbsp;</div>
+                    </td>   
+                    <td class="col-sm-2"><%= user.username %></td>
+                    <td class="col-sm-1"><%= user.personalID %></td>
+                    <td class="col-sm-2"><%= user.firstName + " " + user.lastName %></td>
+                    
+                    <td class="col-sm-2"><%= user.phoneNumber %></td>
+                    <td class="col-sm-1"><%= user.role == 'steward' ? 'סדרן' : 'נהג' %></td>
+                    <td class="col-sm-1"><a class="btn btn-default btn-round btn-sm" href="/admin/user/<%= user._id %>/edit">עדכון</a></td>
+                    <td class="col-sm-1">
+                        <form action="/admin/user/<%= user._id %>?_method=DELETE" method="POST" class="delete-form">
+    		                <button class="btn btn-delete btn-round btn-sm"> מחיקה  <i class="fal fa-trash-alt"></i></button>
+    		            </form>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+    
+</div>
+
+<% include ../../partials/footer %>
+<script>
+    $( "#create-company" ).click(function() {
+      $( "#new-company" ).slideToggle( "slow", function() {
+        console.log("Finished!")
+      });
+    });
+</script>
+
+<% include ../../partials/closing_tags %>

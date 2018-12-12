@@ -1,0 +1,91 @@
+<% include ../../partials/header %>
+<link type="text/css" href="/admin-style.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="ml-3">
+        <h3>
+           דף ניהול החברות
+        </h3>
+        <a href="/admin" class="btn btn-default btn-round mr-2">חזרה</a>
+        <div id="open-form-dialog" class="btn btn-primary btn-round">צור חברה חדשה</div>
+    </div>
+    
+    <div id="form-dialog" class="container mt-2">
+        <div class="row justify-content-md-center">
+            <div class="col-12 col-md-6">
+                <form action="/admin/company" method="POST">
+                    <div class="form-group">
+                        <label for="companyName">שם החברה</label>
+                        <input type="text" class="form-control" name="companyName" aria-describedby="company-name" placeholder="הכנס שם חברה">
+                        <label for="companyID">
+                            תג זיהוי חברה
+                        </label>
+                        <input type="number" readonly="readonly" class="form-control" name="companyID" aria-describedby="companyID" value="<%= Number(companyNumber) %>" placeholder=" תג זיהוי חברה">
+                        <label for="companyAddress">
+                            כתובת
+                        </label>
+                        <input type="text" class="form-control" name="companyAddress" aria-describedby="company-address" placeholder="כתובת">
+                        <label for="city">
+                            עיר
+                        </label>
+                        <input type="text" class="form-control" name="city" aria-describedby="city" placeholder="עיר">
+                        <label for="contactPerson">
+                            איש קשר
+                        </label>
+                        <input type="text" class="form-control" name="contactPerson" aria-describedby="contactPerson" placeholder="איש קשר">
+                        <label for="phoneNumber1">
+                            מספר טלפון
+                        </label>
+                        <input type="text" class="form-control" name="phoneNumber1" aria-describedby="phoneNumber1" placeholder="מספר טלפון ">
+                        <label for="phoneNumber2">
+                           מספר טלפון נוסף
+                        </label>
+                        <input type="text" class="form-control" name="phoneNumber2" aria-describedby="phoneNumber2" placeholder="מספר טלפון נוסף">
+                        
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-round btn-block">שלח</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <table class="table borderless table-responsive-sm mt-2 align-items-center">
+        <tbody>
+            <% companies.forEach(function(company){ %>
+                <% if(company.active) { %>
+                    <tr class="d-flex align-items-center">
+                <% } else { %>
+                    <tr class="d-flex align-items-center table-secondary">
+                <% } %>
+                    <td class="col-sm-1">
+                        <div class="rounded-circle cover-image-sm mx-auto" style="background-image: url(<%= company.companyLogo.url %>);">&nbsp;</div>
+                    <td class="col-sm-1"><%= company.companyID %></td>
+                    <td class="col-sm-2"><%= company.name %></td>
+                    <td class="col-sm-1"><%= company.contactPerson %></td>
+                    <td class="col-sm-2"><%= company.phoneNumber1 %></td>
+                    <td class="col-sm-2"><%= company.phoneNumber2 %></td>
+                    <td class="col-sm-1"><a class="btn btn-default btn-round btn-sm" href="/admin/company/<%= company._id %>/edit">עדכון</a></td>
+                    <td class="col-sm-1">
+                        <a class="btn btn-primary btn-round btn-sm" href="/admin/company/<%= company._id %>/change-status">
+                        <% if (company.active) { %>
+                            להשבית
+                        <% } else { %>
+                            להפעיל
+                        <% } %>
+                        </a>
+                    </td>
+                    
+                    <td class="col-sm-1">
+                        <form action="/admin/company/<%= company._id %>?_method=DELETE" method="POST" class="delete-form">
+    		                <button class="btn btn-delete btn-round btn-sm"> מחיקה  <i class="fal fa-trash-alt"></i></button>
+    		            </form>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+    
+</div>
+
+<% include ../../partials/footer %>
+<% include ../../partials/closing_tags %>

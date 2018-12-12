@@ -1,0 +1,124 @@
+<% include ../partials/header %>
+<% include ../partials/navbar %>
+
+<div class="container-fluid">
+    <div class="row align-items-center justify-content-center mt-3">
+        <div id="open-form-dialog" class="btn btn-primary btn-round">
+            יצירת רשומת נהג חדש
+        </div>
+    </div>
+    <div id="form-dialog" class="container mt-2">
+        <div class="row justify-content-md-center">
+            <div class="col-12 col-md-6">
+                <form action="/company/<%= user.company._id %>/users" method="POST" class="card card-body bg-light">
+                    <div class="form-group">
+                        <label for="username">
+                            שם משתמש (ת.ז.)
+                        </label>
+                        <input type="text" class="form-control" name="username" placeholder="הכנס שם משתמש">
+                        <label for="password">
+                            סיסמה
+                        </label>
+                        <input type="password" class="form-control" name="password" placeholder="הכנס סיסמה">
+                        <label for="personalID">
+                            תג זיהוי עובד
+                        </label>
+                        <input type="text" readonly="readonly" class="form-control" name="personalID" value="<%= userIdNumber %>">
+                        <label for="firstName">
+                            שם פרטי
+                        </label>
+                        <input type="text" class="form-control" name="firstName" placeholder="הכנס שם פרטי">
+                        <label for="lastName">
+                            שם משפחה
+                        </label>
+                        <input type="text" class="form-control" name="lastName" placeholder="הכנס שם משפחה">
+                        <label for="address">
+                            כתובת
+                        </label>
+                        <input type="text" class="form-control" name="address" placeholder="הכנס כתובת">
+                        <label for="phoneNumber">
+                            מספר טלפון
+                        </label>
+                        <input type="text" class="form-control" name="phoneNumber" placeholder="הכנס מספר טלפון">
+                        <label for="role">
+                            תפקיד
+                        </label>
+                        <select id="role" readonly="readonly" name="role" class="form-control">
+                            <option value="driver">
+                                נהג
+                            </option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-round btn-block">
+                        שלח
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <% if (user.company.users && user.company.users.length != 0) { %>
+        <div class="container mt-3 mb-3">
+            <div class="row align-items-center justify-content-center">
+                <% user.company.users.forEach(function(u){ %> 
+                    <a href="/company/<%= user.company._id %>/users/<%= u._id %>">
+                        <div class="col-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
+                            <div class="card">
+                                <div class="card-info">
+                                    <div class="media d-flex">
+                                        <div class="media-body text-left">
+                                            <h3><%= u.firstName + ' ' + u.lastName %></h3>
+                                            <small>
+                                                תג זיהוי: 
+                                                <%= u.personalID %>
+                                            </small>
+                                            
+                                            <div class="mt-2"><%= u.phoneNumber %></div>
+                                            <% if (u.role == "steward") { %>
+                                                <div>
+                                                    סדרן
+                                                </div>
+                                            <% } else { %>
+                                                <div>
+                                                    נהג
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <% if (u.role != "steward") { %>
+                                                <div class="rounded-circle cover-image-lg" style="background-image: url(<%= u.userPic.url %>); border: 2px solid var(--azure);">&nbsp;</div>
+                                            <% } else { %>
+                                                <div class="rounded-circle cover-image-lg" style="background-image: url(<%= u.userPic.url %>); border: 2px solid var(--pinkish);">&nbsp;</div>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 centered-buttons-container">
+                                        <a class="btn btn-default btn-round btn-sm mr-2 pl-3 pr-3" href="/company/<%= user.company._id %>/users/<%= u._id %>/edit">עדכון</a>
+                                        <% if (u.role != "steward") { %>
+                                            <form action="/company/<%= user.company._id %>/users/<%= u._id %>?_method=DELETE" method="POST" class="delete-form">
+                        		                <button class="btn btn-delete btn-round btn-sm pl-3 pr-3"> מחיקה  <i class="fal fa-trash-alt ml-2"></i></button>
+                        		            </form>
+                    		            <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>    
+                <% }); %>
+            </div>
+        </div>   
+        
+    <% } else { %>
+    
+        <div class="row justify-content-md-center">
+            <div class="mx-auto mt-3  card card-body bg-light col-8 text-center">
+     נראה שלא נוספו נהגים עדיין. הוסף נהג.
+            </div>
+        </div>
+        
+    <% } %>
+    
+</div>
+
+<% include ../partials/footer %>
+<% include ../partials/closing_tags %>

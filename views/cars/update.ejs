@@ -1,0 +1,134 @@
+<% include ../partials/header %>
+
+<!--<link type="text/css" href="/main-page-style.css" rel="stylesheet" />-->
+<% include ../partials/navbar %>
+
+<div class="container-fluid">
+    <div class="container mt-2">
+        <div class="row justify-content-md-center mt-4">
+            <div class="col-12 col-md-6">
+                <form action="/company/<%= user.company._id %>/cars/<%= car._id %>/edit?_method=PUT" method="POST" class="card card-body bg-light">
+                    <div class="form-group">
+                        <label for="carName">
+                           שם תיאור רכב
+                        </label>
+                        <input type="text" class="form-control" name="carName" value="<%= car.carName %>">
+                        <label for="carId">
+                            תג זיהוי רכב
+                        </label>
+                        <input type="number" readonly="readonly" class="form-control" name="carId" value="<%= car.carId %>">
+                        <label for="licensePlate">
+                            מספר רישוי
+                        </label>
+                        <input type="text" class="form-control" name="licensePlate" value="<%= car.licensePlate %>">
+                        <label for="model">
+                            דגם רכב
+                        </label>
+                        <input type="text" class="form-control" name="model" value="<%= car.model %>" >
+                        <label for="numberOfSeats">
+                            מספר מושבים
+                        </label>
+                        <input type="number" min="0" max="100" class="form-control" name="numberOfSeats" value="<%= car.numberOfSeats %>">
+                        <label for="manufactureYear">
+                            שנת ייצור
+                        </label>
+                        <input type="number" min="0" max="2100" class="form-control" name="manufactureYear" value="<%= car.manufactureYear %>">
+                        <% if (!car.isContractor) { %>
+                            <label id="labelForDriverID" for="driverID">
+                                נהג
+                            </label>
+                            <select id="driverID" name="driverID" class="form-control">
+                                <% if(!car.driver) { %>
+                                    <option value=" "> </option>
+                                <% } %>
+                                
+                                <% drivers.forEach(function(driver){ %>
+                                    <option value="<%= driver._id %>"><%= driver.personalID + " - " + driver.firstName + ' ' + driver.lastName %></option>
+                                <% }) %>
+                            </select>
+                        <% } %>
+                    </div>
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-lg-8 mt-2">
+                            <button type="submit" class="btn btn-primary btn-round btn-block">
+                                עדכן
+                            </button>
+                        </div>
+                        <div class="col-lg-4 mt-2">
+                            <a href="/company/<%= user.company._id %>/cars" id="open-form-dialog" class="btn btn-default btn-round btn-block">
+                                חזרה 
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="driverModal" tabindex="-1" role="dialog" aria-labelledby="driverModal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+        משתמש יקר,
+        <br>
+נהג מכונית שנבחר כבר מחובר למכונית אחרת.
+<br>
+על ידי לחיצה על "המשך", אנא הקפידו לצרף נהג חדש למכונית ללא נהג    
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default btn-round" onclick="revertChange()" data-dismiss="modal">חזור</button>  
+        <button type="button" class="btn btn-primary btn-round" data-dismiss="modal">המשך</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<% include ../partials/footer %>
+<script>
+    <% if (!car.isContractor) { %>
+        $(document).ready( function() { 
+            <% if(car.driver) { %>
+                $("#driverID").val("<%= car.driver._id %>").change();
+            <% } %>
+            $("#driverID").change(function(){
+                var index;
+                var drivers = [];
+                <% drivers.forEach(function(driver){ %>
+                    drivers.push({id: "<%= driver._id %>", isAttachedToCar: <%= driver.isAttachedToCar %>});
+                <% }) %>
+                
+                for (var i=0; i < drivers.length; i++) {
+                    <% if (car.driver) { %>
+                        var currentDriver = "<%= car.driver._id %>";
+                    <% } else { %>
+                        var currentDriver = " ";
+                    <% } %>
+                    if ($(this).val() == drivers[i].id && $(this).val() != currentDriver) {
+                        if(drivers[i].isAttachedToCar) {
+                            console.log("Driver is already attached to car.");
+                            $("#driverModal").modal('show');
+                        }
+                    }
+                }
+            });
+        });
+    
+        function revertChange() {
+            <% if (car.driver) { %>
+                $("#driverID").val("<%= car.driver._id %>").change();
+            <% } else { %>
+                $("#driverID").val(" ").change();
+            <% } %>
+        }
+    <% } %> 
+</script>
+<% include ../partials/closing_tags %>

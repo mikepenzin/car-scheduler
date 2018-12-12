@@ -1,0 +1,62 @@
+.login-wrapper {
+    height: 100%;
+}
+
+.login-info-box p {
+    vertical-align: middle;
+    line-height: normal;
+    padding-left: 15px;
+}
+
+.general-login-box {
+    background-color: rgba(240, 245, 245, 1);
+    border-radius: 10px;
+    padding: 1vh;
+    -webkit-box-shadow: 0px 10px 40px 0px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 0px 10px 40px 0px rgba(0, 0, 0, 0.4);
+    box-shadow: 0px 10px 40px 0px rgba(0, 0, 0, 0.4);
+}
+
+.general-login-box input {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.btn-login {
+    margin: 1vh 0;
+    width: 100%;
+}
+
+.form-horizontal .control-label {
+    text-align: right;
+}
+
+.form-control:focus {
+    border: 1px solid #9A9A9A !important;
+}
+
+.submit-btn-wrap {
+    margin-top: 3vh;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+
+.input-group {
+    margin: 1vh 0;
+}
+
+.form-control:focus {
+    border-left: 1px solid #9A9A9A;
+}
+
+form {
+    margin-bottom: 0;
+}
+
+.form-group {
+    margin-bottom: 0;
+}

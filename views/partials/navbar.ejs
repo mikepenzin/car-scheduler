@@ -1,0 +1,59 @@
+<div id="loader">
+    <div></div>
+</div>
+<div id="main-content">
+<!-- #################### -->
+<!-- Start navigation bar -->
+<!-- #################### -->
+<nav class="navbar navbar-ct-blue navbar-expand-lg navbar-lighth hbg-light">
+    <a class="navbar-brand" href="#">
+        <div class="rounded-circle cover-image-md" style="background-image: url(<%= user.company.companyLogo.url %>);">&nbsp;</div>
+    </a>
+    <button class="navbar-toggler custom-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto ">
+            <li class="nav-item active">
+                <a class="nav-link" href="/">דף הבית <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      ניהול חברה
+                    </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="/company/<%= user.company._id %>/users">ניהול משתמשים</a>
+                    <a class="dropdown-item" href="/company/<%= user.company._id %>/cars">ניהול רכבים</a>
+                    <a class="dropdown-item" href="/company/<%= user.company._id %>/vendors">ניהול ספקים</a>
+                    <a class="dropdown-item" href="/company/<%= user.company._id %>/rides">ניהול נסיעות</a>
+                    
+                </div>
+            </li>
+            <li class="nav-item mr-4">
+                <a class="nav-link" href="#">הפקת דו"חות</a>
+            </li>
+            <li class="nav-item">
+                <a class="btn btn-primary btn-round" href="#">ניהול סידור עבודה</a>
+            </li>
+            
+        </ul>
+        <ul id="left-menu" class="navbar-nav ml-auto">
+            <li class="nav-item justify-content-end">
+                <a class="nav-link img-link" href="/company/<%= user.company._id %>/users/<%= user._id %>">
+                    <img src="<%= user.userPic.url %>" class="round-img round-img-sm mr-2" alt=""><%= user.firstName + " " + user.lastName %>
+                </a>
+            </li>
+            <li class="nav-item mr-sm-4 justify-content-end">
+                <a class="btn btn-primary btn-round" href="/auth/logout">יציאה</a>
+            </li>
+
+        </ul>
+    </div>
+</nav>
+
+<!-- ################## -->
+<!-- End navigation bar -->
+<!-- ################## -->
+
+<body>

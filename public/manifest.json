@@ -1,0 +1,15 @@
+{
+  "short_name": "scheduler",
+  "name": "Car Scheduler",
+  "icons": [
+    {
+      "src":"",
+      "sizes": "",
+      "type": ""
+    }
+  ],
+  "start_url": "/?utm_source=homescreen",
+  "background_color": "#000",
+  "Theme_color": "#536878",
+  "display": "standalone"
+}

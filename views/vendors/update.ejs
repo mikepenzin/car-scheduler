@@ -1,0 +1,52 @@
+<% include ../partials/header %>
+
+<!--<link type="text/css" href="/main-page-style.css" rel="stylesheet" />-->
+<% include ../partials/navbar %>
+
+<div class="container-fluid">
+    <div class="container mt-2">
+        <div class="row justify-content-md-center mt-4">
+            <div class="col-12 col-md-6">
+                <form action="/company/<%= user.company._id %>/vendors/<%= vendor._id %>/edit?_method=PUT" method="POST" class="card card-body bg-light p-4">
+                    <div class="form-group">
+                        <label for="name">
+                            שם חברה
+                        </label>
+                        <input type="text" class="form-control" name="name" value="<%= vendor.name %>">
+                        <label for="vendorId">
+                            תג זיהוי ספק
+                        </label>
+                        <input type="text" readonly="readonly" class="form-control" name="vendorID" value="<%= vendor.vendorID %>">
+                        <label for="personInfo">
+                            איש קשר
+                        </label>
+                        <input type="text" class="form-control" name="personInfo" value="<%= vendor.personInfo %>">
+                        <label for="address">
+                            כתובת
+                        </label>
+                        <input type="text" class="form-control" name="address" value="<%= vendor.address %>">
+                        <label for="phoneNumber">
+                            טלפון
+                        </label>
+                        <input type="text" class="form-control" name="phoneNumber" value="<%= vendor.phoneNumber %>">
+                    </div>
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-lg-8 mt-2">
+                            <button type="submit" class="btn btn-primary btn-round btn-block">
+                                עדכן
+                            </button>
+                        </div>
+                        <div class="col-lg-4 mt-2">
+                            <a href="/company/<%= user.company._id %>/vendors" id="open-form-dialog" class="btn btn-default btn-round btn-block">
+                                חזרה 
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer %>
+<% include ../partials/closing_tags %>

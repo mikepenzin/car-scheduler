@@ -1,0 +1,90 @@
+<% include ../../partials/header %>
+<link type="text/css" href="/admin-style.css" rel="stylesheet" />
+
+<div class="container">
+    <a href="/admin/user" class="btn btn-default btn-round mr-2 mt-3">חזרה</a>
+    
+    <div id="update-user" class="container mt-2">
+        <div class="row justify-content-md-center">
+            <div class="col-6">
+               <div class="rounded-circle cover-image mx-auto mb-3" style="background-image: url(<%= user.userPic.url %>);">&nbsp;</div>
+
+                <form action="/admin/user/<%= user._id %>/update-photo" method="POST" id="company-logo" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="userPic" class="btn btn-default btn-round btn-block"><i class="fal fa-cloud-upload-alt"></i> 
+                           בחר את תמונת הפרופיל של משתמש
+                        </label>
+                        <input type="file" class="form-control" id="userPic" name="userPic" placeholder="Add new photo">
+                    </div>
+                </form>        
+                        
+                
+                <form action="/admin/user/<%= user._id %>/edit?_method=PUT" method="POST">
+                    <div class="form-group">
+                        <label for="username">
+                            שם משתמש (ת.ז.)
+                        </label>
+                        <input type="text" readonly="readonly" class="form-control" name="username" value="<%= user.username %>"  placeholder="הכנס שם משתמש">
+                        <label for="firstName">
+                            שם פרטי
+                        </label>
+                        <input type="text" class="form-control" name="firstName" value="<%= user.firstName %>" placeholder="הכנס שם חברה">
+                        <label for="lastName">
+                            שם משפחה
+                        </label>
+                        <input type="text" class="form-control" name="lastName" value="<%= user.firstName %>" placeholder="הכנס שם חברה">
+                        <label for="personalID">
+                            תג זיהוי עובד
+                        </label>
+                        <input type="number" readonly="readonly" class="form-control" name="personalID" value="<%= user.personalID %>">
+                        <label for="phoneNumber">
+                            טלפון
+                        </label>
+                        <input type="text" class="form-control" name="phoneNumber" value="<%= user.firstName %>" aria-describedby="company-address" placeholder="כתובת">
+                        <label for="company">
+                            שייכות לחברה
+                        </label>
+                        <select id="company" name="company" class="form-control">
+                            <% companies.forEach(function(company){ %>
+                                <option value="<%= company._id %>"><%= company.name %></option>
+                            <% }) %>
+                        </select>
+                        <label for="role">
+                            תפקיד
+                        </label>
+                        <select id="role" name="role" class="form-control" selected="<%= user.role %>">
+                            <option value="steward">
+                                סדרן
+                            </option>
+                            <option value="driver">
+                                נהג
+                            </option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-round btn-block">עדכן</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<% include ../../partials/footer %>
+
+<script>
+    $('#userPic').on('change',function(){
+      var fileName = document.getElementById("userPic").files[0].name;
+      verifyEnding = fileName.split(".");
+      console.log(fileName);
+      if (verifyEnding[verifyEnding.length-1] === 'jpg' || verifyEnding[verifyEnding.length-1] === 'png' || verifyEnding[verifyEnding.length-1] === 'jpeg') {
+          document.getElementById("company-logo").submit();
+      } else {
+          console.log("Cannot upload file");
+      }
+    });
+    
+    $("#company").val("<%= user.company._id %>").change();
+    $("#role").val("<%= user.role %>").change();
+</script>
+
+<% include ../../partials/closing_tags %>

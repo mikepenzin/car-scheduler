@@ -1,0 +1,11 @@
+#new-company {
+    display: none;
+    padding: 30px;
+    background: #fff;
+    border-radius: 10px;
+    opacity: 0.8;
+}
+
+td > form {
+    margin-bottom: 0;
+}

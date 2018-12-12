@@ -1,0 +1,156 @@
+<% include ../partials/header %>
+<% include ../partials/navbar %>
+
+<div class="container-fluid">
+    <div class="row align-items-center justify-content-center mt-3">
+        <div id="open-form-dialog" class="btn btn-primary btn-round">
+            יצירת רשומת רכב חדשה
+        </div>
+    </div>
+    <div id="form-dialog" class="container mt-2">
+        <div class="row justify-content-md-center">
+            <div class="col-12 col-md-6">
+                <form action="/company/<%= user.company._id %>/cars" method="POST" class="card card-body bg-light">
+                    <div class="form-group">
+                        <label for="carName">
+                           שם תיאור רכב
+                        </label>
+                        <input type="text" class="form-control" name="carName" placeholder="שם תיאור רכב">
+                        <label for="carId">
+                            תג זיהוי רכב
+                        </label>
+                        <input type="number" readonly="readonly" class="form-control" name="carId" value="<%= carIdNumber %>">
+                        <label for="licensePlate">
+                            מספר רישוי
+                        </label>
+                        <input type="text" class="form-control" name="licensePlate" placeholder="מספר רישוי">
+                        <label for="model">
+                            דגם רכב
+                        </label>
+                        <input type="text" class="form-control" name="model" placeholder="דגם רכב">
+                        <label for="numberOfSeats">
+                            מספר מושבים
+                        </label>
+                        <input type="number" min="0" max="100" class="form-control" name="numberOfSeats" placeholder="ספר מושבים">
+                        <label for="manufactureYear">
+                            שנת ייצור
+                        </label>
+                        <input type="number" min="0" max="2100" class="form-control" name="manufactureYear" placeholder="שנת ייצור">
+                        <label for="isContractor">
+                           קבלן חיצוני
+                        </label>
+                        <select id="isContractor" name="isContractor" class="form-control">
+                            <% if(drivers.length > 0 ) { %>
+                                <option value="true">כן</option>
+                                <option value="false" selected>לא</option>
+                            <% } else { %>
+                                <option value="true" selected>כן</option>
+                            <% } %>
+                        </select>
+                        
+                        <% if(drivers.length > 0 ) { %>
+                            <label id="labelForDriverID" for="driverID">
+                                נהג
+                            </label>
+                            <select id="driverID" name="driverID" class="form-control">
+                                <% drivers.forEach(function(driver){ %>
+                                    <option value="<%= driver._id %>"><%= driver.personalID + " - " + driver.firstName + ' ' + driver.lastName %></option>
+                                <% }) %>
+                            </select>
+                        <% } else { %>
+                            <small>
+                            * לא נמצאו נהגים פנויים לצורך יצירת רשומה חדשה של רכב
+                            </small>
+                        <% } %>
+                        
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-round btn-block">
+                        שלח
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <% if (user.company.cars && user.company.cars.length != 0) { %>
+        <div class="container mt-3 mb-3">
+            <div class="row align-items-center justify-content-center">
+                <% cars.forEach(function(car){ %> 
+                    <div class="col-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
+                        <div class="card">
+                            <div class="card-info">
+                                <div class="media d-flex">
+                                    <div class="media-body text-left">
+                                        <h3><%= car.carName + ' (' + car.carId + ')' %></h3>
+                                        <div><%= car.model + " / " + car.manufactureYear %></div>
+                                        <% if (!car.isContractor) { %>
+                                            <% if (!car.driver) { %>
+                                                <div class="text-danger no-driver-message">
+                                                    <i class="fal fa-exclamation-triangle"></i>
+                                                    יש להוסיף נהג!
+                                                </div>
+                                            <% } else { %>
+                                                <div>
+                                                    נהג : <%= car.driver.firstName + " " + car.driver.lastName + " (" + car.driver.personalID + ") " %>
+                                                </div>
+                                            <% } %>    
+                                        <% } else { %>
+                                            <div>
+                                                נהג קבלן
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <% if (!car.isContractor) { %>
+                                            <i class="fal fa-car azure font-large-2 float-left"></i>
+                                        <% } else { %>
+                                            <i class="fal fa-taxi purple font-large-2 float-left"></i>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="mt-4 centered-buttons-container">
+                                    <a class="btn btn-default btn-round btn-sm mr-2 pl-3 pr-3" href="/company/<%= user.company._id %>/cars/<%= car._id %>/edit">עדכון</a>
+                                    <form action="/company/<%= user.company._id %>/cars/<%= car._id %>?_method=DELETE" method="POST" class="delete-form">
+                		                <button class="btn btn-delete btn-round btn-sm pl-3 pr-3"> מחיקה  <i class="fal fa-trash-alt ml-2"></i></button>
+                		            </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>   
+        
+    <% } else { %>
+    
+        <div class="row justify-content-md-center">
+            <div class="mx-auto mt-3  card card-body bg-light col-8 text-center">
+                נראה שלא נוספו מכוניות עדיין. הוסף מכונית.
+            </div>
+        </div>
+        
+    <% } %>
+    
+</div>
+
+<% include ../partials/footer %>
+<script>
+    $(document).ready( function() { 
+        if(!$('#isContractor').val() == 'true'){
+           $('#labelForDriverID').hide();
+           $('#driverID').hide();
+        }
+    
+        $('#isContractor').change(function(){
+           if($(this).val() == 'true'){
+               $('#labelForDriverID').hide(1000);
+               $('#driverID').hide(1000);
+               return true;
+           }
+           $('#labelForDriverID').show(1000);
+           $('#driverID').show(1000);
+        });
+        
+        
+    });
+</script>
+<% include ../partials/closing_tags %>
