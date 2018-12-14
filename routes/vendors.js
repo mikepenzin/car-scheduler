@@ -173,9 +173,6 @@ router.delete("/:id", middleware.isLoggedIn, function(req, res){
       });
     });
   });
-  
-  
-  
 });
 
 module.exports = router;

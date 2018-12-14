@@ -158,7 +158,7 @@ router.delete("/:id", middleware.isLoggedIn, function(req, res){
     // Need to find and update company with deleted user
     companyModel.findById(foundUser.company._id, function(err, foundCompany){
       if (err) { console.log(err); }
-
+  
       var foundUserIndex = foundCompany.users.indexOf(req.params.id);
       if (foundUserIndex != -1) {
         foundCompany.users.splice(foundUserIndex, 1);
@@ -176,9 +176,7 @@ router.delete("/:id", middleware.isLoggedIn, function(req, res){
       });
     });
   });
+});  
   
-  
-  
-});
 
 module.exports = router;

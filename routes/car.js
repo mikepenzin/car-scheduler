@@ -80,7 +80,7 @@ router.post("/", middleware.isLoggedIn, function(req, res){
         carId: req.body.carId,
         numberOfSeats: req.body.numberOfSeats,
         manufactureYear: req.body.manufactureYear,
-        isContractor: (req.body.isContractor == 'true' ? true : false)
+        isContractor: (req.body.isContractor === 'true' ? true : false)
     });
     
     userModel.findById(req.user.id).populate('company')
@@ -142,7 +142,7 @@ router.get("/:car_id/edit", middleware.isLoggedIn, function(req, res){
             drivers.push(foundCompany.users[i]);
           }
         }
-        console.log(drivers);
+        console.log(drivers, foundCar);
 
         res.render("cars/update", {drivers:drivers, car: foundCar, user:foundUser});
       });
@@ -158,96 +158,114 @@ router.put("/:car_id/edit", middleware.isLoggedIn, function(req, res){
     licensePlate: req.body.licensePlate,
     model:  req.body.model,
     numberOfSeats: req.body.numberOfSeats,
-    manufactureYear: req.body.manufactureYear,
-    isContractor: (req.body.isContractor == 'true' ? true : false)
+    manufactureYear: req.body.manufactureYear
   };
   
   userModel.findById(req.user.id).populate('company')
-    .exec(function(err, foundUser){
-      if (err) { console.log(err); }
-      
-      companyModel.findById(foundUser.company._id).exec(function(err, company){
-          if (err) { console.log(err); }
-          
-          carModel.findByIdAndUpdate(req.params.car_id, updateCar, function(err, updatedCar){
-              if (err) { console.log(err); }
+  .exec(function(err, foundUser){
+    if (err) { console.log(err); }
+    
+    companyModel.findById(foundUser.company._id).exec(function(err, company){
+        if (err) { console.log(err); }
+        
+        carModel.findByIdAndUpdate(req.params.car_id, updateCar, function(err, updatedCar){
+            if (err) { console.log(err); }
+            
+            console.log("###########################");
+            console.log(updatedCar);
+            console.log("###########################");
+            
+            if(updatedCar.isContractor) {
+              res.redirect("/company/" + company._id + "/cars");
+            } else {
+              var oldDriver = updatedCar.driver;
+              var newDriver = req.body.driverID;
+              console.log("Old and new drivers: ", oldDriver, newDriver);
               
-              console.log("###########################");
-              console.log(updatedCar);
-              console.log("###########################");
+              // If no old and new driver defined
+              if (!oldDriver && (!newDriver && newDriver == 'undefined')) {
+                
+                res.redirect("/company/" + company._id + "/cars");
               
-              if(!updatedCar.driver) {
-                updatedCar.driver = req.body.driverID;
-                updatedCar.save();
-                userModel.findByIdAndUpdate(req.body.driverID, {isAttachedToCar: true}, function(err, updatedNewDriver){
+              // If no old driver defined but new does defined  
+              } else if ( !oldDriver && (newDriver && newDriver != 'undefined') ) {
+                
+                userModel.findById(newDriver, function(err, foundNewDriver){
                   if (err) { console.log(err); }
                   
-                  console.log("###########################");
-                  console.log(updatedNewDriver);
-                  console.log("###########################");
-                  
-                  res.redirect("/company/" + company._id + "/cars");
-                });
-                
-              } else {
-                
-                var oldDriver = updatedCar.driver;
-                var newDriver = req.body.driverID;
-                
-                if (oldDriver != newDriver) {
-                  userModel.findById(oldDriver, function(err, updatedDriver){
-                    if (err) { console.log(err); }
-                    
-                    updatedDriver.isAttachedToCar = false;
-                    updatedDriver.save();
-                    
-                    console.log("###########################");
-                    console.log(updatedDriver);
-                    console.log("###########################");
-                    
+                  // If found user is already attached to car need to detach and reattach to currently updated car. 
+                  if (foundNewDriver.isAttachedToCar) {
                     carModel.findOne({ driver: newDriver }, function(err, foundCarToUpdate){
                       if (err) { console.log(err); }
                       
-                      if (!foundCarToUpdate) { 
-                        userModel.findByIdAndUpdate(newDriver, {isAttachedToCar: true}, function(err, updatedOtherDriver){
-                          if (err) { console.log(err); }
-                          
-                          
-                          updatedCar.driver = updatedOtherDriver;
-                          updatedCar.save();
-                          
-                          console.log("###########################");
-                          console.log(updatedOtherDriver);
-                          console.log("###########################");
-                          
-                          res.redirect("/company/" + company._id + "/cars");
-                        });
-                        
-                      } else {
+                      foundCarToUpdate.driver = undefined;
+                      foundCarToUpdate.save();
+                      updatedCar.driver = foundNewDriver;
+                      updatedCar.save();
                       
+                      res.redirect("/company/" + company._id + "/cars");
+                    });
+                  } else {
+                      foundNewDriver.isAttachedToCar = true;
+                      foundNewDriver.save();
+                      updatedCar.driver = foundNewDriver;
+                      updatedCar.save();
+                      
+                      res.redirect("/company/" + company._id + "/cars");
+                  }
+                });
+                
+              // If old driver defined but new not
+              } else if ( oldDriver && newDriver == 'undefined') {
+                userModel.findById(oldDriver, function(err, foundOldDriver){
+                  if (err) { console.log(err); }
+                  
+                  foundOldDriver.isAttachedToCar = false;
+                  foundOldDriver.save();
+                  updatedCar.driver = undefined;
+                  updatedCar.save();
+                  
+                  res.redirect("/company/" + company._id + "/cars");
+                  
+                });
+              
+              // If both old and new driver defined and new is different than old
+              } else if( (oldDriver && (newDriver || newDriver != 'undefined')) && (oldDriver != newDriver) ) {
+                userModel.findById(oldDriver, function(err, foundOldDriver){
+                  if (err) { console.log(err); }
+                  
+                  foundOldDriver.isAttachedToCar = false;
+                  foundOldDriver.save();
+                  
+                  userModel.findById(newDriver, function(err, foundNewDriver){
+                    if (err) { console.log(err); }
+                  
+                    // If found user is already attached to car need to detach and reattach to currently updated car. 
+                    if (foundNewDriver.isAttachedToCar) {
+                      carModel.findOne({ driver: newDriver }, function(err, foundCarToUpdate){
+                        if (err) { console.log(err); }
+                        
                         foundCarToUpdate.driver = undefined;
                         foundCarToUpdate.save();
+                        updatedCar.driver = foundNewDriver;
+                        updatedCar.save();
                         
-                        userModel.findByIdAndUpdate(newDriver, {isAttachedToCar: true}, function(err, updatedOtherDriver){
-                          if (err) { console.log(err); }
-                          
-                          
-                          updatedCar.driver = updatedOtherDriver;
-                          updatedCar.save();
-                          
-                          console.log("###########################");
-                          console.log(updatedOtherDriver);
-                          console.log("###########################");
-                          
-                          res.redirect("/company/" + company._id + "/cars");
-                        });
-                      }
-                    });
+                        res.redirect("/company/" + company._id + "/cars");
+                      });
+                    } else {
+                        foundNewDriver.isAttachedToCar = true;
+                        foundNewDriver.save();
+                        updatedCar.driver = foundNewDriver;
+                        updatedCar.save();
+                        
+                        res.redirect("/company/" + company._id + "/cars");
+                    }
                   });
-                } else {
-                  res.redirect("/company/" + company._id + "/cars");
-                }
+                });
+              } else {
+                res.redirect("/company/" + company._id + "/cars");
               }
+            }
           });
       });    
   });
@@ -257,29 +275,36 @@ router.put("/:car_id/edit", middleware.isLoggedIn, function(req, res){
 //DELETE - Delete car route
 router.delete("/:id", middleware.isLoggedIn, function(req, res){
   
-  carModel.findById(req.params.id).populate('driver').exec(function(err, foundCar) {
+  carModel.findById(req.params.id, function(err, foundCar) {
     if (err) { console.log(err); }
-    
+
     // If car is not contractor we need to update driver that he is not attached to car
-    if (!foundCar.isContractor) {
-      var driver = {};
-      driver.isAttachedToCar = false;
-      console.log(foundCar.driver);
-      userModel.findByIdAndUpdate(foundCar.driver._id, driver, function(err, updatedUser){
+    if ((foundCar.driver && foundCar.driver != undefined) && !foundCar.isContractor) {
+      carModel.findById(req.params.id).populate('driver').exec(function(err, newFoundCar) {
         if (err) { console.log(err); }
         
-        carModel.findByIdAndRemove(req.params.id, function(err, user){
-          if (err) {
-             console.log(err);
-             res.redirect("back");
-          } else {
-             res.redirect("back");
-          }        
-        }); 
-      });
+        removeCarFromCompanyList(req.user.id, req.params.id);
+        var driver = {};
+        driver.isAttachedToCar = false;
+        console.log(newFoundCar.driver);
+        userModel.findByIdAndUpdate(newFoundCar.driver._id, driver, function(err, updatedUser){
+          if (err) { console.log(err); }
+          
+          carModel.findByIdAndRemove(req.params.id, function(err, user){
+            if (err) {
+               console.log(err);
+               res.redirect("back");
+            } else {
+               res.redirect("back");
+            }        
+          }); 
+        });
+      });  
     } else {
       // Remove company is case no driver attached
-      carModel.findByIdAndRemove(req.params.id, function(err, user){
+      removeCarFromCompanyList(req.user.id, req.params.id);
+      
+      carModel.findByIdAndRemove(req.params.id, function(err, car){
         if (err) {
            console.log(err);
            res.redirect("back");
@@ -290,5 +315,23 @@ router.delete("/:id", middleware.isLoggedIn, function(req, res){
     }
   });
 });
+
+
+function removeCarFromCompanyList(user_id, car_id) {
+  userModel.findById(user_id, function(err, foundUser){
+    if (err) { console.log(err); }
+    
+    companyModel.findById(foundUser.company, function(err, foundCompany){
+      if (err) { console.log(err); }
+      
+      var carIndex = foundCompany.cars.indexOf(car_id);
+      if (carIndex != -1) {
+        foundCompany.cars.splice(carIndex, 1);
+        foundCompany.save();
+      }
+      
+    });
+  });
+}
 
 module.exports = router;

@@ -1,19 +1,16 @@
 @import 'bootstrap/dist/css/rtl/bootstrap.min.css';
-
-/* @import 'bootstrap4/Bootstrap-RTL-4.0.0-alpha.6.1/4.0.0-alpha.6/bootstrap.rtl.min.css'; */
-
 @import 'assets/css/gsdk.css';
 @import 'fontawesome/css/fontawesome_all.css';
 
 /*@import 'https://pro.fontawesome.com/releases/v5.1.0/css/all.css';*/
 
-@import 'https://fonts.googleapis.com/css?family=Roboto:100';
+@import 'https://fonts.googleapis.com/css?family=Varela+Round';
 body {
     /* height: 100%;
     width: 100%; */
     padding: 0;
     margin: 0;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Varela Round', sans-serif;
     color: #666;
     background: #f1f1f1;
     text-align: right;
@@ -104,7 +101,7 @@ body {
 .navbar-nav .dropdown-menu.show {
     max-height: 500px;
     opacity: 1;
-    border-radius: 5px;
+    border-radius: 8px;
 }
 
 .general-wrapper {
@@ -345,6 +342,17 @@ input[type="file"] {
     text-decoration: none;
     /* background-color: #007bff; */
     background-color: #f8f9fa;
+}
+
+.dropdown-item {
+    padding: 0.7em 2em;
+    opacity: 0.8;
+    text-align: center;
+}
+
+.dropdown-item:hover {
+    opacity: 1;
+    background-color: rgba(0,0,0,0.05);
 }
 
 .round-img-sm {
