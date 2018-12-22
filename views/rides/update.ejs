@@ -190,7 +190,7 @@
                     
                 </div>
                 <div class="row align-items-center justify-content-center">
-                    <div class="col-8 alert alert-warning text-center mt-3" role="alert">
+                    <div class="col-11 alert alert-warning text-center mt-3" role="alert">
                       <i class="fal fa-exclamation-triangle"></i>
                       הזהרה! שמירה של עידכון של נסיעה תבטל שיוך רכב לנסיעה זו (אם היה משוייך)
                     </div>
@@ -202,12 +202,18 @@
                         </button>
                     </div>
                     <div class="col-lg-4 mt-2">
+                        <a href="#" class="btn btn-delete btn-round btn-block" onclick="sendDeleteform()"> מחיקה  <i class="fal fa-trash-alt ml-2"></i></a>
+                    </div>
+                    <div class="col-lg-12 mt-2">
                         <a href="/company/<%= user.company._id %>/rides" id="open-form-dialog" class="btn btn-default btn-round btn-block">
                             חזרה 
                         </a>
                     </div>
                 </div>
                 </form>
+                <form  id="deleteForm" action="/company/<%= user.company._id %>/rides/<%= ride._id %>?_method=DELETE" method="POST" class="delete-form" class="display: none">
+	                
+	            </form>
             </div>
         </div>
     </div>
@@ -217,7 +223,12 @@
 <% include ../partials/footer %>
 <script>
     var counter = <%= ride.addresses.length %>;
+    
+    function sendDeleteform() {
+        $('#deleteForm').submit();
+    }
 </script>
 
 <script type="text/javascript" src="/assets/js/rides-update.js"></script>
+
 <% include ../partials/closing_tags %>

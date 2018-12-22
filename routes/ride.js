@@ -244,6 +244,33 @@ router.put("/:ride_id", middleware.isLoggedIn, function(req, res){
   });
 });
 
-
+//DELETE - Delete car route
+router.delete("/:id", middleware.isLoggedIn, function(req, res){
+  
+  rideModel.findById(req.params.id).populate('vendor').exec(function(err, foundRide) {
+    if (err) { console.log(err); }
+    
+    // TODO - add delete ride from calendar and deattach car
+    
+    vendorModel.findById(foundRide.vendor._id, function(err, foundVendor) {
+      if (err) { console.log(err); }
+    
+      var rideIndex = foundVendor.rides.indexOf(req.params.id);
+      if (rideIndex != -1) {
+        foundVendor.rides.splice(rideIndex, 1);
+        foundVendor.save();
+      }
+      
+      rideModel.findByIdAndRemove(req.params.id, function(err, deletedRide) {
+        if (err) {
+          console.log(err);
+          res.redirect("/company/" + foundVendor.company + "/rides");
+        } else {
+          res.redirect("/company/" + foundVendor.company + "/rides");
+        }
+      });
+    });
+  });
+});
 
 module.exports = router;
