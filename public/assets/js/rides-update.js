@@ -13,7 +13,10 @@
             ridePriceBeforeVAT.val((Number(ridePriceAfterVAT.val().split(',').join('')) / 1.17).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
         });
         
-        
+        function sendDeleteform() {
+            $('#deleteForm').submit();
+        }
+            
         setTimeout(function(){
             $('#stops').trigger("stopAddedEvent", ['inputForAddStop']);
         }, 200);

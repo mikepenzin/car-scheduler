@@ -101,18 +101,25 @@ router.post("/", middleware.isLoggedIn, function(req, res){
   
   // TODO - Add ability to use ride contact person if no one is entered.
   
-  for (var i = 0; i < req.body.addresses.stopName.length; i++) {
-    var objectToAdd = {};
-    objectToAdd.stopName = req.body.addresses.stopName[i];
-    objectToAdd.stopAddress = req.body.addresses.stopAddress[i];
-    objectToAdd.contactPerson = req.body.addresses.contactPerson[i];
-    objectToAdd.phoneNumber =  req.body.addresses.phoneNumber[i];
-    objectToAdd.numberOfPeopleToCollect = Number(req.body.addresses.numberOfPeopleToCollect[i]);
-    
-    totalNumberOfPassengers = totalNumberOfPassengers + Number(req.body.addresses.numberOfPeopleToCollect[i]);
-    newRide.addresses.push(objectToAdd);
+  var checkAddresses = req.body.addresses.stopName;
+  if (checkAddresses instanceof Array) {
+    for (var i = 0; i < req.body.addresses.stopName.length; i++) {
+      console.log(req.body.addresses);
+      var objectToAdd = {};
+      objectToAdd.stopName = req.body.addresses.stopName[i];
+      objectToAdd.stopAddress = req.body.addresses.stopAddress[i];
+      objectToAdd.contactPerson = req.body.addresses.contactPerson[i];
+      objectToAdd.phoneNumber =  req.body.addresses.phoneNumber[i];
+      objectToAdd.numberOfPeopleToCollect = Number(req.body.addresses.numberOfPeopleToCollect[i]);
+      
+      totalNumberOfPassengers = totalNumberOfPassengers + Number(req.body.addresses.numberOfPeopleToCollect[i]);
+      newRide.addresses.push(objectToAdd);
+    }
+    newRide.numberOfPassengers = totalNumberOfPassengers;
+  } else {
+    newRide.addresses = req.body.addresses;
+    newRide.numberOfPassengers = Number(req.body.addresses.numberOfPeopleToCollect);
   }
-  newRide.numberOfPassengers = totalNumberOfPassengers;
   
   // Finished - Building new ride object
   
@@ -207,18 +214,24 @@ router.put("/:ride_id", middleware.isLoggedIn, function(req, res){
   
   // TODO - Add ability to use ride contact person if no one is entered.
   
-  for (var i = 0; i < req.body.addresses.stopName.length; i++) {
-    var objectToAdd = {};
-    objectToAdd.stopName = req.body.addresses.stopName[i];
-    objectToAdd.stopAddress = req.body.addresses.stopAddress[i];
-    objectToAdd.contactPerson = req.body.addresses.contactPerson[i];
-    objectToAdd.phoneNumber =  req.body.addresses.phoneNumber[i];
-    objectToAdd.numberOfPeopleToCollect = Number(req.body.addresses.numberOfPeopleToCollect[i]);
-    
-    totalNumberOfPassengers = totalNumberOfPassengers + Number(req.body.addresses.numberOfPeopleToCollect[i]);
-    updatedRide.addresses.push(objectToAdd);
+  var checkAddresses = req.body.addresses.stopName;
+  if (checkAddresses instanceof Array) {
+    for (var i = 0; i < req.body.addresses.stopName.length; i++) {
+      var objectToAdd = {};
+      objectToAdd.stopName = req.body.addresses.stopName[i];
+      objectToAdd.stopAddress = req.body.addresses.stopAddress[i];
+      objectToAdd.contactPerson = req.body.addresses.contactPerson[i];
+      objectToAdd.phoneNumber =  req.body.addresses.phoneNumber[i];
+      objectToAdd.numberOfPeopleToCollect = Number(req.body.addresses.numberOfPeopleToCollect[i]);
+      
+      totalNumberOfPassengers = totalNumberOfPassengers + Number(req.body.addresses.numberOfPeopleToCollect[i]);
+      updatedRide.addresses.push(objectToAdd);
+    }
+    updatedRide.numberOfPassengers = totalNumberOfPassengers;
+  } else {
+    updatedRide.addresses = req.body.addresses;
+    updatedRide.numberOfPassengers = Number(req.body.addresses.numberOfPeopleToCollect);
   }
-  updatedRide.numberOfPassengers = totalNumberOfPassengers;
   
   // Finished - Building new ride object
   
