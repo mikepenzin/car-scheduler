@@ -5,8 +5,6 @@ var userModel       = require('../models/user');
 var rideModel       = require('../models/ride');
 var vendorModel     = require('../models/vendor');
 var middleware      = require('../middleware');
-var values          = require('object.values');
-var keys            = require('object-keys');
 var router          = express.Router();
 
 

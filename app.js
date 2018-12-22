@@ -8,13 +8,14 @@ var express                 = require("express"),
     LocalStrategy           = require("passport-local"),
     cloudinary              = require("cloudinary"),
     User                    = require('./models/user'),
-    flash                   = require('express-flash'),
+    // flash                   = require('express-flash'),
     helmet                  = require('helmet'),
     dotenv                  = require('dotenv'),
-    schedule                = require('node-schedule'),
+    // schedule                = require('node-schedule'),
     // cronJobs                = require('./schedule/index'),
     sslRedirect             = require('heroku-ssl-redirect'),
     cookieParser            = require('cookie-parser'),
+    pjson                   = require('./package.json'),
     // seedData                = require('./seeds/index'),
     app                     = express();
 
@@ -32,6 +33,9 @@ app.use(helmet());
 app.use(sslRedirect(['production']));
 
 // app.use(morgan('tiny'));
+
+// Add version number from package.json
+app.locals.version = pjson.version;
 
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.DATABASEURL);
