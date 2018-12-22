@@ -15,23 +15,23 @@
                         <label for="name">
                             שם חברה
                         </label>
-                        <input type="text" class="form-control" name="name" placeholder="הכנס שם משתמש">
+                        <input type="text" class="form-control" name="name" required placeholder="הכנס שם משתמש">
                         <label for="vendorId">
                             תג זיהוי ספק
                         </label>
-                        <input type="text" readonly="readonly" class="form-control" name="vendorID" value="<%= vendorID %>">
+                        <input type="text" readonly="readonly" class="form-control" required name="vendorID" value="<%= vendorID %>">
                         <label for="personInfo">
                             איש קשר
                         </label>
-                        <input type="text" class="form-control" name="personInfo" placeholder="הכנס איש קשר">
+                        <input type="text" class="form-control" name="personInfo" required placeholder="הכנס איש קשר">
                         <label for="address">
                             כתובת
                         </label>
-                        <input type="text" class="form-control" name="address" placeholder="הכנס כתובת">
+                        <input type="text" class="form-control" name="address" required placeholder="הכנס כתובת">
                         <label for="phoneNumber">
                             טלפון
                         </label>
-                        <input type="text" class="form-control" name="phoneNumber" placeholder="טלפון">
+                        <input type="text" class="form-control" name="phoneNumber" required placeholder="טלפון">
                     </div>
                     <button type="submit" class="btn btn-primary btn-round btn-block">
                         שלח

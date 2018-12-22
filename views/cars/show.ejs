@@ -15,27 +15,27 @@
                         <label for="carName">
                            שם תיאור רכב
                         </label>
-                        <input type="text" class="form-control" name="carName" placeholder="שם תיאור רכב">
+                        <input type="text" class="form-control" required name="carName" placeholder="שם תיאור רכב">
                         <label for="carId">
                             תג זיהוי רכב
                         </label>
-                        <input type="number" readonly="readonly" class="form-control" name="carId" value="<%= carIdNumber %>">
+                        <input type="number" readonly="readonly" required class="form-control" name="carId" value="<%= carIdNumber %>">
                         <label for="licensePlate">
                             מספר רישוי
                         </label>
-                        <input type="text" class="form-control" name="licensePlate" placeholder="מספר רישוי">
+                        <input type="text" class="form-control" required name="licensePlate" placeholder="מספר רישוי">
                         <label for="model">
                             דגם רכב
                         </label>
-                        <input type="text" class="form-control" name="model" placeholder="דגם רכב">
+                        <input type="text" class="form-control" required name="model" placeholder="דגם רכב">
                         <label for="numberOfSeats">
                             מספר מושבים
                         </label>
-                        <input type="number" min="0" max="100" class="form-control" name="numberOfSeats" placeholder="ספר מושבים">
+                        <input type="number" min="0" max="100" required class="form-control" name="numberOfSeats" placeholder="ספר מושבים">
                         <label for="manufactureYear">
                             שנת ייצור
                         </label>
-                        <input type="number" min="0" max="2100" class="form-control" name="manufactureYear" placeholder="שנת ייצור">
+                        <input type="number" min="0" max="2100" required class="form-control" name="manufactureYear" placeholder="שנת ייצור">
                         <label for="isContractor">
                            קבלן חיצוני
                         </label>

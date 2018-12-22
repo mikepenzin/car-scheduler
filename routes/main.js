@@ -20,10 +20,18 @@ router.get("/", middleware.isLoggedIn , function(req, res){
   userModel.findById(req.user.id).populate('company').exec(function(err, foundUser){
     if (err) { console.log(err); }
     
-    console.log(foundUser);
-    res.render("main/main-page", {user: foundUser});
+    if (foundUser != 'driver') {
+      res.render("main/main", {user: foundUser});
+    } else {
+      res.render("main/driver", {user: foundUser});
+    }
+    
   });
     
+});
+
+router.get("/404", function(req, res){
+      res.render("main/404");
 });
 
 

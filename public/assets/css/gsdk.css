@@ -1075,7 +1075,7 @@ fieldset[disabled] .btn-neutral.active {
 .input-group-addon:last-child,
 .input-group-btn:last-child>.dropdown-toggle,
 .input-group-btn:first-child>.btn:not(:first-child) {
-    border-left: 0 none;
+    /*border-left: 0 none;*/
 }
 
 .form-control[disabled],
@@ -1372,7 +1372,7 @@ fieldset[disabled] .form-control {
 .alert {
     border: 0;
     border-radius: 0;
-    color: #FFFFFF;
+    /*color: #FFFFFF;*/
     padding: 10px 15px;
     font-size: 14px;
 }
@@ -1395,21 +1395,21 @@ fieldset[disabled] .form-control {
     top: 70px;
 }
 
-.alert-info {
-    background-color: rgba(91, 202, 255, 0.98);
-}
+/*.alert-info {*/
+/*    background-color: rgba(91, 202, 255, 0.98);*/
+/*}*/
 
-.alert-success {
-    background-color: rgba(76, 217, 100, 0.98);
-}
+/*.alert-success {*/
+/*    background-color: rgba(76, 217, 100, 0.98);*/
+/*}*/
 
-.alert-warning {
-    background-color: rgba(255, 149, 0, 0.98);
-}
+/*.alert-warning {*/
+/*    background-color: rgba(255, 149, 0, 0.98);*/
+/*}*/
 
-.alert-danger {
-    background-color: rgba(255, 76, 64, 0.98);
-}
+/*.alert-danger {*/
+/*    background-color: rgba(255, 76, 64, 0.98);*/
+/*}*/
 
 
 /*           Labels & Progress-bar              */

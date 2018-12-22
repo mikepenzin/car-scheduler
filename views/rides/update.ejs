@@ -1,0 +1,223 @@
+<% include ../partials/header %>
+<% include ../partials/navbar %>
+
+<div class="container-fluid">
+    <div class="container mt-2">
+        <div class="row justify-content-md-center mt-4">
+            <div class="col-12 col-xl-10">
+                <form action="/company/<%= user.company._id %>/rides/<%= ride._id %>?_method=PUT" method="POST" class="card card-body bg-light">
+                    <div class="row card2 card-body2 bg-light9">
+                    
+                    <div class="col-md-6 col-12 left-line">
+                            <div class="form-group">
+                                <label for="name">
+                                    שם נסיעה
+                                </label>
+                                <input type="text" class="form-control" name="name" value="<%= ride.name %>">
+                                <label for="rideID">
+                                    תג זיהוי נסיעה
+                                </label>
+                                <input type="number" readonly="readonly" class="form-control" name="rideID" value="<%= ride.rideID %>">
+                                <label for="personInfo">
+                                    שם איש קשר
+                                </label>
+                                <input type="text" class="form-control" name="personInfo" value="<%= ride.personInfo %>" placeholder=" שם איש קשר">
+                                <label for="phoneNumber">
+                                    טלפון איש קשר
+                                </label>
+                                <input class="form-control input-phone" name="phoneNumber" value="<%= ride.phoneNumber %>" placeholder="0XX-XXX-XXXX">
+                                <label for="rideType">
+                                    סוג נסיעה
+                                </label>
+                                <select readonly id="rideType" name="rideType" class="form-control">
+                                    <option value="<%= ride.rideType %>">
+                                        <% if(ride.rideType == 'regular') { %>
+                                           נסיעה קבוע
+                                        <% } else { %>
+                                            נסיעה חד פעמית
+                                        <% } %>
+                                    </option>
+                                </select>
+                                
+                                <% if(ride.rideType == 'regular') { %>
+                                    <div id="regular-ride-form" class="container">
+                                        <label for="rideStartDate">
+                                            תאריך תחילת הנסיעה
+                                        </label>
+                                        <input class="form-control input-date" id="startDate" name="rideStartDate" value="<%= ride.rideStartDate %>" placeholder="09/09/2018">
+                                        <label for="rideEndDate">
+                                            תאריך סיום הנסיעה
+                                        </label>
+                                        <input class="form-control input-date" id="endDate" name="rideEndDate" value="<%= ride.rideEndDate %>" placeholder="09/09/2019">
+                                        <label for="rideType">
+                                            בחר ימי שבוע לנסיע
+                                        </label>
+                                        <div class="form-control height-auto">
+                                            <input class="form-check-input" type="hidden" name="dayOfWeek[0]" id="inlineCheckbox1" value="0">
+                                            <input class="form-check-input" type="hidden" name="dayOfWeek[1]" id="inlineCheckbox1" value="0">
+                                            <input class="form-check-input" type="hidden" name="dayOfWeek[2]" id="inlineCheckbox1" value="0">
+                                            <input class="form-check-input" type="hidden" name="dayOfWeek[3]" id="inlineCheckbox1" value="0">
+                                            <input class="form-check-input" type="hidden" name="dayOfWeek[4]" id="inlineCheckbox1" value="0">
+                                            <input class="form-check-input" type="hidden" name="dayOfWeek[5]" id="inlineCheckbox1" value="0">
+                                            <input class="form-check-input" type="hidden" name="dayOfWeek[6]" id="inlineCheckbox1" value="0">
+                                            
+                                            <div class="form-check form-check-inline">
+                                              <input class="form-check-input" type="checkbox" name="dayOfWeek[0]" <%= ride.weekDays.indexOf(0) > -1 ? "checked" : "" %> id="inlineCheckbox1" value="1">
+                                              <label class="form-check-label" for="inlineCheckbox1">ראשון</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                              <input class="form-check-input" type="checkbox" name="dayOfWeek[1]" <%= ride.weekDays.indexOf(1) > -1 ? "checked" : "" %> id="inlineCheckbox2" value="1">
+                                              <label class="form-check-label" for="inlineCheckbox2">שני</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                              <input class="form-check-input" type="checkbox" name="dayOfWeek[2]" <%= ride.weekDays.indexOf(2) > -1 ? "checked" : "" %> id="inlineCheckbox3" value="1">
+                                              <label class="form-check-label" for="inlineCheckbox3">שלישי</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                              <input class="form-check-input" type="checkbox" name="dayOfWeek[3]" <%= ride.weekDays.indexOf(3) > -1 ? "checked" : "" %> id="inlineCheckbox1" value="1">
+                                              <label class="form-check-label" for="inlineCheckbox1">רביעי</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                              <input class="form-check-input" type="checkbox" name="dayOfWeek[4]" <%= ride.weekDays.indexOf(4) > -1 ? "checked" : "" %> id="inlineCheckbox2" value="1">
+                                              <label class="form-check-label" for="inlineCheckbox2">חמישי</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                              <input class="form-check-input" type="checkbox" name="dayOfWeek[5]" <%= ride.weekDays.indexOf(5) > -1 ? "checked" : "" %> id="inlineCheckbox3" value="1">
+                                              <label class="form-check-label" for="inlineCheckbox3">שישי</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                              <input class="form-check-input" type="checkbox" name="dayOfWeek[6]" <%= ride.weekDays.indexOf(6) > -1 ? "checked" : "" %> id="inlineCheckbox3" value="1">
+                                              <label class="form-check-label" for="inlineCheckbox3">שבת</label>
+                                            </div>
+                                        </div>
+                                        <label for="startTime">
+                                            שעת תחילת הנסיעה
+                                        </label>
+                                        <input class="form-control input-time" id="time-form" name="startTime" value="<%= ride.startTime %>" placeholder="12:00">
+                                        <label for="endTime">
+                                            שעת סיום הנסיעה
+                                        </label>
+                                        <input class="form-control input-time" id="time-form" name="endTime" value="<%= ride.endTime %>" placeholder="13:30">
+                                    </div>
+                                <% } else { %>
+                                
+                                    <div id="onetime-ride-form" class="container">
+                                        <label for="rideStartDate">
+                                            תאריך הנסיעה
+                                        </label>
+                                        <input class="form-control input-date" id="startDate" name="rideStartDate" value="<%= ride.rideStartDate %>" placeholder="09/09/2018">
+                                        <label for="startTime">
+                                            שעת תחילת הנסיעה
+                                        </label>
+                                        <input class="form-control input-time" id="time-form" name="startTime" value="<%= ride.startTime %>" placeholder="12:00">
+                                        <label for="endTime">
+                                            שעת סיום הנסיעה
+                                        </label>
+                                        <input class="form-control input-time" id="time-form" name="endTime" value="<%= ride.endTime %>" placeholder="13:30">
+                                    </div>
+                                <% } %>
+                                
+                                <label for="vendor">
+                                    ספק
+                                </label>
+                                <select id="vendor" readonly name="vendor" class="form-control">
+                                        <option value="<%= ride.vendor._id %>">
+                                            <%= ride.vendor.name %>
+                                        </option>
+                                </select>
+                                <label for="priceBeforeVAT">
+                                    מחיר נסיעה (לפני מע"מ)
+                                </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">₪</div>
+                                    </div>
+                                    <input class="form-control input-price" id="priceBeforeVAT" value="<%= ride.priceBeforeVAT %>" name="priceBeforeVAT" placeholder="100">
+                                </div>
+                                <label for="priceBeforeVAT">
+                                    מחיר נסיעה (כולל מע"מ)
+                                </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">₪</div>
+                                    </div>
+                                    <input class="form-control input-price" id="priceAfterVAT" name="priceAfterVAT">
+                                </div>
+                               
+                            </div>
+                    </div>
+                    <div class="col-md-6 col-12">
+                        <a href="javascript:void(0)" id="addStop" class="btn btn-default btn-round btn-sm btn-block mt-2 mb-4">
+                            הוסף כתובת איסוף
+                        </a>
+                        <div id="stops">
+                        <% for (var c = 0; c < ride.addresses.length; c++) { %>
+                            <% var counterText = 'stop_' + c; %>
+                            <div id="inputForAddStop">
+                            <div class="text-left" style="margin-top: .5rem;">
+                                תחנה מספר - <%= ride.addresses.length - c %>
+                                <% if(c != ride.addresses.length-1) { %>
+                                    <span id="delete-stop" class="close-stop-item"><i class="fal fa-times-circle"></i></span>
+                                <% } %>    
+                            </div>
+                            <label for="addresses">
+                                שם התחנה
+                            </label>
+                            <input type="text" class="form-control" name="addresses[stopName]" value="<%= ride.addresses[c].stopName %>" placeholder="הכנס שם התחנה">
+                            <label for="addresses">
+                                כתובת תחנה
+                            </label>
+                            <input type="text" class="form-control" name="addresses[stopAddress]" value="<%= ride.addresses[c].stopAddress %>" placeholder="הכנס כתובת התחנה">
+                            <label for="addresses">
+                                איש קשר לתחנה זו
+                            </label>'
+                            <input type="text" class="form-control" name="addresses[contactPerson]" value="<%= ride.addresses[c].contactPerson %>" placeholder="הכנס איש קשר לתחנה">
+                            <label for="addresses">
+                                טלפון   
+                            </label>
+                            <input class="form-control input-stop-phone inputForAddStop" name="addresses[phoneNumber]" value="<%= ride.addresses[c].phoneNumber %>" placeholder="0XX-XXX-XXXX">
+                            <label for="addresses">
+                                כמות אנשים לאיסוף
+                            </label>
+                            <input type="number" class="form-control" name="addresses[numberOfPeopleToCollect]" value="<%= ride.addresses[c].numberOfPeopleToCollect %>" placeholder="כמות אנשים לאיסוף">
+                            </div>
+                            <% if(c != ride.addresses.length-1) { %>
+                                <hr class="mb-4 mt-4">
+                            <% } %>    
+                        <% } %>    
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-8 alert alert-warning text-center mt-3" role="alert">
+                      <i class="fal fa-exclamation-triangle"></i>
+                      הזהרה! שמירה של עידכון של נסיעה תבטל שיוך רכב לנסיעה זו (אם היה משוייך)
+                    </div>
+                </div>
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-lg-8 mt-2">
+                        <button type="submit" class="btn btn-primary btn-round btn-block">
+                            עדכן
+                        </button>
+                    </div>
+                    <div class="col-lg-4 mt-2">
+                        <a href="/company/<%= user.company._id %>/rides" id="open-form-dialog" class="btn btn-default btn-round btn-block">
+                            חזרה 
+                        </a>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<% include ../partials/footer %>
+<script>
+    var counter = <%= ride.addresses.length %>;
+</script>
+
+<script type="text/javascript" src="/assets/js/rides-update.js"></script>
+<% include ../partials/closing_tags %>

@@ -12,27 +12,27 @@
                         <label for="carName">
                            שם תיאור רכב
                         </label>
-                        <input type="text" class="form-control" name="carName" value="<%= car.carName %>">
+                        <input type="text" class="form-control" name="carName" required value="<%= car.carName %>">
                         <label for="carId">
                             תג זיהוי רכב
                         </label>
-                        <input type="number" readonly="readonly" class="form-control" name="carId" value="<%= car.carId %>">
+                        <input type="number" readonly="readonly" class="form-control" required name="carId" value="<%= car.carId %>">
                         <label for="licensePlate">
                             מספר רישוי
                         </label>
-                        <input type="text" class="form-control" name="licensePlate" value="<%= car.licensePlate %>">
+                        <input type="text" class="form-control" name="licensePlate" required value="<%= car.licensePlate %>">
                         <label for="model">
                             דגם רכב
                         </label>
-                        <input type="text" class="form-control" name="model" value="<%= car.model %>" >
+                        <input type="text" class="form-control" name="model" required value="<%= car.model %>" >
                         <label for="numberOfSeats">
                             מספר מושבים
                         </label>
-                        <input type="number" min="0" max="100" class="form-control" name="numberOfSeats" value="<%= car.numberOfSeats %>">
+                        <input type="number" min="0" max="100" class="form-control" required name="numberOfSeats" value="<%= car.numberOfSeats %>">
                         <label for="manufactureYear">
                             שנת ייצור
                         </label>
-                        <input type="number" min="0" max="2100" class="form-control" name="manufactureYear" value="<%= car.manufactureYear %>">
+                        <input type="number" min="0" max="2100" class="form-control" required name="manufactureYear" value="<%= car.manufactureYear %>">
                         <% if (!car.isContractor) { %>
                             <label id="labelForDriverID" for="driverID">
                                 נהג

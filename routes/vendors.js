@@ -141,7 +141,7 @@ router.get("/:id/change-status", function(req, res){
       vendor.currentStatus = vendor.currentStatus == 'enabled' ? vendor.currentStatus = 'disabled' : vendor.currentStatus = 'enabled';
       vendor.save();
       
-      res.redirect("/company/" + vendor.company._id + "/vendors");
+      res.redirect("/company/" + vendor.company + "/vendors");
     });
     
 });

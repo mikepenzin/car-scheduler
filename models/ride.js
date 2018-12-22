@@ -10,18 +10,22 @@ var RideSchema = new mongoose.Schema({
     },
     personInfo: String,
     phoneNumber: String,
-    rideDate: {
-        type: Date, 
-        default: Date.now
-    },
-    startTime: Number,
-    endTime: Number,
+    rideStartDate: String,
+    rideEndDate: String,
+    weekDays: [Number],
+    startTime: String,
+    endTime: String,
     addresses: [{
         stopName: String,
         stopAddress: String,
         numberOfPeopleToCollect: Number,
+        contactPerson: String,
         phoneNumber: String
     }],
+    rideType: {
+      type: String,
+      default: 'onetime'
+    },
     saveForFutureUse: {
         type: Boolean,
         default: true
@@ -42,19 +46,13 @@ var RideSchema = new mongoose.Schema({
         type: String, 
         default: "new"
     },
-    usedCars: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Car"
-        }
-    ],
+    usedCars: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Car"
+    }],
     vendor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Vendor"
-    },
-    company: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Company"
     }
 });
 

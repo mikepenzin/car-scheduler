@@ -38,9 +38,9 @@ mongoose.connect(process.env.DATABASEURL);
 
 
 cloudinary.config({ 
-  cloud_name: 'car-schedule', 
-  api_key: '457762317636678', 
-  api_secret: '14iTIIjyRLdfaVGke5dmb6C3_0c' 
+  cloud_name: process.env.CLOUDINARY_NAME, 
+  api_key: process.env.CLOUDINARY_API, 
+  api_secret: process.env.CLOUDINARY_SECRET 
 });
 
 
@@ -56,7 +56,7 @@ var mainRoutes      = require("./routes/main"),
 
 
 // Configure public folder for static files
-if (app.get('env') === 'production') {
+if (process.env.ENV === 'production') {
     app.use(express.static(__dirname + "/public", { maxAge: 8640000000 }));
 } else {
     app.use(express.static(__dirname + "/public", { maxAge: 0 }));
@@ -107,33 +107,26 @@ passport.deserializeUser(User.deserializeUser());
 // END - Passport configuration
 //=========================
 
-// app.use(cookieParser());
-
-// Configure to use flash
-// app.use(flash());
-
-// app.use(function(req, res, next){
-//     res.locals.currentUser = req.user;
-//     res.locals.success = req.flash('success');
-//     res.locals.error = req.flash('error');
-//     next();
-// });
+app.use(cookieParser());
 
 app.use("/", mainRoutes);
 app.use("/admin", adminRoutes);
 app.use("/company/:id/users", userRoutes);
 app.use("/auth", authRoutes);
-app.use("/company/:id/vendor/:vendor_id/ride", rideRoutes);
+app.use("/company/:id/rides", rideRoutes);
 app.use("/company", companyRoutes);
 app.use("/company/:id/cars", carRoutes);
 app.use("/company/:id/vendors", vendorRoutes);
 
 
+app.get('*', function(req, res){
+   res.redirect('/404');
+});
+
 //=========================
 // Cron jobs configuration
 //=========================
 
-/* istanbul ignore next */
 // if (process.env.NODE_ENV === 'production') {
 //     var monthly = schedule.scheduleJob({hour: 15, minute: 05, date: 1}, function(){
 //         cronJobs.monthly();
@@ -146,8 +139,7 @@ app.use("/company/:id/vendors", vendorRoutes);
 
 
 // Production error handler
-/* istanbul ignore next */ 
-if (app.get('env') === 'production') {
+if (process.env.ENV === 'production') {
   app.use(function(err, req, res, next) {
     console.error(err.stack);
     res.sendStatus(err.status || 500);

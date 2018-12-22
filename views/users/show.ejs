@@ -15,31 +15,31 @@
                         <label for="username">
                             שם משתמש (ת.ז.)
                         </label>
-                        <input type="text" class="form-control" name="username" placeholder="הכנס שם משתמש">
+                        <input type="text" class="form-control" name="username" required placeholder="הכנס שם משתמש">
                         <label for="password">
                             סיסמה
                         </label>
-                        <input type="password" class="form-control" name="password" placeholder="הכנס סיסמה">
+                        <input type="password" class="form-control" name="password" required placeholder="הכנס סיסמה">
                         <label for="personalID">
                             תג זיהוי עובד
                         </label>
-                        <input type="text" readonly="readonly" class="form-control" name="personalID" value="<%= userIdNumber %>">
+                        <input type="text" readonly="readonly" class="form-control" required name="personalID" value="<%= userIdNumber %>">
                         <label for="firstName">
                             שם פרטי
                         </label>
-                        <input type="text" class="form-control" name="firstName" placeholder="הכנס שם פרטי">
+                        <input type="text" class="form-control" name="firstName" required placeholder="הכנס שם פרטי">
                         <label for="lastName">
                             שם משפחה
                         </label>
-                        <input type="text" class="form-control" name="lastName" placeholder="הכנס שם משפחה">
+                        <input type="text" class="form-control" name="lastName" required placeholder="הכנס שם משפחה">
                         <label for="address">
                             כתובת
                         </label>
-                        <input type="text" class="form-control" name="address" placeholder="הכנס כתובת">
+                        <input type="text" class="form-control" name="address" required placeholder="הכנס כתובת">
                         <label for="phoneNumber">
                             מספר טלפון
                         </label>
-                        <input type="text" class="form-control" name="phoneNumber" placeholder="הכנס מספר טלפון">
+                        <input type="text" class="form-control" name="phoneNumber" required placeholder="הכנס מספר טלפון">
                         <label for="role">
                             תפקיד
                         </label>
@@ -61,7 +61,7 @@
         <div class="container mt-3 mb-3">
             <div class="row align-items-center justify-content-center">
                 <% user.company.users.forEach(function(u){ %> 
-                    <a href="/company/<%= user.company._id %>/users/<%= u._id %>">
+                    <!--<a href="/company/<%= user.company._id %>/users/<%= u._id %>">-->
                         <div class="col-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
                             <div class="card">
                                 <div class="card-info">
@@ -103,7 +103,7 @@
                                 </div>
                             </div>
                         </div>
-                    </a>    
+                    <!--</a>    -->
                 <% }); %>
             </div>
         </div>   

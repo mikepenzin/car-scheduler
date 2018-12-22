@@ -12,23 +12,23 @@
                         <label for="name">
                             שם חברה
                         </label>
-                        <input type="text" class="form-control" name="name" value="<%= vendor.name %>">
+                        <input type="text" class="form-control" name="name" required value="<%= vendor.name %>">
                         <label for="vendorId">
                             תג זיהוי ספק
                         </label>
-                        <input type="text" readonly="readonly" class="form-control" name="vendorID" value="<%= vendor.vendorID %>">
+                        <input type="text" readonly="readonly" class="form-control" required name="vendorID" value="<%= vendor.vendorID %>">
                         <label for="personInfo">
                             איש קשר
                         </label>
-                        <input type="text" class="form-control" name="personInfo" value="<%= vendor.personInfo %>">
+                        <input type="text" class="form-control" name="personInfo" required value="<%= vendor.personInfo %>">
                         <label for="address">
                             כתובת
                         </label>
-                        <input type="text" class="form-control" name="address" value="<%= vendor.address %>">
+                        <input type="text" class="form-control" name="address" required value="<%= vendor.address %>">
                         <label for="phoneNumber">
                             טלפון
                         </label>
-                        <input type="text" class="form-control" name="phoneNumber" value="<%= vendor.phoneNumber %>">
+                        <input type="text" class="form-control" name="phoneNumber" required value="<%= vendor.phoneNumber %>">
                     </div>
                     <div class="row align-items-center justify-content-center">
                         <div class="col-lg-8 mt-2">
