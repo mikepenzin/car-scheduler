@@ -1,107 +1,127 @@
 <% include ../partials/header %>
-
 <link type="text/css" href="/main-page-style.css?v=<%= version %>" rel="stylesheet" />
 <% include ../partials/navbar %>
 
     <div class="container mt-5 mb-5">
         <div class="row align-items-center justify-content-center">
-            <div class="col-10 col-sm-10 col-md-6 col-lg-4 col-xl-4">
-                <div class="card">
-                    <div class="card-info">
-                        <div class="media d-flex">
-                            <div class="media-body text-left">
-                                <h3>278</h3>
-                                <span>נסיעות מתחילת החודש</span>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fal fa-pencil-alt azure font-large-2 float-left"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            <div class="col-10 col-sm-10 col-md-6 col-lg-4 col-xl-4">
-                <div class="card">
-                    <div class="card-info">
-                        <div class="media d-flex">
-                            
-                            <div class="media-body text-left">
-                                <h3>278</h3>
-                                <span>New Posts</span>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fal fa-gas-pump orange font-large-2 float-left"></i>
+            <% if (user.company.vendors && user.company.vendors.length > 0) { %>
+                <div class="col-10 col-sm-10 col-md-6 col-lg-4 col-xl-4">
+                    <div class="card">
+                        <div class="card-info">
+                            <div class="media d-flex">
+                                <div class="media-body text-left">
+                                    <h3><%= user.company.vendors.length %></h3>
+                                    <span>
+                                        הספקים הרשומים בחברה
+                                    </span>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fal fa-pencil-alt azure font-large-2 float-left"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-10 col-sm-10 col-md-6 col-lg-4 col-xl-4">
-                <div class="card">
-                    <div class="card-info">
-                        <div class="media d-flex">
-                            <div class="media-body text-left">
-                                <h3>278</h3>
-                                <span>New Posts</span>
+            <% } %>   
+            <% if (carsCounter > 0) { %>
+                <div class="col-10 col-sm-10 col-md-6 col-lg-4 col-xl-4">
+                    <div class="card">
+                        <div class="card-info">
+                            <div class="media d-flex">
+                                <div class="media-body text-left">
+                                    <h3><%= carsCounter %></h3>
+                                    <span>
+                                        רכבים רשומות בחברה
+                                    </span>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fal fa-bus orange font-large-2 float-left"></i>
+                                </div>
                             </div>
-                            <div class="align-self-center">
-                                <i class="fal fa-map-marker-alt pink font-large-2 float-left"></i>
-                            </div>
-                            
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-10 col-sm-10 col-md-6 col-lg-4 col-xl-4">
-                <div class="card">
-                    <div class="card-info">
-                        <div class="media d-flex">
-                            <div class="media-body text-left">
-                                <h3>278</h3>
-                                <span>New Posts</span>
+            <% } %>
+            <% if (contractorCarsCounter > 0) { %>
+                <div class="col-10 col-sm-10 col-md-6 col-lg-4 col-xl-4">
+                    <div class="card">
+                        <div class="card-info">
+                            <div class="media d-flex">
+                                <div class="media-body text-left">
+                                    <h3><%= contractorCarsCounter %></h3>
+                                    <span>
+                                        רכבי קבלן רשומים בחברה
+                                    </span>
+                                </div>
+                                <div class="align-self-center">
+                                    <!--<i class="fal fa-map-marker-alt pink font-large-2 float-left"></i>-->
+                                    <i class="fal fa-taxi pink font-large-2 float-left"></i>
+                                </div>
+                                
                             </div>
-                            <div class="align-self-center">
-                                <i class="fal fa-chart-line salad-color font-large-2 float-left"></i>
-                            </div>
-                           
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-10 col-sm-10 col-md-6 col-lg-4 col-xl-4">
-                <div class="card">
-                    <div class="card-info">
-                        <div class="media d-flex">
-                            <div class="media-body text-left">
-                                <h3>278</h3>
-                                <span>New Posts</span>
+            <% } %>    
+            <% if (totalAmountOFUsers > 0) { %>
+                <div class="col-10 col-sm-10 col-md-6 col-lg-4 col-xl-4">
+                    <div class="card">
+                        <div class="card-info">
+                            <div class="media d-flex">
+                                <div class="media-body text-left">
+                                    <h3><%= totalAmountOFUsers %></h3>
+                                    <span>
+                                        סה"כ עובדים רשומים בחברה
+                                    </span>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fal fal fa-users salad-color font-large-2 float-left"></i>
+                                </div>
+                               
                             </div>
-                            <div class="align-self-center">
-                                <i class="fal fa-chart-pie blue font-large-2 float-left"></i>
-                            </div>
-                            
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-10 col-sm-10 col-md-6 col-lg-4 col-xl-4">
-                <div class="card">
-                    <div class="card-info">
-                        <div class="media d-flex">
-                            <div class="media-body text-left">
-                                <h3>278</h3>
-                                <span>New Posts</span>
+            <% } %>
+            <% if (driversCounter > 0) { %>
+                <div class="col-10 col-sm-10 col-md-6 col-lg-4 col-xl-4">
+                    <div class="card">
+                        <div class="card-info">
+                            <div class="media d-flex">
+                                <div class="media-body text-left">
+                                    <h3><%= driversCounter %></h3>
+                                    <span>
+                                        נהגים בחברה
+                                    </span>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fal fa-user-astronaut blue font-large-2 float-left"></i>
+                                </div>
                             </div>
-                            <div class="align-self-center">
-                                <i class="fal fa-bus purple font-large-2 float-left"></i>
-                            </div>
-                            
                         </div>
                     </div>
                 </div>
-            </div>
+            <% } %>
+            <% if (driversCounter > 0) { %>
+                <div class="col-10 col-sm-10 col-md-6 col-lg-4 col-xl-4">
+                    <div class="card">
+                        <div class="card-info">
+                            <div class="media d-flex">
+                                <div class="media-body text-left">
+                                    <h3><%= totalRides %></h3>
+                                    <span>
+                                        סה"כ נסיות בחברה
+                                    </span>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fal fa-chart-line purple font-large-2 float-left"></i>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
         </div>
     </div>
 

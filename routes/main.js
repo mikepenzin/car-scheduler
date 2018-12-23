@@ -17,17 +17,57 @@ router.use(function timeLog (req, res, next) {
 //root route
 router.get("/", middleware.isLoggedIn , function(req, res){
   
-  userModel.findById(req.user.id).populate('company').exec(function(err, foundUser){
+  userModel.findById(req.user.id).populate({ 
+     path: 'company',
+     populate: {
+       path: 'vendors',
+       model: 'Vendor'
+     }
+  }).exec(function(err, foundUser){
     if (err) { console.log(err); }
     
-    if (foundUser != 'driver') {
-      res.render("main/main", {user: foundUser});
-    } else {
-      res.render("main/driver", {user: foundUser});
+    var driversCounter = 0;
+    var carsCounter = 0;
+    var contractorCarsCounter = 0;
+    var totalRides = 0;
+    
+    for (var t = 0; t < foundUser.company.vendors.length; t++ ) {
+      totalRides += foundUser.company.vendors[t].rides.length;
     }
     
+    userModel.find({company: foundUser.company._id}, function(err, relevantUsers){
+      if (err) { console.log(err); }
+      
+      for(var i = 0; i < relevantUsers.length; i++) {
+        if(relevantUsers[i].role == 'driver') {
+          driversCounter++;
+        }
+      }
+      
+      companyModel.findById(foundUser.company._id).populate('cars').exec(function(err, foundCompany){
+        if (err) { console.log(err); }
+        
+        for(var y = 0; y < foundCompany.cars.length; y++) {
+          if(foundCompany.cars[y].isContractor) {
+            contractorCarsCounter++;
+          } else {
+            carsCounter++;
+          }
+        }
+        
+        if (foundUser.role != 'driver') {
+          res.render("main/main", {user: foundUser, 
+                                   driversCounter: driversCounter, 
+                                   totalAmountOFUsers: relevantUsers.length, 
+                                   carsCounter: carsCounter, 
+                                   contractorCarsCounter:contractorCarsCounter, 
+                                   totalRides:totalRides});
+        } else {
+          res.render("main/driver", {user: foundUser});
+        } 
+      });
+    });
   });
-    
 });
 
 router.get("/404", function(req, res){

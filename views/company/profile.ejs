@@ -1,0 +1,74 @@
+<% include ../partials/header %>
+<% include ../partials/navbar %>
+
+<div class="container-fluid">
+    <div class="container mt-4">
+        <div class="row justify-content-md-center">
+            <div class="col-12 col-md-8 card card-body bg-light">
+                <div class="row justify-content-md-center">
+                    <div class="col-12 col-md-3 mx-auto">
+                        <div class="rounded-circle cover-image mx-auto mb-3" style="background-image: url(<%= company.companyLogo.url %>);">&nbsp;</div>
+                        <a href="/company/<%= user.company._id %>/edit" id="open-form-dialog" class="btn btn-primary btn-round btn-block d-none d-lg-block">
+                            עדכן 
+                        </a>
+ 
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <h3>
+                            <%= company.name %>
+                            <br>
+                            <small><%= company.companyID %></small>
+                        </h3>
+                        <br>
+                        <h5>
+                            כתובת: 
+                            <br>
+                            <small><%= company.address + ', ' + company.city %></small>
+                        </h5>
+                        <h5>
+                            איש קשר: 
+                            <br>
+                            <small><%= company.contactPerson %></small>
+                        </h5>
+                        <h5>
+                            טלפון: 
+                            <br>
+                            <small><%= company.phoneNumber1 %></small>
+                            <br>
+                            <small><%= company.phoneNumber2 %></small>
+                        </h5>
+                    </div>
+                </div>
+                    <div class="row align-items-center justify-content-center mt-5">
+                        <div class="col-lg-4 d-md-block d-lg-none  d-sm-block">
+                            <a href="/company/<%= user.company._id %>/edit" id="open-form-dialog" class="btn btn-primary btn-round btn-block">
+                                עדכן 
+                            </a>
+                        </div>
+                        <div class="col-lg-4 mt-3">
+                            <a href="/" id="open-form-dialog" class="btn btn-default btn-round btn-block">
+                                חזרה 
+                            </a>
+                        </div>
+                    </div>
+             
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer %>
+<script>
+    $('#userPic').on('change',function(){
+      var fileName = document.getElementById("userPic").files[0].name;
+      verifyEnding = fileName.split(".");
+      console.log(fileName);
+      if (verifyEnding[verifyEnding.length-1] === 'jpg' || verifyEnding[verifyEnding.length-1] === 'png' || verifyEnding[verifyEnding.length-1] === 'jpeg') {
+          document.getElementById("company-logo").submit();
+      } else {
+          console.log("Cannot upload file");
+      }
+    });
+</script>
+
+<% include ../partials/closing_tags %>
