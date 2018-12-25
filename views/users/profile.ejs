@@ -14,20 +14,22 @@
  
                     </div>
                     <div class="col-12 col-md-8">
+                        
                         <h3>
                             <%= driver.firstName + ' ' + driver.lastName + " (" + driver.personalID + ")" %>
                             <br>
                             <small><%= driver.username %></small>
                         </h3>
                         <br>
-                        <h5>
+                        <div class="mt-2">
                             כתובת: 
                             <%= driver.address %>
-                        </h5>
-                        <h5>
+                        </div>
+                        <div class="mt-2">
                             טלפון: 
-                            <%= driver.phoneNumber %>
-                        </h5>
+                            <div style="direction: ltr; display: inline-block;"><a href='tel:<%= driver.phoneNumber.replace(/\s/g, '') %>'><%= driver.phoneNumber %></a></div>
+                        </div>
+                        
                     </div>
                 </div>
                     <div class="row align-items-center justify-content-center mt-5">

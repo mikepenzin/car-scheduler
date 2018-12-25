@@ -36,11 +36,11 @@
                         <label for="address">
                             כתובת
                         </label>
-                        <input type="text" class="form-control" name="address" required value="<%= driver.address %>">
+                        <input type="text" class="form-control" id="userAddress" name="address" required value="<%= driver.address %>">
                         <label for="phoneNumber">
                             טלפון
                         </label>
-                        <input type="text" class="form-control" name="phoneNumber" required value="<%= driver.phoneNumber %>">
+                        <input class="form-control input-phone" name="phoneNumber" required value="<%= driver.phoneNumber %>">
                         <label for="role">
                             תפקיד
                         </label>
@@ -76,16 +76,32 @@
 
 <% include ../partials/footer %>
 <script>
-    $('#userPic').on('change',function(){
-      var fileName = document.getElementById("userPic").files[0].name;
-      verifyEnding = fileName.split(".");
-      console.log(fileName);
-      if (verifyEnding[verifyEnding.length-1] === 'jpg' || verifyEnding[verifyEnding.length-1] === 'png' || verifyEnding[verifyEnding.length-1] === 'jpeg') {
-          document.getElementById("company-logo").submit();
-      } else {
-          console.log("Cannot upload file");
-      }
-    });
+    (function ($) {
+        $(document).ready( function() {
+            $('#userPic').on('change',function(){
+              var fileName = document.getElementById("userPic").files[0].name;
+              verifyEnding = fileName.split(".");
+              console.log(fileName);
+              if (verifyEnding[verifyEnding.length-1] === 'jpg' || verifyEnding[verifyEnding.length-1] === 'png' || verifyEnding[verifyEnding.length-1] === 'jpeg') {
+                  document.getElementById("company-logo").submit();
+              } else {
+                  console.log("Cannot upload file");
+              }
+            });
+            
+            setTimeout(function(){
+                places({
+                    appId: "<%= PLACES_APP_ID %>",
+                    apiKey: "<%= PLACES_API_KEY %>",
+                    container: document.querySelector('#userAddress')
+                }).configure({
+                    countries: ['il'],
+                    language: 'he',
+                    style: false
+                });
+            }, 400);
+        });
+    }(jQuery));
 </script>
 
 <% include ../partials/closing_tags %>

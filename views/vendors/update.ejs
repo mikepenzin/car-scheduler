@@ -22,11 +22,11 @@
                         <label for="address">
                             כתובת
                         </label>
-                        <input type="text" class="form-control" name="address" required value="<%= vendor.address %>">
+                        <input type="text" class="form-control" id="vendorAddress" name="address" required value="<%= vendor.address %>">
                         <label for="phoneNumber">
                             טלפון
                         </label>
-                        <input type="text" class="form-control" name="phoneNumber" required value="<%= vendor.phoneNumber %>">
+                        <input class="form-control input-phone" name="phoneNumber" required value="<%= vendor.phoneNumber %>">
                     </div>
                     <div class="row align-items-center justify-content-center">
                         <div class="col-lg-8 mt-2">
@@ -47,4 +47,22 @@
 </div>
 
 <% include ../partials/footer %>
+<script>
+    (function ($) {
+        $(document).ready( function() {
+            setTimeout(function(){
+                places({
+                    appId: "<%= PLACES_APP_ID %>",
+                    apiKey: "<%= PLACES_API_KEY %>",
+                    container: document.querySelector('#vendorAddress')
+                }).configure({
+                    countries: ['il'],
+                    language: 'he',
+                    style: false
+                });
+            }, 400);
+        });
+    }(jQuery));
+</script>
+
 <% include ../partials/closing_tags %>

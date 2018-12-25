@@ -14,29 +14,37 @@
  
                     </div>
                     <div class="col-12 col-md-8">
-                        <h3>
-                            <%= company.name %>
-                            <br>
-                            <small><%= company.companyID %></small>
-                        </h3>
-                        <br>
-                        <h5>
-                            כתובת: 
-                            <br>
-                            <small><%= company.address + ', ' + company.city %></small>
-                        </h5>
-                        <h5>
-                            איש קשר: 
-                            <br>
-                            <small><%= company.contactPerson %></small>
-                        </h5>
-                        <h5>
-                            טלפון: 
-                            <br>
-                            <small><%= company.phoneNumber1 %></small>
-                            <br>
-                            <small><%= company.phoneNumber2 %></small>
-                        </h5>
+                        <div class="media-body text-left">
+                           <h3>
+                               <%= company.name  %>
+                           </h3>
+                           <small>
+                               תג זיהוי:
+                               <%= company.companyID %></small>
+                           <div class="mt-1">
+                               איש קשר: 
+                               <div><small><%= company.contactPerson %></small></div>
+                           </div>
+                           <div class="mt-1">
+                               כתובת: 
+                               <div><small><%= company.address %></small></div>
+                           </div>
+                           <div class="mt-1">
+                               טלפון: 
+                               <div class="input-phone">
+                                   <small> 
+                                    <a href='tel:<%= company.phoneNumber1.replace(/\s/g, '') %>'><%= company.phoneNumber1 %> </a>
+                                   </small>
+                               </div>
+                               <div class="input-phone">
+                                   <small> 
+                                    <a href='tel:<%= company.phoneNumber2.replace(/\s/g, '') %>'><%= company.phoneNumber2 %> </a>
+                                   </small>
+                               </div>
+                           </div>
+                        </div>
+                        
+                     
                     </div>
                 </div>
                     <div class="row align-items-center justify-content-center mt-5">

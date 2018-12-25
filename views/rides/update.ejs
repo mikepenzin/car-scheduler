@@ -167,7 +167,7 @@
                             <label for="addresses">
                                 כתובת תחנה
                             </label>
-                            <input type="text" class="form-control" name="addresses[stopAddress]" value="<%= ride.addresses[c].stopAddress %>" placeholder="הכנס כתובת התחנה">
+                            <input type="text" class="form-control" id="inputForAddStop_<%= c %>" name="addresses[stopAddress]" value="<%= ride.addresses[c].stopAddress %>" placeholder="הכנס כתובת התחנה">
                             <label for="addresses">
                                 איש קשר לתחנה זו
                             </label>'
@@ -223,8 +223,42 @@
 <% include ../partials/footer %>
 <script>
     var counter = <%= ride.addresses.length %>;
+    
+    
 </script>
 
 <script type="text/javascript" src="/assets/js/rides-update.js?v=<%= version %>"></script>
 
+<script>
+    (function ($) {
+        $(document).ready( function() {
+            setTimeout(function(){
+            
+                $('#stops').on("stopAddedEvent", function(event, id){
+                    places({
+                        appId: "<%= PLACES_APP_ID %>",
+                        apiKey: "<%= PLACES_API_KEY %>",
+                        container: document.querySelector('#' + id)
+                    }).configure({
+                        countries: ['il'],
+                        language: 'he',
+                        style: false
+                    });
+                })
+                
+                for (var t = 0; t < counter; t++) {
+                    places({
+                        appId: "<%= PLACES_APP_ID %>",
+                        apiKey: "<%= PLACES_API_KEY %>",
+                        container: document.querySelector('#inputForAddStop_' + t)
+                    }).configure({
+                        countries: ['il'],
+                        language: 'he',
+                        style: false
+                    });
+                }
+            }, 400);
+        });
+    }(jQuery));
+</script>
 <% include ../partials/closing_tags %>

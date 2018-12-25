@@ -35,11 +35,11 @@
                         <label for="address">
                             כתובת
                         </label>
-                        <input type="text" class="form-control" name="address" required placeholder="הכנס כתובת">
+                        <input type="text" class="form-control" id="userAddress" name="address" required placeholder="הכנס כתובת">
                         <label for="phoneNumber">
                             מספר טלפון
                         </label>
-                        <input type="text" class="form-control" name="phoneNumber" required placeholder="הכנס מספר טלפון">
+                        <input class="form-control input-phone" name="phoneNumber" required placeholder="הכנס מספר טלפון">
                         <label for="role">
                             תפקיד
                         </label>
@@ -67,13 +67,17 @@
                                 <div class="card-info">
                                     <div class="media d-flex">
                                         <div class="media-body text-left">
-                                            <h3><%= u.firstName + ' ' + u.lastName %></h3>
+                                            <h3>
+                                                <%= u.firstName + ' ' + u.lastName %>
+                                            </h3>
                                             <small>
                                                 תג זיהוי: 
                                                 <%= u.personalID %>
                                             </small>
                                             
-                                            <div class="mt-2"><%= u.phoneNumber %></div>
+                                            <div class="mt-2 input-phone">
+                                                <a href='tel:<%= u.phoneNumber.replace(/\s/g, '') %>'><%= u.phoneNumber %></a>
+                                            </div>
                                             <% if (u.role == "steward") { %>
                                                 <div>
                                                     סדרן
@@ -94,7 +98,7 @@
                                     </div>
                                     <div class="mt-4 centered-buttons-container">
                                         <a class="btn btn-default btn-round btn-sm mr-2 pl-3 pr-3" href="/company/<%= user.company._id %>/users/<%= u._id %>/edit">עדכון</a>
-                                        <% if (u.role != "steward") { %>
+                                        <% if (user.role == 'steward' && u.role != "steward") { %>
                                             <form action="/company/<%= user.company._id %>/users/<%= u._id %>?_method=DELETE" method="POST" class="delete-form">
                         		                <button class="btn btn-delete btn-round btn-sm pl-3 pr-3"> מחיקה  <i class="fal fa-trash-alt ml-2"></i></button>
                         		            </form>
@@ -121,4 +125,21 @@
 </div>
 
 <% include ../partials/footer %>
+<script>
+    (function ($) {
+        $(document).ready( function() {
+            setTimeout(function(){
+                places({
+                    appId: "<%= PLACES_APP_ID %>",
+                    apiKey: "<%= PLACES_API_KEY %>",
+                    container: document.querySelector('#userAddress')
+                }).configure({
+                    countries: ['il'],
+                    language: 'he',
+                    style: false
+                });
+            }, 400);
+        });
+    }(jQuery));
+</script>
 <% include ../partials/closing_tags %>

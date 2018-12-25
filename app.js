@@ -36,6 +36,8 @@ app.use(sslRedirect(['production']));
 
 // Add version number from package.json
 app.locals.version = pjson.version;
+app.locals.PLACES_APP_ID = process.env.PLACES_APP_ID;
+app.locals.PLACES_API_KEY = process.env.PLACES_API_KEY;
 
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.DATABASEURL);

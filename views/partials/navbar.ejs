@@ -39,12 +39,12 @@
             
         </ul>
         <ul id="left-menu" class="navbar-nav ml-auto">
-            <li class="nav-item justify-content-end">
+            <li class="nav-item d-inline-flex align-content-center">
                 <a class="nav-link img-link" href="/company/<%= user.company._id %>/users/<%= user._id %>">
                     <img src="<%= user.userPic.url %>" class="round-img round-img-sm mr-2" alt=""><%= user.firstName + " " + user.lastName %>
                 </a>
             </li>
-            <li class="nav-item mr-sm-4 justify-content-end">
+            <li class="nav-item mr-sm-4 align-content-center">
                 <a class="btn btn-primary btn-round" href="/auth/logout">יציאה</a>
             </li>
 

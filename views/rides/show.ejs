@@ -172,11 +172,6 @@
             <div class="row mt-3 align-items-center justify-content-center">
                 <div class="col-11 col-lg-8">
                     <div class="form-inline">
-                        <!--<div class="input-group-prepend">-->
-                        <!--    <div class="input-group-text">-->
-                        <!--        <i class="fal fa-search"></i>-->
-                        <!--    </div>-->
-                        <!--</div>-->
                          <select id="search-type" class="form-control col-5 col-md-3" style="height: 40px;">
                             <option value="ride-name" selected>
                               שם נסיעה
@@ -283,4 +278,39 @@
 <% include ../partials/footer %>
 <script type="text/javascript" src="/assets/js/rides-creation.js?v=<%= version %>"></script>
 <script type="text/javascript" src="/assets/js/ride-livesearch.js?v=<%= version %>"></script>
+<script>
+    (function ($) {
+        $(document).ready( function() {
+            setTimeout(function(){
+            
+                $('#stops').on("stopAddedEvent", function(event, id){
+                    places({
+                        appId: "<%= PLACES_APP_ID %>",
+                        apiKey: "<%= PLACES_API_KEY %>",
+                        container: document.querySelector('#' + id)
+                    }).configure({
+                        countries: ['il'],
+                        language: 'he',
+                        style: false
+                    });
+                })
+                
+                places({
+                    appId: "<%= PLACES_APP_ID %>",
+                    apiKey: "<%= PLACES_API_KEY %>",
+                    container: document.querySelector('#inputForAddStop_0')
+                }).configure({
+                    countries: ['il'],
+                    language: 'he',
+                    style: false
+                });
+                  
+                //   placesAutocomplete.on('change', function(e) {
+                //     console.log(e.suggestion.value);
+                //   });
+              
+            }, 400);
+        });
+    }(jQuery));
+</script>
 <% include ../partials/closing_tags %>

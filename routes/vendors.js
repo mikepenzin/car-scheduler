@@ -51,6 +51,7 @@ router.post("/", middleware.isLoggedIn, function(req, res){
       name: req.body.name,
       address: req.body.address,
       vendorID: req.body.vendorID,
+      personInfo: req.body.personInfo,
       phoneNumber: req.body.phoneNumber
   });
   console.log("New vendor: ", newVendor);
@@ -111,10 +112,11 @@ router.get("/:id/edit", middleware.isLoggedIn, function(req, res){
 router.put("/:id/edit", middleware.isLoggedIn, function(req, res){
   var updatedVendor = {
       name: req.body.name,
-      personInfo:  req.body.personInfo,
+      personInfo: req.body.personInfo,
       address: req.body.address,
       phoneNumber: req.body.phoneNumber
   };
+  
   
   vendorModel.findByIdAndUpdate(req.params.id, updatedVendor, function(err, foundVendor){
     if (err) { console.log(err); }
@@ -122,7 +124,7 @@ router.put("/:id/edit", middleware.isLoggedIn, function(req, res){
     userModel.findById(req.user.id).populate('company').exec(function(err, currentUser){
       if (err) { console.log(err); }
       
-      res.render('vendors/update',{user:currentUser, vendor: foundVendor});
+      res.redirect("/company/" + currentUser.company._id + "/vendors");
     });
   });
 });

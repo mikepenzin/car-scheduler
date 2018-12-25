@@ -27,11 +27,11 @@
                         <label for="address">
                             כתובת
                         </label>
-                        <input type="text" class="form-control" name="address" required placeholder="הכנס כתובת">
+                        <input type="text" class="form-control" id="vendorAddress" name="address" required placeholder="הכנס כתובת">
                         <label for="phoneNumber">
                             טלפון
                         </label>
-                        <input type="text" class="form-control" name="phoneNumber" required placeholder="טלפון">
+                        <input class="form-control input-phone" name="phoneNumber" required placeholder="0XX-XXX-XXXX">
                     </div>
                     <button type="submit" class="btn btn-primary btn-round btn-block">
                         שלח
@@ -51,20 +51,27 @@
                                 <div class="media d-flex">
                                     <div class="media-body text-left">
                                        <h3>
-                                           <%= u.name + ' (' + u.vendorID + ')' %>
+                                           <%= u.name  %>
                                        </h3>
-                                       <h6>
+                                       <small>
+                                           תג זיהוי:
+                                           <%= u.vendorID %></small>
+                                       <div>
                                            איש קשר: 
                                            <%= u.personInfo %>
-                                       </h6>
-                                       <h6>
+                                       </div>
+                                       <div>
                                            כתובת: 
-                                           <%= u.address %>
-                                       </h6>
-                                       <h6>
+                                           <div><small><%= u.address %></small></div>
+                                       </div>
+                                       <div>
                                            טלפון: 
-                                           <%= u.phoneNumber %>
-                                       </h6>
+                                           <div class="input-phone">
+                                               <small> 
+                                                <a href='tel:<%= u.phoneNumber.replace(/\s/g, '') %>'><%= u.phoneNumber %> </a>
+                                               </small>
+                                           </div>
+                                       </div>
                                     </div>
                                     <div class="align-self-center">
                                         <i class="fal fa-building azure font-large-2 float-left"></i>
@@ -98,4 +105,22 @@
 </div>
 
 <% include ../partials/footer %>
+<script>
+    (function ($) {
+        $(document).ready( function() {
+            setTimeout(function(){
+                places({
+                    appId: "<%= PLACES_APP_ID %>",
+                    apiKey: "<%= PLACES_API_KEY %>",
+                    container: document.querySelector('#vendorAddress')
+                }).configure({
+                    countries: ['il'],
+                    language: 'he',
+                    style: false
+                });
+            }, 400);
+        });
+    }(jQuery));
+</script>
+
 <% include ../partials/closing_tags %>

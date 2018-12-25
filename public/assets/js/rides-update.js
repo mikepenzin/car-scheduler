@@ -34,7 +34,7 @@
                             + '<label for="addresses">'
                             + 'כתובת תחנה'
                             + '</label>'
-                            + '<input type="text" class="form-control" name="addresses[stopAddress]" placeholder="הכנס כתובת התחנה">'
+                            + '<input type="text" class="form-control" id="inputForAddStop_' + counter + '" name="addresses[stopAddress]" placeholder="הכנס כתובת התחנה">'
                             + '<label for="addresses">'
                             + 'איש קשר לתחנה זו'
                             + '</label>'
