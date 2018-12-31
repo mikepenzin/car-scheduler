@@ -8,7 +8,9 @@ var router          = express.Router();
 
 // middleware that is specific to this router
 router.use(function timeLog (req, res, next) {
-  console.log('Time: ', Date.now().toLocaleString('it-IT'));
+  let d = new Date();
+  let n = d.toLocaleString('it-IT');
+  console.log('Time: ', n);
   next();
 });
 

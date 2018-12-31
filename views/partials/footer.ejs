@@ -6,6 +6,7 @@
     <script type="text/javascript" src="/cleavejs/addons/cleave-phone.il.js?v=<%= version %>"></script>
     <script type="text/javascript" src="/assets/js/form-control.js?v=<%= version %>"></script>
     <script type="text/javascript" src="/algolia-places/places.js"></script>
+    <script type="text/javascript" src="/bootstrap-notify/bootstrap-notify.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(showPage, 2000);
@@ -18,4 +19,56 @@
             }
         }, false);
         
+        
     </script>
+    <% if(error && error.length > 0) { %>
+        <script>
+          $.notify({
+          	// options
+          	icon: 'fal fa-exclamation-triangle',
+          	allow_dismiss: false,
+          	message: '<%= error %>'
+          },{
+          	// settings
+          	type: 'danger',
+          	placement: {
+          		from: "top",
+          		align: "right"
+          	},
+          	offset: 20,
+          	spacing: 0,
+          	z_index: 1031,
+          	delay: 5000,
+          	timer: 1000,
+          	animate: {
+          		enter: 'animated fadeInDown',
+          		exit: 'animated fadeOutUp'
+          	}
+          });
+        </script>
+    <% } else if(success && success.length > 0) { %>
+        <script>
+          $.notify({
+          	// options
+          	icon: 'fal fa-check-circle',
+          	allow_dismiss:false,
+          	message: '<%= success %>' 
+          },{
+          	// settings
+          	type: 'success',
+          	placement: {
+          		from: "top",
+          		align: "right"
+          	},
+          	offset: 20,
+          	spacing: 10,
+          	z_index: 1031,
+          	delay: 5000,
+          	timer: 1000,
+          	animate: {
+          		enter: 'animated fadeInDown',
+          		exit: 'animated fadeOutUp'
+          	}
+          });
+        </script>
+    <% } %>  

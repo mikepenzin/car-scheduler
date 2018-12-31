@@ -8,7 +8,9 @@ var router          = express.Router();
 
 // middleware that is specific to this router
 router.use(function timeLog (req, res, next) {
-  console.log('Time: ', Date.now().toLocaleString('it-IT'));
+  let d = new Date();
+  let n = d.toLocaleString('it-IT');
+  console.log('Time: ', n);
   next();
 });
 
@@ -21,11 +23,11 @@ function dynamicSort(property) {
     return function (a,b) {
         var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
         return result * sortOrder;
-    }
+    };
 }
 
 //GET - General vendors route
-router.get("/", middleware.isLoggedIn, function(req, res){
+router.get("/", middleware.isUserSteward, function(req, res){
   userModel.findById(req.user.id)
   .populate({ 
      path: 'company',
@@ -37,6 +39,8 @@ router.get("/", middleware.isLoggedIn, function(req, res){
     if (err) { console.log(err); }
     
     vendorModel.find({}, function(err, foundVendors){
+      if (err) { console.log(err); }
+      
       foundVendors.sort(dynamicSort('vendorID'));
       
       var vendorID = foundVendors.length > 0 ? (foundVendors[foundVendors.length-1].vendorID + 1) : 10;
@@ -46,7 +50,7 @@ router.get("/", middleware.isLoggedIn, function(req, res){
 });  
 
 //POST - User creation route
-router.post("/", middleware.isLoggedIn, function(req, res){
+router.post("/", middleware.isUserSteward, function(req, res){
   var newVendor = new vendorModel({
       name: req.body.name,
       address: req.body.address,
@@ -82,7 +86,7 @@ router.post("/", middleware.isLoggedIn, function(req, res){
 });
 
 //GET - User card show route
-router.get("/:id", middleware.isLoggedIn, function(req, res){
+router.get("/:id", middleware.isUserSteward, function(req, res){
   userModel.findById(req.params.id, function(err, foundUser){
     if (err) { console.log(err); }
       
@@ -95,7 +99,7 @@ router.get("/:id", middleware.isLoggedIn, function(req, res){
 });
 
 //GET - User update show route
-router.get("/:id/edit", middleware.isLoggedIn, function(req, res){
+router.get("/:id/edit", middleware.isUserSteward, function(req, res){
   
   vendorModel.findById(req.params.id, function(err, foundVendor){
     if (err) { console.log(err); }
@@ -109,7 +113,7 @@ router.get("/:id/edit", middleware.isLoggedIn, function(req, res){
 });
 
 //PUT - User update route
-router.put("/:id/edit", middleware.isLoggedIn, function(req, res){
+router.put("/:id/edit", middleware.isUserSteward, function(req, res){
   var updatedVendor = {
       name: req.body.name,
       personInfo: req.body.personInfo,
@@ -149,7 +153,7 @@ router.get("/:id/change-status", function(req, res){
 });
 
 //DELETE - User route to delete item 
-router.delete("/:id", middleware.isLoggedIn, function(req, res){
+router.delete("/:id", middleware.isUserSteward, function(req, res){
   
   userModel.findById(req.user.id).populate('company').exec(function(err, foundUser){
     if (err) { console.log(err); }

@@ -15,28 +15,35 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto ">
-            <li class="nav-item active">
-                <a class="nav-link" href="/">דף הבית <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      ניהול חברה
+            <% if (user.role == 'steward') { %>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">דף הבית <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          ניהול חברה
+                        </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="/company/<%= user.company._id %>/users">ניהול משתמשים</a>
+                        <a class="dropdown-item" href="/company/<%= user.company._id %>/cars">ניהול רכבים</a>
+                        <a class="dropdown-item" href="/company/<%= user.company._id %>/vendors">ניהול ספקים</a>
+                        <a class="dropdown-item" href="/company/<%= user.company._id %>/rides">ניהול נסיעות</a>
+                        
+                    </div>
+                </li>
+                <li class="nav-item mr-4">
+                    <a class="nav-link" href="#">הפקת דו"חות</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-primary btn-round" href="/company/<%= user.company._id %>/schedule">ניהול סידור עבודה</a>
+                </li>
+            <% } else { %>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">
+                        נסיעות
                     </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                    <a class="dropdown-item" href="/company/<%= user.company._id %>/users">ניהול משתמשים</a>
-                    <a class="dropdown-item" href="/company/<%= user.company._id %>/cars">ניהול רכבים</a>
-                    <a class="dropdown-item" href="/company/<%= user.company._id %>/vendors">ניהול ספקים</a>
-                    <a class="dropdown-item" href="/company/<%= user.company._id %>/rides">ניהול נסיעות</a>
-                    
-                </div>
-            </li>
-            <li class="nav-item mr-4">
-                <a class="nav-link" href="#">הפקת דו"חות</a>
-            </li>
-            <li class="nav-item">
-                <a class="btn btn-primary btn-round" href="#">ניהול סידור עבודה</a>
-            </li>
-            
+                </li>
+            <% } %>
         </ul>
         <ul id="left-menu" class="navbar-nav ml-auto">
             <li class="nav-item d-inline-flex align-content-center">

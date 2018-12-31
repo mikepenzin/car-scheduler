@@ -8,10 +8,11 @@
                 <div class="row justify-content-md-center">
                     <div class="col-12 col-md-3 mx-auto">
                         <div class="rounded-circle cover-image mx-auto mb-3" style="background-image: url(<%= driver.userPic.url %>);">&nbsp;</div>
-                        <a href="/company/<%= user.company._id %>/users/<%= driver._id %>/edit" id="open-form-dialog" class="btn btn-primary btn-round btn-block d-none d-lg-block">
-                            עדכן 
-                        </a>
- 
+                        <% if (user.role == 'steward') { %>
+                            <a href="/company/<%= user.company._id %>/users/<%= driver._id %>/edit" id="open-form-dialog" class="btn btn-primary btn-round btn-block d-none d-lg-block">
+                                עדכן 
+                            </a>
+                        <% } %>
                     </div>
                     <div class="col-12 col-md-8">
                         
@@ -33,13 +34,15 @@
                     </div>
                 </div>
                     <div class="row align-items-center justify-content-center mt-5">
-                        <div class="col-lg-4 d-md-block d-lg-none  d-sm-block">
-                            <a href="/company/<%= user.company._id %>/users/<%= driver._id %>/edit" id="open-form-dialog" class="btn btn-primary btn-round btn-block">
-                                עדכן 
-                            </a>
-                        </div>
+                        <% if (user.role == 'steward') { %>
+                            <div class="col-lg-4 d-md-block d-lg-none  d-sm-block">
+                                <a href="/company/<%= user.company._id %>/users/<%= driver._id %>/edit" id="open-form-dialog" class="btn btn-primary btn-round btn-block">
+                                    עדכן 
+                                </a>
+                            </div>
+                        <% } %>
                         <div class="col-lg-4 mt-3">
-                            <a href="/company/<%= user.company._id %>/users" id="open-form-dialog" class="btn btn-default btn-round btn-block">
+                            <a href="javascript:history.back()" id="open-form-dialog" class="btn btn-default btn-round btn-block">
                                 חזרה 
                             </a>
                         </div>

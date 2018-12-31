@@ -23,7 +23,7 @@
   "homepage": "https://github.com/mikepenzin/car-scheduler#readme",
   "dependencies": {
     "bignum": "^0.13.0",
-    "body-parser": "^1.15.2", 
+    "body-parser": "^1.15.2",
     "cloudinary": "^1.13.2",
     "compression": "^1.7.0",
     "connect-multiparty": "^2.2.0",
@@ -41,6 +41,7 @@
     "heroku-ssl-redirect": "0.0.4",
     "method-override": "^2.3.6",
     "mongoose": "4.10.8",
+    "mongoose-dateonly": "^1.0.6",
     "morgan": "^1.8.2",
     "node-schedule": "^1.2.3",
     "nodemailer": "^4.0.1",

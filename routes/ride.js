@@ -1,6 +1,6 @@
 var express         = require("express");
 var mongoose        = require("mongoose");
-var companyModel    = require('../models/company');
+var DateOnly        = require('mongoose-dateonly')(mongoose);
 var userModel       = require('../models/user');
 var rideModel       = require('../models/ride');
 var vendorModel     = require('../models/vendor');
@@ -10,7 +10,9 @@ var router          = express.Router();
 
 // middleware that is specific to this router
 router.use(function timeLog (req, res, next) {
-  console.log('Time: ', Date.now());
+  let d = new Date();
+  let n = d.toLocaleString('it-IT');
+  console.log('Time: ', n);
   next();
 });
 
@@ -26,10 +28,26 @@ function dynamicSort(property) {
     };
 }
 
+function convertDate(date, backward) {
+  if (!backward) {
+
+    var newDate = date.split('/');
+    return newDate[1] + '/' + newDate[0] + '/' + newDate[2];
+
+  } else {
+
+    var month = (date.month + 1) < 10 ? '0'+(date.month + 1) : (date.month + 1);
+    var rightDate = date.date < 10 ? '0' + date.date : date.date;
+    
+    return rightDate + '/' + month + '/' + date.year; 
+
+  }
+}
+
 // GET - show all rides
-router.get("/", middleware.isLoggedIn, function(req, res){
+router.get("/", middleware.isUserSteward, function(req, res){
   var vendors = [];
-  var rides = [];
+  
   userModel.findById(req.user.id)
   .populate({ 
      path: 'company',
@@ -45,8 +63,14 @@ router.get("/", middleware.isLoggedIn, function(req, res){
         vendors.push(vendor);
       }
     });
-    rideModel.find({}).populate('vendor').exec(function(err, foundRides){
+    
+    rideModel.find({ rideEndDate: { $gte: Date.now() } }).populate('vendor').exec(function(err, foundRides){
       if (err) { console.log(err); }
+      
+      for ( var o = 0; o < foundRides.length; o++ ) {
+          foundRides[o].rideStartDateParsed = convertDate(foundRides[o].rideStartDate, true);
+          foundRides[o].rideEndDateParsed = convertDate(foundRides[o].rideEndDate, true);
+      }
       
       // TODO - need to add ability to show only future rides
       
@@ -59,7 +83,7 @@ router.get("/", middleware.isLoggedIn, function(req, res){
 });
 
 // POST - Create ride route
-router.post("/", middleware.isLoggedIn, function(req, res){
+router.post("/", middleware.isUserSteward, function(req, res){
 
   // Start Buiiding new ride object in order to add to DB
   
@@ -75,13 +99,13 @@ router.post("/", middleware.isLoggedIn, function(req, res){
   // TODO - Add ability to use vendor contact person if no one is entered.
   
   if( newRide.rideType === 'onetime' ) {
-    newRide.rideStartDate = req.body.rideStartDate[1];
-    newRide.rideEndDate = req.body.rideStartDate[1];
+    newRide.rideStartDate = convertDate(req.body.rideStartDate[1], false);
+    newRide.rideEndDate = convertDate(req.body.rideStartDate[1], false);
     newRide.startTime = req.body.startTime[1];
     newRide.endTime = req.body.endTime[1];
   } else {
-    newRide.rideStartDate = req.body.rideStartDate[0];
-    newRide.rideEndDate = req.body.rideEndDate;
+    newRide.rideStartDate = convertDate(req.body.rideStartDate[0], false);
+    newRide.rideEndDate = convertDate(req.body.rideEndDate, false);
     newRide.startTime = req.body.startTime[0];
     newRide.endTime = req.body.endTime[0];
     var dayOfWeek = req.body.dayOfWeek.map(item => (Array.isArray(item) && item[1]) || null);
@@ -154,7 +178,7 @@ router.post("/", middleware.isLoggedIn, function(req, res){
 });
 
 // GET - Show specific ride route
-router.get("/:ride_id", middleware.isLoggedIn, function(req, res){
+router.get("/:ride_id", middleware.isUserSteward, function(req, res){
   userModel.findById(req.user.id)
   .populate({ 
      path: 'company',
@@ -168,32 +192,36 @@ router.get("/:ride_id", middleware.isLoggedIn, function(req, res){
     rideModel.findById(req.params.ride_id).populate('vendor').exec(function(err, foundRide){
       if (err) { console.log(err); }
       
+      foundRide.rideStartDateParsed = convertDate(foundRide.rideStartDate, true);
+      foundRide.rideEndDateParsed = convertDate(foundRide.rideEndDate, true);
+      
       res.render("rides/update", { user: foundUser, ride:foundRide });
     });
   });  
 });
 
 // PUT - ride update route
-router.put("/:ride_id", middleware.isLoggedIn, function(req, res){
+router.put("/:ride_id", middleware.isUserSteward, function(req, res){
   
   // Start Buiiding new ride object in order to add to DB
   var updatedRide = {
       name: req.body.name,
       personInfo: req.body.personInfo,
       phoneNumber: req.body.phoneNumber,
-      priceBeforeVAT: Number(req.body.priceBeforeVAT.split(',').join(''))
+      priceBeforeVAT: Number(req.body.priceBeforeVAT.split(',').join('')),
+      rideType: req.body.rideType
   };
   
   // TODO - Add ability to use vendor contact person if no one is entered.
   
-  if( updatedRide.rideType === 'onetime' ) {
-    updatedRide.rideStartDate = req.body.rideStartDate;
-    updatedRide.rideEndDate = req.body.rideStartDate;
+  if( updatedRide.rideType == 'onetime' ) {
+    updatedRide.rideStartDate = convertDate(req.body.rideStartDate, false);
+    updatedRide.rideEndDate = convertDate(req.body.rideStartDate, false);
     updatedRide.startTime = req.body.startTime;
     updatedRide.endTime = req.body.endTime;
   } else {
-    updatedRide.rideStartDate = req.body.rideStartDate;
-    updatedRide.rideEndDate = req.body.rideEndDate;
+    updatedRide.rideStartDate = convertDate(req.body.rideStartDate, false);
+    updatedRide.rideEndDate = convertDate(req.body.rideStartDate, false);
     updatedRide.startTime = req.body.startTime;
     updatedRide.endTime = req.body.endTime;
     var dayOfWeek = req.body.dayOfWeek.map(item => (Array.isArray(item) && item[1]) || null);
@@ -256,7 +284,7 @@ router.put("/:ride_id", middleware.isLoggedIn, function(req, res){
 });
 
 //DELETE - Delete car route
-router.delete("/:id", middleware.isLoggedIn, function(req, res){
+router.delete("/:id", middleware.isUserSteward, function(req, res){
   
   rideModel.findById(req.params.id).populate('vendor').exec(function(err, foundRide) {
     if (err) { console.log(err); }

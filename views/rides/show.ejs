@@ -209,13 +209,13 @@
                             <div class="col-3 d-none d-lg-block">
                                 <% if (ride.rideType == 'onetime') { %>
                                     <small class="ride-startDate">
-                                    <%= ride.rideStartDate %>
+                                    <%= ride.rideStartDateParsed %>
                                     <br>
                                         <%= ride.startTime %> - <%= ride.endTime %>
                                     </small>
                                 <% } else { %>
                                     <small class="ride-startDate">
-                                    <%= ride.rideStartDate %> - <%= ride.rideEndDate %>
+                                    <%= ride.rideStartDateParsed %> - <%= ride.rideEndDateParsed %>
                                     <br>
                                         <%= ride.startTime %> - <%= ride.endTime %>
                                     </small>

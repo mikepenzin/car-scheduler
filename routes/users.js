@@ -9,7 +9,9 @@ var router          = express.Router();
 
 // middleware that is specific to this router
 router.use(function timeLog (req, res, next) {
-  console.log('Time: ', Date.now().toLocaleString('it-IT'));
+  let d = new Date();
+  let n = d.toLocaleString('it-IT');
+  console.log('Time: ', n);
   next();
 });
 
@@ -24,11 +26,11 @@ function dynamicSort(property) {
     return function (a,b) {
         var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
         return result * sortOrder;
-    }
+    };
 }
 
 //GET - General users route
-router.get("/", middleware.isLoggedIn, function(req, res){
+router.get("/", middleware.isUserSteward, function(req, res){
   userModel.findById(req.user.id)
   .populate({ 
      path: 'company',
@@ -52,7 +54,7 @@ router.get("/", middleware.isLoggedIn, function(req, res){
 });  
 
 //POST - User creation route
-router.post("/", middleware.isLoggedIn, function(req, res){
+router.post("/", middleware.isUserSteward, function(req, res){
   var newUser = new userModel({
       username: req.body.username,
       firstName: req.body.firstName,
@@ -103,7 +105,7 @@ router.get("/:id", middleware.isLoggedIn, function(req, res){
 });
 
 //GET - User update show route
-router.get("/:id/edit", middleware.isLoggedIn, function(req, res){
+router.get("/:id/edit", middleware.isUserSteward, function(req, res){
   userModel.findById(req.params.id, function(err, foundUser){
     if (err) { console.log(err); }
       
@@ -116,7 +118,7 @@ router.get("/:id/edit", middleware.isLoggedIn, function(req, res){
 });
 
 //PUT - User update route
-router.put("/:id/edit", middleware.isLoggedIn, function(req, res){
+router.put("/:id/edit", middleware.isUserSteward, function(req, res){
   var updatedUser = {
       firstName: req.body.firstName,
       lastName:  req.body.lastName,
@@ -136,7 +138,7 @@ router.put("/:id/edit", middleware.isLoggedIn, function(req, res){
 });
 
 //POST - Upload user image
-router.post("/:id/update-photo", multipartMiddleware, middleware.isLoggedIn, function(req, res, next){
+router.post("/:id/update-photo", multipartMiddleware, middleware.isUserSteward, function(req, res, next){
     console.log(req.files);
 		cloudinary.v2.uploader.upload(req.files.userPic.path, function(error, result) {
 		    if (error) { console.log(error); }
@@ -150,7 +152,7 @@ router.post("/:id/update-photo", multipartMiddleware, middleware.isLoggedIn, fun
 });
 
 //DELETE - User route to delete item 
-router.delete("/:id", middleware.isLoggedIn, function(req, res){
+router.delete("/:id", middleware.isUserSteward, function(req, res){
   
   userModel.findById(req.user.id).populate('company').exec(function(err, foundUser){
     if (err) { console.log(err); }

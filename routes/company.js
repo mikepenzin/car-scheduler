@@ -14,7 +14,7 @@ router.use(function timeLog (req, res, next) {
 });
 
 // GET - profile view for company
-router.get("/:id", middleware.isLoggedIn , function(req, res){
+router.get("/:id", middleware.isUserSteward , function(req, res){
   
   userModel.findById(req.user.id).populate('company').exec(function(err, foundUser){
     if (err) { console.log(err); }
@@ -24,7 +24,7 @@ router.get("/:id", middleware.isLoggedIn , function(req, res){
 });
 
 // GET - Update route for company
-router.get("/:id/edit", middleware.isLoggedIn , function(req, res){
+router.get("/:id/edit", middleware.isUserSteward , function(req, res){
   
   userModel.findById(req.user.id).populate('company').exec(function(err, foundUser){
     if (err) { console.log(err); }

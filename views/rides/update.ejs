@@ -1,6 +1,8 @@
 <% include ../partials/header %>
 <% include ../partials/navbar %>
 
+
+
 <div class="container-fluid">
     <div class="container mt-2">
         <div class="row justify-content-md-center mt-4">
@@ -44,11 +46,11 @@
                                         <label for="rideStartDate">
                                             תאריך תחילת הנסיעה
                                         </label>
-                                        <input class="form-control input-date" id="startDate" name="rideStartDate" value="<%= ride.rideStartDate %>" placeholder="09/09/2018">
+                                        <input class="form-control input-date" id="startDate" name="rideStartDate" value="<%= ride.rideStartDateParsed %>" placeholder="09/09/2018">
                                         <label for="rideEndDate">
                                             תאריך סיום הנסיעה
                                         </label>
-                                        <input class="form-control input-date" id="endDate" name="rideEndDate" value="<%= ride.rideEndDate %>" placeholder="09/09/2019">
+                                        <input class="form-control input-date" id="endDate" name="rideEndDate" value="<%= ride.rideEndDateParsed %>" placeholder="09/09/2019">
                                         <label for="rideType">
                                             בחר ימי שבוע לנסיע
                                         </label>
@@ -105,7 +107,7 @@
                                         <label for="rideStartDate">
                                             תאריך הנסיעה
                                         </label>
-                                        <input class="form-control input-date" id="startDate" name="rideStartDate" value="<%= ride.rideStartDate %>" placeholder="09/09/2018">
+                                        <input class="form-control input-date" id="startDate" name="rideStartDate" value="<%= ride.rideStartDateParsed %>" placeholder="09/09/2018">
                                         <label for="startTime">
                                             שעת תחילת הנסיעה
                                         </label>

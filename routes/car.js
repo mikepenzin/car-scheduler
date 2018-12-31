@@ -8,7 +8,9 @@ var router          = express.Router();
 
 // middleware that is specific to this router
 router.use(function timeLog (req, res, next) {
-  console.log('Time: ', Date.now().toLocaleString('it-IT'));
+  let d = new Date();
+  let n = d.toLocaleString('it-IT');
+  console.log('Time: ', n);
   next();
 });
 
@@ -25,7 +27,7 @@ function dynamicSort(property) {
 }
 
 //GET - Show general cars route
-router.get("/", middleware.isLoggedIn, function(req, res){
+router.get("/", middleware.isUserSteward, function(req, res){
   var drivers = [];
   userModel.findById(req.user.id)
   .populate({ 
@@ -72,7 +74,7 @@ router.get("/", middleware.isLoggedIn, function(req, res){
 });
 
 //POST - Add car route
-router.post("/", middleware.isLoggedIn, function(req, res){
+router.post("/", middleware.isUserSteward, function(req, res){
     var newCar = new carModel({
         carName: req.body.carName,
         licensePlate: req.body.licensePlate,
@@ -122,7 +124,7 @@ router.post("/", middleware.isLoggedIn, function(req, res){
 
 
 //GET - Show one car route
-router.get("/:car_id/edit", middleware.isLoggedIn, function(req, res){
+router.get("/:car_id/edit", middleware.isUserSteward, function(req, res){
   console.log(req.params.car_id);
   var drivers = [];
   carModel.findById(req.params.car_id).populate('driver').exec(function(err, foundCar){
@@ -151,7 +153,7 @@ router.get("/:car_id/edit", middleware.isLoggedIn, function(req, res){
 });
 
 //PUT - Update selected car route
-router.put("/:car_id/edit", middleware.isLoggedIn, function(req, res){
+router.put("/:car_id/edit", middleware.isUserSteward, function(req, res){
   
   var updateCar = {
     carName: req.body.carName,
@@ -273,7 +275,7 @@ router.put("/:car_id/edit", middleware.isLoggedIn, function(req, res){
 
 
 //DELETE - Delete car route
-router.delete("/:id", middleware.isLoggedIn, function(req, res){
+router.delete("/:id", middleware.isUserSteward, function(req, res){
   
   carModel.findById(req.params.id, function(err, foundCar) {
     if (err) { console.log(err); }

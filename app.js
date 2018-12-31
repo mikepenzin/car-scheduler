@@ -8,7 +8,7 @@ var express                 = require("express"),
     LocalStrategy           = require("passport-local"),
     cloudinary              = require("cloudinary"),
     User                    = require('./models/user'),
-    // flash                   = require('express-flash'),
+    flash                   = require('express-flash'),
     helmet                  = require('helmet'),
     dotenv                  = require('dotenv'),
     // schedule                = require('node-schedule'),
@@ -54,8 +54,10 @@ cloudinary.config({
 var mainRoutes      = require("./routes/main"),
     adminRoutes     = require("./routes/admin"),
     userRoutes      = require("./routes/users"),
+    driverRoutes    = require("./routes/driver"),
     authRoutes      = require("./routes/auth"),
     rideRoutes      = require("./routes/ride"),
+    scheduleRoutes  = require("./routes/schedule"),
     companyRoutes   = require("./routes/company"),
     carRoutes       = require("./routes/car"),
     vendorRoutes    = require("./routes/vendors");
@@ -76,6 +78,9 @@ app.use(methodOverride("_method"));
 
 //Configure to use body-parser
 app.use(bodyParser.urlencoded({extended: true}));
+
+//app to use flash
+app.use(flash());
 
 app.use(function(req, res, next){
     res.locals.currentUser = req.user;
@@ -113,13 +118,22 @@ passport.deserializeUser(User.deserializeUser());
 // END - Passport configuration
 //=========================
 
+app.use(function(req, res, next){
+    res.locals.currentUser = req.user;
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+});
+
 app.use(cookieParser());
 
 app.use("/", mainRoutes);
 app.use("/admin", adminRoutes);
 app.use("/company/:id/users", userRoutes);
+app.use("/company/:id/driver", driverRoutes);
 app.use("/auth", authRoutes);
 app.use("/company/:id/rides", rideRoutes);
+app.use("/company/:id/schedule", scheduleRoutes);
 app.use("/company", companyRoutes);
 app.use("/company/:id/cars", carRoutes);
 app.use("/company/:id/vendors", vendorRoutes);
