@@ -1,7 +1,6 @@
 var express         = require("express");
 var middleware      = require('../middleware');
-var companyModel    = require('../models/company');
-var userModel       = require('../models/user');
+var db              = require('../models');
 var router          = express.Router();
 
 
@@ -16,7 +15,7 @@ router.use(function timeLog (req, res, next) {
 // GET - profile view for company
 router.get("/:id", middleware.isUserSteward , function(req, res){
   
-  userModel.findById(req.user.id).populate('company').exec(function(err, foundUser){
+  db.User.findById(req.user.id).populate('company').exec(function(err, foundUser){
     if (err) { console.log(err); }
     
     res.render("company/profile", {user: foundUser, company: foundUser.company});
@@ -26,7 +25,7 @@ router.get("/:id", middleware.isUserSteward , function(req, res){
 // GET - Update route for company
 router.get("/:id/edit", middleware.isUserSteward , function(req, res){
   
-  userModel.findById(req.user.id).populate('company').exec(function(err, foundUser){
+  db.User.findById(req.user.id).populate('company').exec(function(err, foundUser){
     if (err) { console.log(err); }
     
     res.render("company/update", {user: foundUser, company: foundUser.company});

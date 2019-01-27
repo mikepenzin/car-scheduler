@@ -1,0 +1,106 @@
+<% include ../partials/header %>
+<% include ../partials/navbar %>
+
+<div class="container-fluid">
+    <div class="justify-content-center mt-4 row">
+        <div class="col-11 independant-card card-body bg-light align-items-center" style="margin-bottom: 25px;" id="<%= ride._id %>">
+            <div class="row align-items-baseline">
+                <div class="col-12 mt-2 text-center">
+                    <h4 class="m-0">
+                    <%= ride.name %>
+                    </h4>
+                </div>
+                <div class="col-12 mt-2">
+                    <strong>
+                    שם נסיעה:
+                    </strong>
+                    <br>
+                    <%= ride.name %>
+                </div>
+                <div class="col-12 mt-2">
+                    <strong>
+                    שעת נסיעה:
+                    </strong>
+                    <br>
+                    <%= ride.startTime + ' - ' + ride.endTime %>
+                </div>
+                <div class="col-12 mt-2">
+                    <strong>
+                        סה"כ נוסעים:
+                    </strong>
+                    <br>
+                    <%= ride.numberOfPassengers %>
+                </div>
+                <div class="col-12 mt-2">
+                    <strong>
+                        סה"כ תחנות:
+                    </strong>
+                    <br>
+                    <%= ride.addresses.length %>
+                </div>
+                <div class="col-12 mt-4 mb-4">
+                    <a href="#" class="btn btn-primary btn-round btn-block"> 
+                      אשר נסיעה
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <h4 class="m-0">
+                    תחנות לנסיעה:
+                    <%= ride.name %>
+                </h4>
+            </div>
+            <% ride.addresses.forEach(function(stop, index) { %>
+                <div class="justify-content-center mt-2 pt-4 row" style="border-top: 1px solid rgba(127,127,127,0.3);">
+                    <div class="col-12 mt-2">
+                            תחנה מספר - 
+                            <%= index+1 %>
+                        <strong>    
+                            <br>
+                             שם תחנה: 
+                        </strong>
+                        <br>
+                        <%= stop.stopName %>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <strong>
+                            כתובת:
+                        </strong>
+                        <br>
+                        <%= stop.stopAddress %>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <strong>
+                        מספר נוסעים: 
+                        </strong>
+                        <br>
+                        <%= stop.numberOfPeopleToCollect %>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <strong>
+                        איש קשר לתחנה זו:
+                        </strong>
+                        <br>
+                        <%= stop.contactPerson %>
+                    </div>
+                    <div class="col-12 d-flex mt-4 mb-2" style="flex-direction: column; width: 100%;">
+                        <a href="tel:<%= stop.phoneNumber.replace(/\s/g, '') %>" class="btn btn-default btn-round btn-block mr-1 mt-2" style="padding: 9px 30px;"><i class="fal fa-phone"></i></a>
+                        <a href="https://www.waze.com/ul?q=<%= stop.stopAddress.replace(/,/g, ' ') %>&navigate=yes" class="btn btn-default btn-round btn-block mt-2" style="padding: 9px 30px;"><i class="fal fa-map-marked-alt"></i></a>
+                    </div>
+                </div>
+            <% }); %>    
+        </div>  
+        <div class="col-11">
+            <a href="javascript:history.back()" class="btn btn-primary btn-round btn-block"> 
+              חזרה
+            </a>
+        </div>
+    </div>
+    </div>
+    <div class="d-block mt-5">
+        
+    </div>
+</div>
+<% include ../partials/footer %>
+<% include ../partials/closing_tags %>

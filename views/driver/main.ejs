@@ -1,82 +1,98 @@
 <% include ../partials/header %>
 <% include ../partials/navbar %>
 
+
+<% var newDate = currentDay.split('/'); %>
+<% var dd = newDate[1] + '/' + newDate[0] + '/' + newDate[2]; %>
+<% var pd = Date.parse(dd); %>
+<% var today = new Date(); %>
+<% todayForParse = (today.getMonth() + 1) + '/' + today.getDate() + '/' + today.getUTCFullYear() %>
+<% var todayParsed = Date.parse(todayForParse) %>
+<% today = today.getDate() + '%2F' + (today.getMonth() + 1) + '%2F' + today.getUTCFullYear() %>
+<% var tomorrow = new Date(pd); %>
+<% tomorrow.setDate(tomorrow.getDate() + 1); %>
+<% tomorrow = tomorrow.getDate() + '%2F' + (tomorrow.getMonth() + 1) + '%2F' + tomorrow.getUTCFullYear(); %>
+<% var yesterday = new Date(pd); %>
+<% yesterday.setDate(yesterday.getDate() - 1); %>
+<% yesterday = yesterday.getDate() + '%2F' + (yesterday.getMonth() + 1) + '%2F' + yesterday.getUTCFullYear(); %>
+<% var isItToday = (todayParsed == pd) %>
+
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-sm-12 col-lg-10">
             <div class="d-flex justify-content-between mt-4 independant-card card-body bg-light">
                 <div class="justify-content-center align-self-center">
-                    <a href="#" class="btn btn-default btn-round"> 
-                       <i class="fal fa-arrow-right"></i>
+                    <a href="?date=<%= yesterday %>" class="btn btn-default btn-round"> 
+                       <i class="fal fa-chevron-right"></i>
                     </a>
                 </div>
                 <div class="mx-auto d-flex align-self-center justify-content-center mb-sm-3 mt-sm-3">
                     <%= currentDay %>
                 </div>
                 <div class="justify-content-center align-self-center">
-                    <a href="#" class="btn btn-default btn-round"> 
-                      <i class="fal fa-arrow-left"></i>
+                    <a href="?date=<%= tomorrow %>" class="btn btn-default btn-round"> 
+                      <i class="fal fa-chevron-left"></i>
                     </a>
                 </div>
             </div>    
         </div>
-       
+        
         <% if (rides.length > 0) { %>
-            <% rides.forEach(function(ride) { %>
+            <% if(!isItToday) { %>
                 <div class="col-sm-12 col-lg-10">
-                    <div class="independant-card card-body bg-light align-items-center" style="margin-bottom: 10px;" id="<%= ride._id %>">
-                        <div class="row align-items-baseline">
-                            <div class="col-3">
-                                שם נסיעה: 
-                                <br class="d-none d-sm-block">
+                    <div class="independant-card card-body bg-light align-items-center" style="margin-bottom: 20px;">
+                            <div class="row align-items-baseline">
+                                <div class="col-12 d-flex justify-content-center">
+                                    <a href="?date=<%= today %>" class="btn btn-default btn-round btn-sm"> 
+                                      עבור לתאריך של היום
+                                    </a>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            <% } %>
+            <% rides.forEach(function(ride, i) { %>
+                <div class="col-sm-12 col-lg-10">
+                    <div class="independant-card card-body bg-light align-items-center" style="margin-bottom: 20px;" id="<%= ride._id %>">
+                        <div class="row align-items-center">
+                            <div class="col-1">
+                                <%= i+1 %>
+                            </div>
+                            <div class="col-4 col-sm-5">
+                                <!--<strong>-->
+                                <!--שם נסיעה:-->
+                                <!--</strong>-->
+                                <!--<br>-->
                                 <%= ride.name %>
                             </div>
-                            <div class="col-4">
-                                שעת נסיעה:
-                                <br class="d-none d-sm-block">
+                            <div class="col-5">
+                                <!--<strong>-->
+                                <!--שעת נסיעה:-->
+                                <!--</strong>-->
+                                <!--<br>-->
                                 <%= ride.startTime + ' - ' + ride.endTime %>
                             </div>
-                            <div class="col-2">
-                                מספר נוסעים: 
-                                <br class="d-none d-sm-block">
-                                <%= ride.numberOfPassengers %>
+                            <div class="col-1 " >
+                                <a href="/company/<%= user.company._id %>/driver/<%= user._id %>/ride/<%= ride._id %>" class=""> 
+                                  <i class="fal fa-chevron-left"></i>
+                                </a>
                             </div>
-                            <div class="col-12 col-md-3 align-self-center">
-                                <a href="#" class="btn btn-primary btn-round btn-only-sm-block mt-2 mt-md-0" style="padding: 9px 30px;"><i class="fal fa-check"></i></a>
-                            </div>
-                            
                         </div>
-                        
-                        <% ride.addresses.forEach(function(stop) { %>
-                            <div class="row align-items-baseline mt-2 pt-2" style="border-top: 1px solid rgba(127,127,127,0.3);">
-                                <div class="col-12 col-md-2">
-                                    שם תחנה: 
-                                    <br class="d-none d-sm-block">
-                                    <%= stop.stopName %>
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    כתובת:
-                                    <br class="d-none d-sm-block">
-                                    <%= stop.stopAddress %>
-                                </div>
-                                <div class="col-12 col-md-2">
-                                    מספר נוסעים: 
-                                    <br class="d-none d-sm-block">
-                                    <%= stop.numberOfPeopleToCollect %>
-                                </div>
-                                <div class="align-self-center col-12 col-md-4">
-                                    
-                                    <a href="tel:<%= stop.phoneNumber.replace(/\s/g, '') %>" class="btn btn-default btn-round btn-only-sm-block mr-1 mt-2 mt-md-0" style="padding: 9px 30px;"><i class="fal fa-phone"></i></a>
-                                    <a href="https://www.waze.com/ul?q=<%= stop.stopAddress.replace(/,/g, ' ') %>&navigate=yes" class="btn btn-default btn-round btn-only-sm-block mt-2 mt-md-0" style="padding: 9px 30px;"><i class="fal fa-map-marked-alt"></i></a>
-                                </div>
-                            </div>
-                        <% }); %>    
                     </div>    
                 </div>
-            <% }); %>
+            <% }) %>    
         <% } else { %>
-            <div class="col-11 col-md-10">
-                <div class="d-flex justify-content-center independant-card card-body bg-light">
+            <div class="col-sm-12 col-lg-10">
+                <div class="justify-content-center independant-card card-body bg-light text-center">
+                    <% if(!isItToday) { %>
+                        <div class="row align-items-baseline">
+                            <div class="col-12 d-flex justify-content-center mb-4">
+                                <a href="?date=<%= today %>" class="btn btn-default btn-round btn-sm"> 
+                                  עבור לתאריך של היום
+                                </a>
+                            </div>
+                        </div>
+                    <% } %>
                     לא נמצאו נסיעות לתאריך זה
                 </div>    
             </div>

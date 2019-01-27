@@ -1,6 +1,5 @@
 var express         = require("express");
-var companyModel    = require('../models/company');
-var userModel       = require('../models/user');
+var db              = require('../models');
 var cloudinary      = require("cloudinary");
 var multipart       = require("connect-multiparty");
 var router          = express.Router();
@@ -23,7 +22,7 @@ router.get("/", function(req, res){
 
 //GET - Companies route
 router.get("/company", function(req, res){
-    companyModel.find({}, function(err, foundCompanies){
+    db.Company.find({}, function(err, foundCompanies){
       if (err) {
         console.log(err);
       }
@@ -43,7 +42,7 @@ router.post("/company", function(req, res){
     newCompany.phoneNumber1 = req.body.phoneNumber1;
     newCompany.phoneNumber2 = req.body.phoneNumber2;
   
-    companyModel.create(newCompany, function(err, company){
+    db.Company.create(newCompany, function(err, company){
       if (err) {
         console.log(err);
       }
@@ -55,7 +54,7 @@ router.post("/company", function(req, res){
 
 //GET - One company route
 router.get("/company/:id/edit", function(req, res){
-    companyModel.findById(req.params.id, function(err, company){
+    db.Company.findById(req.params.id, function(err, company){
       if (err) {
         console.log(err);
       }
@@ -74,7 +73,7 @@ router.put("/company/:id/edit", function(req, res){
     companyUpdate.phoneNumber1 = req.body.phoneNumber1;
     companyUpdate.phoneNumber2 = req.body.phoneNumber2;
 
-    companyModel.findByIdAndUpdate(req.params.id, companyUpdate, function(err, updatedComapny){
+    db.Company.findByIdAndUpdate(req.params.id, companyUpdate, function(err, updatedComapny){
       if(err){
         console.log(err);
         res.redirect("back");
@@ -89,7 +88,7 @@ router.post("/company/:id/update-photo", multipartMiddleware, function(req, res,
 		cloudinary.v2.uploader.upload(req.files.companyLogo.path, function(error, result) {
 		    if (error) { console.log(error); }
       
-        companyModel.findByIdAndUpdate(req.params.id, {companyLogo: result}, function(err, updatedComapny){
+        db.Company.findByIdAndUpdate(req.params.id, {companyLogo: result}, function(err, updatedComapny){
           if(err){ console.log(err); } 
           res.redirect("/admin/company/" + req.params.id + "/edit");
         });
@@ -100,7 +99,7 @@ router.post("/company/:id/update-photo", multipartMiddleware, function(req, res,
 //PUT - Company route to update status 
 router.get("/company/:id/change-status", function(req, res){
     
-    companyModel.findById(req.params.id, function(err, company){
+    db.Company.findById(req.params.id, function(err, company){
       if (err) {
         console.log(err);
       }
@@ -117,7 +116,7 @@ router.get("/company/:id/change-status", function(req, res){
 router.delete("/company/:id", function(req, res){
   
   // Remove company
-  companyModel.findByIdAndRemove(req.params.id, function(err, company){
+  db.Company.findByIdAndRemove(req.params.id, function(err, company){
     if (err) {
        console.log(err);
        res.redirect("/admin/company");
@@ -132,9 +131,9 @@ router.delete("/company/:id", function(req, res){
 //GET - User route
 router.get("/user", function(req, res){
   
-  companyModel.find({}, function(err, foundCompanies){
+  db.Company.find({}, function(err, foundCompanies){
     if(err) { console.log(err) }
-    userModel.find({}).populate('company').exec(function(err, foundUsers){
+    db.User.find({}).populate('company').exec(function(err, foundUsers){
       if(err) { console.log(err) }
       
       res.render("admin/users/show", {companies:foundCompanies, users:foundUsers});
@@ -145,7 +144,7 @@ router.get("/user", function(req, res){
 
 //POST - User route
 router.post("/user", function(req, res){
-    var newUser = new userModel({
+    var newUser = new db.User({
         username: req.body.username,
         firstName: req.body.firstName,
         personalID: req.body.personalID,
@@ -156,13 +155,13 @@ router.post("/user", function(req, res){
     
     console.log("New user: ", newUser);
     
-    userModel.register(newUser, req.body.password, function(err, createdUser){
+    db.User.register(newUser, req.body.password, function(err, createdUser){
         if(err){
             console.log(err);
         } else {
             createdUser.company = req.body.company;
             createdUser.save();
-            companyModel.findById(req.body.company, function(err, foundCompany){
+            db.Company.findById(req.body.company, function(err, foundCompany){
               if (err) { console.log(err); }
               foundCompany.users.push(createdUser);
               foundCompany.save();
@@ -176,9 +175,9 @@ router.post("/user", function(req, res){
 
 //GET - One user profile route
 router.get("/user/:id/edit", function(req, res){
-  companyModel.find({}, function(err, foundCompanies){
+  db.Company.find({}, function(err, foundCompanies){
     if(err) { console.log(err) }
-    userModel.findById(req.params.id).populate('company').exec(function(err, foundUser){
+    db.User.findById(req.params.id).populate('company').exec(function(err, foundUser){
       if (err) {
         console.log(err);
       }
@@ -197,14 +196,14 @@ router.put("/user/:id/edit", function(req, res){
         role: req.body.role
     };
 
-    userModel.findByIdAndUpdate(req.params.id, newUser, function(err, updatedUser){
+    db.User.findByIdAndUpdate(req.params.id, newUser, function(err, updatedUser){
       if(err){
         console.log(err);
         res.redirect("back");
       } else {
         updatedUser.company = req.body.company;
         updatedUser.save();
-        companyModel.findById(req.body.company, function(err, foundCompany){
+        db.Company.findById(req.body.company, function(err, foundCompany){
           if (err) { console.log(err); }
           
           console.log(foundCompany.users.indexOf(updatedUser._id));
@@ -225,7 +224,7 @@ router.post("/user/:id/update-photo", function(req, res, next){
 		cloudinary.v2.uploader.upload(req.files.userPic.path, function(error, result) {
 		    if (error) { console.log(error); }
       
-        userModel.findByIdAndUpdate(req.params.id, {userPic: result}, function(err, updatedUser){
+        db.User.findByIdAndUpdate(req.params.id, {userPic: result}, function(err, updatedUser){
           if(err){ console.log(err); } 
           res.redirect("/admin/user/" + req.params.id + "/edit");
         });
@@ -237,7 +236,7 @@ router.post("/user/:id/update-photo", function(req, res, next){
 router.delete("/user/:id", function(req, res){
   
   // Remove company
-  userModel.findByIdAndRemove(req.params.id, function(err, user){
+  db.User.findByIdAndRemove(req.params.id, function(err, user){
     if (err) {
        console.log(err);
        res.redirect("/admin/user");

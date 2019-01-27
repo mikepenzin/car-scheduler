@@ -1,44 +1,12 @@
 (function ($) {
   $(document).ready( function() {
         var counter = 0;
-        var htmlTemplate = '<div id="inputForAddStop">'
-                        + '<div class="text-left" style="margin-top: .5rem;">'
-                        + 'תחנה מספר - ' + (counter+1)
-                        + '</div>'
-                        + '<label for="addresses">'
-                        + 'שם התחנה'
-                        + '</label>'
-                        + '<input type="text" class="form-control" name="addresses[stopName]" placeholder="הכנס שם התחנה">'
-                        + '<label for="addresses">'
-                        + 'כתובת תחנה'
-                        + '</label>'
-                        + '<input type="text" id="inputForAddStop_' + counter + '" class="form-control" name="addresses[stopAddress]" placeholder="הכנס כתובת התחנה">'
-                        + '<label for="addresses">'
-                        + 'איש קשר לתחנה זו'
-                        + '</label>'
-                        + '<input type="text" class="form-control" name="addresses[contactPerson]" placeholder="הכנס איש קשר לתחנה">'
-                        + '<label for="addresses">'
-                        + 'טלפון'
-                        + '</label>'
-                        + '<input class="form-control input-stop-phone inputForAddStop_' + counter + '" name="addresses[phoneNumber]" placeholder="0XX-XXX-XXXX">'
-                        + '<label for="addresses">'
-                        + 'כמות אנשים לאיסוף'
-                        + '</label>'
-                        + '<input type="number" class="form-control" name="addresses[numberOfPeopleToCollect]" placeholder="כמות אנשים לאיסוף">'
-                        + '</div>'; 
-        
-        $('#stops').prepend(htmlTemplate).show('slow');
-        
-        setTimeout(function(){
-            $('#stops').trigger("stopAddedEvent", ['inputForAddStop_0']);
-        }, 200)
-        counter++;
         
         $(document).on('click', '#addStop', function(e){
              var htmlTemplate = '<div id="inputForAddStop">'
-                            + '<div class="text-left">'
-                            + 'תחנה מספר - ' + (counter+1)
-                            + '<span id="delete-stop" class="close-stop-item"><i class="fal fa-times-circle"></i></span>'
+                            + '<div class="align-items-baseline d-flex justify-content-between lead text-left">'
+                            + 'תחנה ביניים'
+                            + '<span id="delete-stop" class="close-stop-item text-muted h5"><i class="fal fa-times-circle" style="font-size: 1rem;"></i></span>'
                             + '</div>'
                             + '<label for="addresses">'
                             + 'שם התחנה'
@@ -63,7 +31,7 @@
                             + '<hr class="mb-4 mt-4">'
                             + '</div>';
             
-            $('#stops').prepend(htmlTemplate).show('slow').trigger("stopAddedEvent", ['inputForAddStop_' + counter]);
+            $('#stops').append(htmlTemplate).show('slow').trigger("stopAddedEvent", ['inputForAddStop_' + counter]);
             counter++;
             e.preventDefault(); //Prevent default click action which is causing the 
             return false;       //page to scroll back to the top

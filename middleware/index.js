@@ -18,7 +18,7 @@ middlewareObj.isUserDriver = function (req, res, next) {
             res.redirect("back");
         }
     } else {
-        // req.flash("error", "Please login first!");
+        req.flash("error", "אתה מנסה לגשת לדף אינך מורשה להיכנס, היכנס למערכת תחילה!");
         res.redirect("/auth/login");
     }
 };
@@ -32,7 +32,7 @@ middlewareObj.isUserSteward = function (req, res, next) {
             res.redirect("back");
         }
     } else {
-        // req.flash("error", "Please login first!");
+        req.flash("error", "אתה מנסה לגשת לדף אינך מורשה להיכנס, היכנס למערכת תחילה!");
         res.redirect("/auth/login");
     }
 };
@@ -46,7 +46,7 @@ middlewareObj.isUserAdmin = function(req, res,next) {
             res.redirect("back");
         }
     } else {
-        // req.flash("error", "Please login first!");
+        req.flash("error", "אתה מנסה לגשת לדף אינך מורשה להיכנס, היכנס למערכת תחילה!");
         res.redirect("/auth/login");
     }
 };

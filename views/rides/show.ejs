@@ -3,9 +3,9 @@
 
 <div class="container-fluid">
     <% if (vendors.length > 0) { %>
-        <div class="row align-items-center justify-content-center mt-3">
-            <div id="open-form-dialog" class="btn btn-primary btn-round">
-              יצירת רשומת נסיעה חדשה
+        <div class="row align-items-center justify-content-center mt-3 ">
+            <div id="open-form-dialog" class="btn btn-primary btn-round d-print-none">
+              הוספת נסיעה חדשה
             </div>
         </div>
         <div id="form-dialog" class="col-10 col-lg-8 container mt-2 bg-light" style="padding: 1.5rem;">
@@ -13,6 +13,9 @@
                 <div class="row card2 card-body2 bg-light9">
                     
                     <div class="col-md-6 col-12 left-line">
+                            <div class="text-left lead" style="margin-top: .5rem;">
+                                פרטי נסיעה
+                            </div>
                             <div class="form-group">
                                 <label for="name">
                                     שם נסיעה
@@ -34,9 +37,7 @@
                                     סוג נסיעה
                                 </label>
                                 <select id="rideType" name="rideType" class="form-control">
-                                    <option disabled selected value>
-                                        בחר סוג נסיעה
-                                    </option>
+                                    <option selected="true" disabled="disabled"> בחר סוג נסיעה </option>
                                     <option value="regular">
                                         נסיעה קבוע
                                     </option>
@@ -125,6 +126,7 @@
                                     ספק
                                 </label>
                                 <select id="vendor" name="vendor" class="form-control">
+                                    <option selected="true" disabled="disabled"> -- </option>
                                     <% vendors.forEach(function(vendor){ %>
                                         <option value="<%= vendor._id %>">
                                             <%= vendor.name %>
@@ -149,15 +151,58 @@
                                     </div>
                                     <input class="form-control input-price" id="priceAfterVAT" name="priceAfterVAT">
                                 </div>
-                               
+                                <label for="notes">
+                                    הערות
+                                </label>
+                                <textarea class="form-control" rows="5" id="notes" name="notes"></textarea>
                             </div>
                     </div>
                     <div class="col-md-6 col-12">
-                        <a href="javascript:void(0)" id="addStop" class="btn btn-default btn-round btn-sm btn-block mt-2 mb-4">
-                            הוסף כתובת איסוף
-                        </a>
+                        
+                        <div id="inputForAddStop">
+                            <div class="text-left lead" style="margin-top: .5rem;">
+                                תחנת תחילת הנסיעה
+                            </div>
+                            <label for="addresses">
+                                שם התחנה
+                            </label>
+                            <input type="text" class="form-control" name="addresses[stopName]" placeholder="הכנס שם התחנה">
+                            <label for="addresses">
+                                כתובת תחנה  
+                            </label>
+                            <input type="text" id="inputForAddStop_start" class="form-control" name="addresses[stopAddress]" placeholder="הכנס כתובת התחנה">
+                            <label for="addresses">
+                                איש קשר לתחנה זו
+                            </label>
+                            <input type="text" class="form-control" name="addresses[contactPerson]" placeholder="הכנס איש קשר לתחנה">
+                            <label for="addresses">
+                                טלפון
+                            </label>
+                            <input class="form-control input-stop-phone inputForAddStop_start" name="addresses[phoneNumber]" placeholder="0XX-XXX-XXXX">
+                            <label for="addresses">
+                                כמות אנשים לאיסוף
+                            </label>
+                            <input type="number" class="form-control" name="addresses[numberOfPeopleToCollect]" placeholder="כמות אנשים לאיסוף">
+                            <a href="javascript:void(0)" id="addStop" class="btn btn-default btn-round btn-sm btn-block mt-4 mb-4">
+                               הוסף תחנת ביניים
+                            </a>
+                            <hr class="mb-4 mt-4">
+                        </div>
                         <div id="stops">
                                     
+                        </div>
+                        <div id="inputForAddStop">
+                            <div class="text-left lead" style="margin-top: .5rem;">
+                                תחנת יעד הנסיעה
+                            </div>
+                            <label for="addresses">
+                                שם התחנה
+                            </label>
+                            <input type="text" class="form-control" name="addresses[stopName]" placeholder="הכנס שם התחנה">
+                            <label for="addresses">
+                                כתובת תחנה  
+                            </label>
+                            <input type="text" id="inputForAddStop_finish" class="form-control" name="addresses[stopAddress]" placeholder="הכנס כתובת התחנה">
                         </div>
                     </div>
                     
@@ -180,23 +225,67 @@
                               שם ספק
                             </option>
                         </select>
-                        <input class="form-control col-7 col-md-9" id="searchInput" placeholder="הכנס מילות חיפוש">
-                       
+                        <input class="form-control col-7 col-md-9"  id="searchInput" placeholder="הכנס מילות חיפוש">
                     </div>
-                    
+                    <div id="advancedSearchForm" class="col-12 bg-light advancesSearch">
+                        <div class="p-3">
+                            <form action="/company/<%= user.company._id %>/rides" method="GET" style="margin:0;">
+                                <div class="form-group input-group">
+                                    <label for="name">
+                                    סנן נסיעות בתווך תאריכים
+                                    </label>
+                                    <div class="align-items-center form-row justify-content-start">
+                                        
+                                        <div class="col-12 col-md-6 input-group mb-sm-2">
+                                            <label class="col-12 col-md-4 col-sm-5">
+                                                מתאריך
+                                            </label>    
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <div class="today-label">
+                                                      היום    
+                                                    </div>
+                                                    <input type="checkbox" id="fromDate" class="today-checkbox ml-1">
+                                                </div>
+                                            </div>
+                                            <input name="fromDate" class="form-control input-date" placeholder="29/09/2018">
+                                        </div>
+                                        
+                                        <div class="col-12 col-md-6 input-group mb-sm-2">
+                                          <label class="col-12 col-md-4 col-sm-5">
+                                            עד תאריך
+                                          </label>
+                                          <div class="input-group-prepend">
+                                            <div class="input-group-text">
+                                                <div class="today-label">
+                                                    היום    
+                                                </div>
+                                                <input type="checkbox" id="toDate" class="today-checkbox ml-1">
+                                            </div>
+                                          </div>
+                                          <input type="text" name="toDate" class="form-control input-date" placeholder="29/09/2018">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4 mt-5 offset-md-4">
+                                    <button class="btn btn-primary btn-round btn-block">עדכן חיפוש</button>
+                                </div>
+                                
+                            </form>    
+                        </div>
+                    </div>
+                    <div class="col-12 btn btn-default" id="advancedSearch" style="border: none;">
+                        <i class="fal fa-chevron-down"></i>
+                    </div>
                 </div>
             </div>
             <div class="mt-3">
                 <% rides.forEach(function(ride) { %>
-                    <a href="rides/<%= ride._id %>">
                         <div class="row mb-1 card-body bg-light ride-card align-items-start justify-content-center">
-                            <div class="col-1">
-                                <small class="ride-id"><%= ride.rideID %></small>
-                            </div>
-                            <div class="col-3 col-sm-3 col-lg-2">
-                                <span class="ride-name">
+                            <div class="col-4 col-sm-3 col-lg-2 col-print-3">
+                                <strong class="ride-name" style="position: relative; top: -3px;">
                                     <%= ride.name %>
-                                </span>
+                                </strong>
                                 <br>
                                 <small>
                                     <% if(ride.rideType == 'onetime') { %>
@@ -206,52 +295,52 @@
                                     <% } %>
                                 </small>
                             </div>
-                            <div class="col-3 d-none d-lg-block">
+                            <div class="col-3 d-none d-lg-block d-print-flex col-print-3">
                                 <% if (ride.rideType == 'onetime') { %>
                                     <small class="ride-startDate">
                                     <%= ride.rideStartDateParsed %>
                                     <br>
-                                        <%= ride.startTime %> - <%= ride.endTime %>
+                                        <%= ride.startTimeParsed %> - <%= ride.endTimeParsed %>
                                     </small>
                                 <% } else { %>
                                     <small class="ride-startDate">
                                     <%= ride.rideStartDateParsed %> - <%= ride.rideEndDateParsed %>
                                     <br>
-                                        <%= ride.startTime %> - <%= ride.endTime %>
+                                        <%= ride.startTimeParsed %> - <%= ride.endTimeParsed %>
                                     </small>
                                 <% } %>
                             </div>
-                            <div class="col-4 col-sm-4 col-lg-2">
+                            <div class="col-6 col-sm-4 col-lg-2 col-print-2">
                                     <small>
                                     <span class="ride-vendor"><%= ride.vendor.name %></span>
                                     <br>
-                                    
                                         איש קשר - 
-                                        <%= ride.personInfo %> - <div style="direction: ltr;"><%= ride.phoneNumber %></div>
+                                        <%= ride.personInfo %> - 
+                                        <br>
+                                        <div style="direction: ltr;"><a href='tel:<%= ride.phoneNumber.replace(/\s/g, '') %>'><%= ride.phoneNumber %></a></div>
                                     </small>
                             </div>
-                            <div class="col-2 d-none d-lg-block">
-                                    <% if(ride.addresses.length == 1) { %>
-                                        תחנה אחד
-                                    <% } else { %>
-                                        מספר תחנות - 
-                                        <%= ride.addresses.length %>
-                                    <% } %>
-                                    <br>
+                            <div class="col-2 d-none d-lg-block col-print-2">
                                     <small>
                                         סה"כ נוסעים - 
+                                        <br>
                                         <%= ride.numberOfPassengers %>
                                     </small>
                             </div>
-                            <div class="col-3 col-sm-3 col-lg-2">
+                            <div class="col-sm-3 col-lg-2 d-none d-lg-block d-print-flex col-print-2">
                                     <small> 
                                     מחיר לפני מע"מ:
                                     <br>
                                     <%= ride.priceBeforeVAT %> ₪ 
                                     </small>
                             </div>
+                            <div class="align-self-center col-1 d-flex d-print-none">
+                                <a href="rides/<%= ride._id %>"> 
+                                  <i class="fal fa-chevron-left"></i>
+                                </a>
+                            </div>
                         </div>
-                    </a>
+                    <!--</a>-->
                 <% }); %>
             </div>
         
@@ -281,6 +370,26 @@
 <script>
     (function ($) {
         $(document).ready( function() {
+            
+            $(".today-checkbox").change(function() {
+                var dateObj = new Date();
+                var month = dateObj.getUTCMonth() + 1 < 10 ? ("" + dateObj.getUTCMonth() + 1) : dateObj.getUTCMonth() + 1;
+                console.log(month, dateObj.getUTCMonth() + 1)
+                var day = dateObj.getUTCDate() + 1 < 10 ? ("" + dateObj.getUTCDate() + 1) : dateObj.getUTCDate() + 1;
+                var year = dateObj.getUTCFullYear();
+                
+                var newdate = day + "/" + month + "/" + year;
+                
+                var attr = $(this).attr( "id" );
+                
+                if(this.checked) {
+                    $( "input[name='"+ attr +"']" ).val(newdate).attr( "readonly", "readonly" );
+                } else {
+                    $( "input[name='"+ attr +"']" ).removeAttr( "readonly" );
+                }
+                
+            });
+                        
             setTimeout(function(){
             
                 $('#stops').on("stopAddedEvent", function(event, id){
@@ -298,18 +407,30 @@
                 places({
                     appId: "<%= PLACES_APP_ID %>",
                     apiKey: "<%= PLACES_API_KEY %>",
-                    container: document.querySelector('#inputForAddStop_0')
+                    container: document.querySelector('#inputForAddStop_start')
                 }).configure({
                     countries: ['il'],
                     language: 'he',
                     style: false
                 });
-                  
-                //   placesAutocomplete.on('change', function(e) {
-                //     console.log(e.suggestion.value);
-                //   });
-              
+                places({
+                    appId: "<%= PLACES_APP_ID %>",
+                    apiKey: "<%= PLACES_API_KEY %>",
+                    container: document.querySelector('#inputForAddStop_finish')
+                }).configure({
+                    countries: ['il'],
+                    language: 'he',
+                    style: false
+                });
             }, 400);
+            
+            $("#advancedSearch-form").hide();
+            
+            $( "#advancedSearch" ).click(function() {
+              $( "#advancedSearch-form" ).slideToggle( "slow", function() {
+                console.log("Finished!");
+              });
+            });
         });
     }(jQuery));
 </script>

@@ -13,7 +13,7 @@ var companySchema = new mongoose.Schema({
     companyLogo:  {
         url: {
             type: String, 
-            default: "https://car-scheduler-penzin.c9users.io/assets/img/company_logo.png"
+            default: "https://car-scheduler-penzin.c9db.User.s.io/assets/img/company_logo.png"
         }
     },
     address: String,

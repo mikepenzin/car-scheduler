@@ -7,7 +7,7 @@ var express                 = require("express"),
     passport                = require("passport"),
     LocalStrategy           = require("passport-local"),
     cloudinary              = require("cloudinary"),
-    User                    = require('./models/user'),
+    db                      = require("./models"),
     flash                   = require('express-flash'),
     helmet                  = require('helmet'),
     dotenv                  = require('dotenv'),
@@ -38,10 +38,6 @@ app.use(sslRedirect(['production']));
 app.locals.version = pjson.version;
 app.locals.PLACES_APP_ID = process.env.PLACES_APP_ID;
 app.locals.PLACES_API_KEY = process.env.PLACES_API_KEY;
-
-mongoose.Promise = global.Promise;
-mongoose.connect(process.env.DATABASEURL);
-
 
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_NAME, 
@@ -110,9 +106,9 @@ app.use(require("express-session")({
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+passport.use(new LocalStrategy(db.User.authenticate()));
+passport.serializeUser(db.User.serializeUser());
+passport.deserializeUser(db.User.deserializeUser());
 
 //=========================
 // END - Passport configuration

@@ -1,9 +1,5 @@
 var express         = require("express");
-var mongoose        = require("mongoose");
-var DateOnly        = require('mongoose-dateonly')(mongoose);
-var userModel       = require('../models/user');
-var rideModel       = require('../models/ride');
-var vendorModel     = require('../models/vendor');
+var db              = require('../models');
 var middleware      = require('../middleware');
 var router          = express.Router();
 
@@ -44,11 +40,27 @@ function convertDate(date, backward) {
   }
 }
 
+function converTimeToString(time) {
+  var timeString;
+  if (time < 60 && time >= 10) {
+      timeString = "00" + time;
+  } else if(time < 10) {
+      timeString = "000" + time;
+  } else if (time.toString().length < 4) {
+      timeString = "0" + time;
+  } else {
+      timeString = time.toString();
+  }
+  
+  timeString = [timeString.slice(0, 2), ':', timeString.slice(2)].join('');
+  return timeString;
+}
+
 // GET - show all rides
 router.get("/", middleware.isUserSteward, function(req, res){
   var vendors = [];
   
-  userModel.findById(req.user.id)
+  db.User.findById(req.user.id)
   .populate({ 
      path: 'company',
      populate: {
@@ -64,20 +76,21 @@ router.get("/", middleware.isUserSteward, function(req, res){
       }
     });
     
-    rideModel.find({ rideEndDate: { $gte: Date.now() } }).populate('vendor').exec(function(err, foundRides){
+    // rideEndDate: { $gte: Date.now() } 
+    db.Ride.find({}).sort({rideID: 1}).populate('vendor').exec(function(err, foundRides){
       if (err) { console.log(err); }
       
       for ( var o = 0; o < foundRides.length; o++ ) {
           foundRides[o].rideStartDateParsed = convertDate(foundRides[o].rideStartDate, true);
           foundRides[o].rideEndDateParsed = convertDate(foundRides[o].rideEndDate, true);
+          foundRides[o].startTimeParsed = converTimeToString(foundRides[o].startTime);
+          foundRides[o].endTimeParsed = converTimeToString(foundRides[o].endTime);
       }
-      
+  
       // TODO - need to add ability to show only future rides
-      
-      if (foundRides) { foundRides.sort(dynamicSort('rideID')); }
       var rideID = foundRides.length > 0 ? (foundRides[foundRides.length-1].rideID + 1) : 10;
-        
-      res.render("rides/show", { user: foundUser, vendors:vendors, rides:foundRides, rideID : rideID });
+      
+      res.render("rides/show", { user: foundUser, vendors:vendors, rides:foundRides.sort(dynamicSort('-rideID')), rideID : rideID });
     });
   });
 });
@@ -86,14 +99,14 @@ router.get("/", middleware.isUserSteward, function(req, res){
 router.post("/", middleware.isUserSteward, function(req, res){
 
   // Start Buiiding new ride object in order to add to DB
-  
-  var newRide = new rideModel({
-      name: req.body.name,
-      rideID: req.body.rideID,
-      personInfo: req.body.personInfo,
-      phoneNumber: req.body.phoneNumber,
-      rideType: req.body.rideType,
-      priceBeforeVAT: Number(req.body.priceBeforeVAT.split(',').join(''))
+  var newRide = new db.Ride({
+    name: req.body.name,
+    rideID: req.body.rideID,
+    personInfo: req.body.personInfo,
+    phoneNumber: req.body.phoneNumber,
+    rideType: req.body.rideType,
+    priceBeforeVAT: Number(req.body.priceBeforeVAT.split(',').join('')),
+    notes: req.body.notes.replace(/(?:\r\n|\r|\n)/g, '\n')
   });
   
   // TODO - Add ability to use vendor contact person if no one is entered.
@@ -101,13 +114,13 @@ router.post("/", middleware.isUserSteward, function(req, res){
   if( newRide.rideType === 'onetime' ) {
     newRide.rideStartDate = convertDate(req.body.rideStartDate[1], false);
     newRide.rideEndDate = convertDate(req.body.rideStartDate[1], false);
-    newRide.startTime = req.body.startTime[1];
-    newRide.endTime = req.body.endTime[1];
+    newRide.startTime = Number(req.body.startTime[1].replace(':', ''));
+    newRide.endTime = Number(req.body.endTime[1].replace(':', ''));
   } else {
     newRide.rideStartDate = convertDate(req.body.rideStartDate[0], false);
     newRide.rideEndDate = convertDate(req.body.rideEndDate, false);
-    newRide.startTime = req.body.startTime[0];
-    newRide.endTime = req.body.endTime[0];
+    newRide.startTime = Number(req.body.startTime[0].replace(':', ''));
+    newRide.endTime = Number(req.body.endTime[0].replace(':', ''));
     var dayOfWeek = req.body.dayOfWeek.map(item => (Array.isArray(item) && item[1]) || null);
     var weekDays = [];
     
@@ -123,29 +136,42 @@ router.post("/", middleware.isUserSteward, function(req, res){
   
   // TODO - Add ability to use ride contact person if no one is entered.
   
-  var checkAddresses = req.body.addresses.stopName;
-  if (checkAddresses instanceof Array) {
-    for (var i = 0; i < req.body.addresses.stopName.length; i++) {
-      console.log(req.body.addresses);
-      var objectToAdd = {};
+  var checkAddresses = req.body.addresses.stopName.length;
+  
+  for (var i = 0; i < checkAddresses-1; i++) {
+    var objectToAdd = {};
+    if(checkAddresses == 2 && i == 0) {
+      objectToAdd.stopName = req.body.addresses.stopName[i];
+      objectToAdd.stopAddress = req.body.addresses.stopAddress[i];
+      objectToAdd.contactPerson = req.body.addresses.contactPerson;
+      objectToAdd.phoneNumber =  req.body.addresses.phoneNumber;
+      objectToAdd.numberOfPeopleToCollect = Number(req.body.addresses.numberOfPeopleToCollect);
+    } else {
       objectToAdd.stopName = req.body.addresses.stopName[i];
       objectToAdd.stopAddress = req.body.addresses.stopAddress[i];
       objectToAdd.contactPerson = req.body.addresses.contactPerson[i];
       objectToAdd.phoneNumber =  req.body.addresses.phoneNumber[i];
       objectToAdd.numberOfPeopleToCollect = Number(req.body.addresses.numberOfPeopleToCollect[i]);
-      
-      totalNumberOfPassengers = totalNumberOfPassengers + Number(req.body.addresses.numberOfPeopleToCollect[i]);
-      newRide.addresses.push(objectToAdd);
-    }
-    newRide.numberOfPassengers = totalNumberOfPassengers;
-  } else {
-    newRide.addresses = req.body.addresses;
-    newRide.numberOfPassengers = Number(req.body.addresses.numberOfPeopleToCollect);
+    }  
+  
+    totalNumberOfPassengers = totalNumberOfPassengers + objectToAdd.numberOfPeopleToCollect;
+    newRide.addresses.push(objectToAdd);
   }
+  
+  var lastAddressObject = {};
+  lastAddressObject.stopName = req.body.addresses.stopName[req.body.addresses.stopName.length-1];
+  lastAddressObject.stopAddress = req.body.addresses.stopAddress[req.body.addresses.stopName.length-1];
+  lastAddressObject.contactPerson = req.body.personInfo;
+  lastAddressObject.phoneNumber =  req.body.phoneNumber;
+  lastAddressObject.numberOfPeopleToCollect = 0;
+  
+  newRide.addresses.push(lastAddressObject);
+  
+  newRide.numberOfPassengers = totalNumberOfPassengers;
   
   // Finished - Building new ride object
   
-  userModel.findById(req.user.id)
+  db.User.findById(req.user.id)
   .populate({ 
      path: 'company',
      populate: {
@@ -155,12 +181,12 @@ router.post("/", middleware.isUserSteward, function(req, res){
   }).exec(function(err, foundUser){
     if (err) { console.log(err); }
     
-    rideModel.create(newRide, function(err, createdRide) {
+    db.Ride.create(newRide, function(err, createdRide) {
       if (err) { console.log(err); }
       
-      console.log('New ride ' + createdRide.name + '(' + createdRide.rideID + ') was created');
+      console.log('New ride ' + createdRide.name + ' - ' + createdRide.rideID + ' was created');
       
-      vendorModel.findById(req.body.vendor, function(err, foundVendor){
+      db.Vendor.findById(req.body.vendor, function(err, foundVendor){
         if (err) { console.log(err); }
         
         createdRide.vendor = foundVendor;
@@ -179,7 +205,7 @@ router.post("/", middleware.isUserSteward, function(req, res){
 
 // GET - Show specific ride route
 router.get("/:ride_id", middleware.isUserSteward, function(req, res){
-  userModel.findById(req.user.id)
+  db.User.findById(req.user.id)
   .populate({ 
      path: 'company',
      populate: {
@@ -189,11 +215,13 @@ router.get("/:ride_id", middleware.isUserSteward, function(req, res){
   }).exec(function(err, foundUser){
     if (err) { console.log(err); }
     
-    rideModel.findById(req.params.ride_id).populate('vendor').exec(function(err, foundRide){
+    db.Ride.findById(req.params.ride_id).populate('vendor').exec(function(err, foundRide){
       if (err) { console.log(err); }
       
       foundRide.rideStartDateParsed = convertDate(foundRide.rideStartDate, true);
       foundRide.rideEndDateParsed = convertDate(foundRide.rideEndDate, true);
+      foundRide.startTimeParsed = converTimeToString(foundRide.startTime);
+      foundRide.endTimeParsed = converTimeToString(foundRide.endTime);
       
       res.render("rides/update", { user: foundUser, ride:foundRide });
     });
@@ -209,21 +237,20 @@ router.put("/:ride_id", middleware.isUserSteward, function(req, res){
       personInfo: req.body.personInfo,
       phoneNumber: req.body.phoneNumber,
       priceBeforeVAT: Number(req.body.priceBeforeVAT.split(',').join('')),
-      rideType: req.body.rideType
+      rideType: req.body.rideType,
+      notes: req.body.notes.replace(/(?:\r\n|\r|\n)/g, '\n')
   };
   
   // TODO - Add ability to use vendor contact person if no one is entered.
-  
-  if( updatedRide.rideType == 'onetime' ) {
+  updatedRide.startTime = Number(req.body.startTime.replace(':', ''));
+  updatedRide.endTime = Number(req.body.endTime.replace(':', ''));
+    
+  if( updatedRide.rideType === 'onetime' ) {
     updatedRide.rideStartDate = convertDate(req.body.rideStartDate, false);
     updatedRide.rideEndDate = convertDate(req.body.rideStartDate, false);
-    updatedRide.startTime = req.body.startTime;
-    updatedRide.endTime = req.body.endTime;
   } else {
     updatedRide.rideStartDate = convertDate(req.body.rideStartDate, false);
-    updatedRide.rideEndDate = convertDate(req.body.rideStartDate, false);
-    updatedRide.startTime = req.body.startTime;
-    updatedRide.endTime = req.body.endTime;
+    updatedRide.rideEndDate = convertDate(req.body.rideEndDate, false);
     var dayOfWeek = req.body.dayOfWeek.map(item => (Array.isArray(item) && item[1]) || null);
     var weekDays = [];
     
@@ -240,28 +267,42 @@ router.put("/:ride_id", middleware.isUserSteward, function(req, res){
   
   // TODO - Add ability to use ride contact person if no one is entered.
   
-  var checkAddresses = req.body.addresses.stopName;
-  if (checkAddresses instanceof Array) {
-    for (var i = 0; i < req.body.addresses.stopName.length; i++) {
-      var objectToAdd = {};
+  var checkAddresses = req.body.addresses.stopName.length;
+    
+  for (var i = 0; i < checkAddresses-1; i++) {
+    var objectToAdd = {};
+    if(checkAddresses == 2 && i == 0) {
+      objectToAdd.stopName = req.body.addresses.stopName[i];
+      objectToAdd.stopAddress = req.body.addresses.stopAddress[i];
+      objectToAdd.contactPerson = req.body.addresses.contactPerson;
+      objectToAdd.phoneNumber =  req.body.addresses.phoneNumber;
+      objectToAdd.numberOfPeopleToCollect = Number(req.body.addresses.numberOfPeopleToCollect);
+    } else {
       objectToAdd.stopName = req.body.addresses.stopName[i];
       objectToAdd.stopAddress = req.body.addresses.stopAddress[i];
       objectToAdd.contactPerson = req.body.addresses.contactPerson[i];
       objectToAdd.phoneNumber =  req.body.addresses.phoneNumber[i];
       objectToAdd.numberOfPeopleToCollect = Number(req.body.addresses.numberOfPeopleToCollect[i]);
-      
-      totalNumberOfPassengers = totalNumberOfPassengers + Number(req.body.addresses.numberOfPeopleToCollect[i]);
-      updatedRide.addresses.push(objectToAdd);
     }
-    updatedRide.numberOfPassengers = totalNumberOfPassengers;
-  } else {
-    updatedRide.addresses = req.body.addresses;
-    updatedRide.numberOfPassengers = Number(req.body.addresses.numberOfPeopleToCollect);
+    
+    totalNumberOfPassengers = totalNumberOfPassengers + objectToAdd.numberOfPeopleToCollect;
+    updatedRide.addresses.push(objectToAdd);
   }
+  
+  var lastAddressObject = {};
+  lastAddressObject.stopName = req.body.addresses.stopName[req.body.addresses.stopName.length-1];
+  lastAddressObject.stopAddress = req.body.addresses.stopAddress[req.body.addresses.stopName.length-1];
+  lastAddressObject.contactPerson = req.body.personInfo;
+  lastAddressObject.phoneNumber =  req.body.phoneNumber;
+  lastAddressObject.numberOfPeopleToCollect = 0;
+  
+  updatedRide.addresses.push(lastAddressObject);
+  updatedRide.numberOfPassengers = totalNumberOfPassengers;
+
   
   // Finished - Building new ride object
   
-  userModel.findById(req.user.id)
+  db.User.findById(req.user.id)
   .populate({ 
      path: 'company',
      populate: {
@@ -271,10 +312,10 @@ router.put("/:ride_id", middleware.isUserSteward, function(req, res){
   }).exec(function(err, foundUser){
     if (err) { console.log(err); }
     
-    rideModel.findByIdAndUpdate(req.params.ride_id, updatedRide, function(err, createdRide) {
+    db.Ride.findByIdAndUpdate(req.params.ride_id, updatedRide, function(err, createdRide) {
       if (err) { console.log(err); }
       
-      console.log('New ride ' + createdRide.name + '(' + createdRide.rideID + ') was created');
+      console.log('Ride ' + createdRide.name + ' - ' + createdRide.rideID + ' was updated');
       
       // TODO - add delete ride from calendar and deattach car
       
@@ -286,12 +327,12 @@ router.put("/:ride_id", middleware.isUserSteward, function(req, res){
 //DELETE - Delete car route
 router.delete("/:id", middleware.isUserSteward, function(req, res){
   
-  rideModel.findById(req.params.id).populate('vendor').exec(function(err, foundRide) {
+  db.Ride.findById(req.params.id).populate('vendor').exec(function(err, foundRide) {
     if (err) { console.log(err); }
     
     // TODO - add delete ride from calendar and deattach car
     
-    vendorModel.findById(foundRide.vendor._id, function(err, foundVendor) {
+    db.Vendor.findById(foundRide.vendor._id, function(err, foundVendor) {
       if (err) { console.log(err); }
     
       var rideIndex = foundVendor.rides.indexOf(req.params.id);
@@ -300,7 +341,7 @@ router.delete("/:id", middleware.isUserSteward, function(req, res){
         foundVendor.save();
       }
       
-      rideModel.findByIdAndRemove(req.params.id, function(err, deletedRide) {
+      db.Ride.findByIdAndRemove(req.params.id, function(err, deletedRide) {
         if (err) {
           console.log(err);
           res.redirect("/company/" + foundVendor.company + "/rides");

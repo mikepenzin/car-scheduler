@@ -14,14 +14,16 @@ var RideSchema = new mongoose.Schema({
     rideStartDate: DateOnly,
     rideEndDate: DateOnly,
     weekDays: [Number],
-    startTime: String,
-    endTime: String,
+    startTime: Number,
+    notes: String,
+    endTime: Number,
     addresses: [{
         stopName: String,
         stopAddress: String,
         numberOfPeopleToCollect: Number,
         contactPerson: String,
         phoneNumber: String,
+        notes: String,
         usedCars: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Car"

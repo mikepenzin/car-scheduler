@@ -16,16 +16,12 @@
         function sendDeleteform() {
             $('#deleteForm').submit();
         }
-            
-        setTimeout(function(){
-            $('#stops').trigger("stopAddedEvent", ['inputForAddStop']);
-        }, 200);
         
         $(document).on('click', '#addStop', function(e){
              var htmlTemplate = '<div id="inputForAddStop">'
-                            + '<div class="text-left">'
-                            + 'תחנה מספר - ' + (counter+1)
-                            + '<span id="delete-stop" class="close-stop-item"><i class="fal fa-times-circle"></i></span>'
+                            + '<div class="align-items-baseline d-flex justify-content-between lead text-left">'
+                            + 'תחנה ביניים'
+                            + '<span id="delete-stop" class="close-stop-item text-muted h5"><i class="fal fa-times-circle" style="font-size: 1rem;"></i></span>'
                             + '</div>'
                             + '<label for="addresses">'
                             + 'שם התחנה'

@@ -1,8 +1,6 @@
 var express     = require("express");
-var userModel   = require('../models/user');
-var rideModel   = require('../models/ride');
-var vendorModel = require('../models/vendor');
-var carModel    = require('../models/car');
+var db          = require('../models');
+var api         = require("../service_api");
 var middleware  = require('../middleware');
 var router      = express.Router();
 
@@ -31,50 +29,81 @@ function convertDate(date, backward) {
   }
 }
 
+function converTimeToString(time) {
+  var timeString;
+  if (time < 60 && time >= 10) {
+      timeString = "00" + time;
+  } else if(time < 10) {
+      timeString = "000" + time;
+  } else if (time.toString().length < 4) {
+      timeString = "0" + time;
+  } else {
+      timeString = time.toString();
+  }
+  
+  timeString = [timeString.slice(0, 2), ':', timeString.slice(2)].join('');
+  return timeString;
+}
+
 //GET - Schedule today route
 router.get("/", middleware.isUserSteward, function(req, res){
-    // var dateObj = new Date();
-    // var month = dateObj.getUTCMonth() + 1;
-    // var day = dateObj.getUTCDate();
-    // var year = dateObj.getUTCFullYear();
+    var newdate = '';
+    var currentWeekDay = 0;
+    var month;
     
-    // var newdate = day + "/" + month + "/" + year;
-    // var currentWeekDay = dateObj.getDay();
-    
-    var newdate = '28/12/2018';
-    var currentWeekDay = 5;
+    if(!req.query.date) {
+        var dateObj = new Date();
+        month = dateObj.getUTCMonth() + 1;
+        var day = dateObj.getUTCDate();
+        var year = dateObj.getUTCFullYear();
+        
+        newdate = day + "/" + month + "/" + year;
+        currentWeekDay = dateObj.getDay();
+        // newdate = '28/12/2018';
+        // currentWeekDay = 5;
+    } else {
+        newdate = req.query.date;
+        
+        var dateParse = newdate.split('/');
+        month = Number(dateParse[1]) < 10 ? '0' + dateParse[1] : dateParse[1];
+        var rightDate = Number(dateParse[0]) < 10 ? '0' + dateParse[0] : dateParse[0];
+        newdate = rightDate + '/' + month + '/' + dateParse[2];
+        
+        var cd = convertDate(newdate, false);
+        var dateParsed = Date.parse(cd);
+        currentWeekDay = new Date(dateParsed).getDay();
+    }
     
     var rides = [];
-    userModel.findById(req.user.id)
-      .populate({ 
-         path: 'company',
-         populate: {
-           path: 'vendors',
-           model: 'Vendor'
-         }
-      }).exec(function(err, foundUser){
-        if (err) { console.log(err); }
-        
-        rideModel.find({ $and: [{ rideStartDate: { $lte: Date.now() } }, { rideEndDate: { $gte: Date.now() } }]}).populate('vendor').exec(function(err, foundRides){
-            if (err) { console.log(err); }
-            
+    
+    api.User.getUserByIdPopulateCompanyVendors(req.user.id)
+    .then(function(foundUser){
+        api.Ride.getRidesBetweeenDates(convertDate(newdate, false), convertDate(newdate, false))
+        .then(function(foundRides){
             for (var i = 0; i < foundRides.length; i++) {
+                
                 if(foundRides[i].rideType == 'onetime') {
-                    if(newdate == convertDate(foundRides[i].rideStartDate, true))
-                    rides.push(foundRides[i]);
+                    if(newdate == convertDate(foundRides[i].rideStartDate, true)) {
+                        foundRides[i].startTimeParsed = converTimeToString(foundRides[i].startTime);
+                        foundRides[i].endTimeParsed = converTimeToString(foundRides[i].endTime);
+                        rides.push(foundRides[i]);
+                    }
                 } else {
                     if (foundRides[i].weekDays.indexOf(currentWeekDay) != -1) {
+                        foundRides[i].startTimeParsed = converTimeToString(foundRides[i].startTime);
+                        foundRides[i].endTimeParsed = converTimeToString(foundRides[i].endTime);
                         rides.push(foundRides[i]);    
                     }
                 }
             }
             
-            carModel.find({}, function(err, foundCars){
-                if (err) { console.log(err); }
-                
-                res.render("schedule/show", {user:foundUser, today: newdate, rides: foundRides, cars:foundCars});
+            api.Car.getAllCars().then(function(foundCars){
+                res.render("schedule/show", {user:foundUser, currentDay: newdate, rides: rides, cars:foundCars});
             });
         });
+      })
+      .catch(function(err){
+        console.log(err);
       });
 });
 
@@ -82,26 +111,25 @@ router.get("/", middleware.isUserSteward, function(req, res){
 router.get("/updateCars", function(req, res){
     var objJson = {};
     
-    rideModel.findById(req.query.ride_id ,function(err, foundRide){
-        if (err) { console.log(err); }
-        
-        carModel.find(req.query.car_id, function(err, foundCar){
-            if (err) { console.log(err); }
-            
+    api.Ride.getRideById(req.query.ride_id).then(function(foundRide) { 
+        api.Car.getCarById(req.query.car_id).then(function(foundCar) {
             for (var i = 0; i < foundRide.addresses.length; i++) {
-
+                
+                console.log(foundRide.addresses[i].stopName, req.query.stopName, foundCar.numberOfSeats, foundRide.addresses[i].numberOfPeopleToCollect);
+                
                 if (foundRide.addresses[i].stopName == req.query.stopName) {
                     if (foundCar.numberOfSeats <= foundRide.addresses[i].numberOfPeopleToCollect) {
-                        objJson.remainPassengers = foundRide.addresses[i].stopName - foundCar.numberOfSeats;
+                        objJson.remainPassengers = foundRide.addresses[i].numberOfPeopleToCollect - foundCar.numberOfSeats;
                     }   
                 }
-                
             }
-            
             console.log(objJson);
             res.setHeader('Content-Type', 'application/json');
             res.send(JSON.stringify(objJson, null, 3));
         });
+    })
+    .catch(function(err){
+        console.log(err);
     });
 });
 

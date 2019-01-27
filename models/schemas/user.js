@@ -1,8 +1,9 @@
 var mongoose                = require('mongoose');
+var DateOnly                = require('mongoose-dateonly')(mongoose);
 var passportLocalMongoose   = require("passport-local-mongoose");
     
     
-var UserSchema = new mongoose.Schema({
+var userSchema = new mongoose.Schema({
     username: { 
         type: String, 
         unique: true, 
@@ -41,9 +42,13 @@ var UserSchema = new mongoose.Schema({
     company: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company"
-    }
+    },
+    ride: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Ride"
+    }]
 });
 
-UserSchema.plugin(passportLocalMongoose);
+userSchema.plugin(passportLocalMongoose);
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model("User",userSchema);

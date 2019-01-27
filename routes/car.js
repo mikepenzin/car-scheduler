@@ -1,8 +1,5 @@
 var express         = require("express");
-var mongoose        = require("mongoose");
-var companyModel    = require('../models/company');
-var userModel       = require('../models/user');
-var carModel        = require('../models/car');
+var db              = require('../models');
 var middleware      = require('../middleware');
 var router          = express.Router();
 
@@ -29,7 +26,7 @@ function dynamicSort(property) {
 //GET - Show general cars route
 router.get("/", middleware.isUserSteward, function(req, res){
   var drivers = [];
-  userModel.findById(req.user.id)
+  db.User.findById(req.user.id)
   .populate({ 
      path: 'company',
      populate: {
@@ -39,7 +36,7 @@ router.get("/", middleware.isUserSteward, function(req, res){
   }).exec(function(err, foundUser){
     if (err) { console.log(err); }
     
-    companyModel.findById(foundUser.company._id)
+    db.Company.findById(foundUser.company._id)
       .populate('users')
       .exec(function(err, foundCompany){
         if (err) { console.log(err); }
@@ -50,7 +47,7 @@ router.get("/", middleware.isUserSteward, function(req, res){
           }
         }
       
-        companyModel.findById(foundUser.company._id)
+        db.Company.findById(foundUser.company._id)
         .populate({ 
            path: 'cars',
            populate: {
@@ -61,7 +58,7 @@ router.get("/", middleware.isUserSteward, function(req, res){
         .exec(function(err, foundCars){
           if (err) { console.log(err); }
           
-          carModel.find({}, function(err, foundCarForID){
+          db.Car.find({}, function(err, foundCarForID){
             
             if (foundCarForID) { foundCarForID.sort(dynamicSort('carId')); }
             var carIdNumber = foundCarForID.length > 0 ? (foundCarForID[foundCarForID.length-1].carId + 1) : 10;
@@ -75,7 +72,7 @@ router.get("/", middleware.isUserSteward, function(req, res){
 
 //POST - Add car route
 router.post("/", middleware.isUserSteward, function(req, res){
-    var newCar = new carModel({
+    var newCar = new db.Car({
         carName: req.body.carName,
         licensePlate: req.body.licensePlate,
         model:  req.body.model,
@@ -85,18 +82,18 @@ router.post("/", middleware.isUserSteward, function(req, res){
         isContractor: (req.body.isContractor === 'true' ? true : false)
     });
     
-    userModel.findById(req.user.id).populate('company')
+    db.User.findById(req.user.id).populate('company')
     .exec(function(err, foundUser){
       if (err) { console.log(err); }
       
-      companyModel.findById(foundUser.company._id).exec(function(err, company){
+      db.Company.findById(foundUser.company._id).exec(function(err, company){
           if (err) { console.log(err); }
           
-          carModel.create(newCar, function (err, createdCar){
+          db.Car.create(newCar, function (err, createdCar){
               if (err) { console.log(err); }
               
               if (!createdCar.isContractor) {
-                userModel.findById(req.body.driverID, function(err, foundDriver){
+                db.User.findById(req.body.driverID, function(err, foundDriver){
                   if (err) { console.log(err); }
                   
                   console.log(createdCar, foundDriver);
@@ -127,14 +124,14 @@ router.post("/", middleware.isUserSteward, function(req, res){
 router.get("/:car_id/edit", middleware.isUserSteward, function(req, res){
   console.log(req.params.car_id);
   var drivers = [];
-  carModel.findById(req.params.car_id).populate('driver').exec(function(err, foundCar){
+  db.Car.findById(req.params.car_id).populate('driver').exec(function(err, foundCar){
     if (err) { console.log(err); }
     console.log(foundCar.driver);
     
-    userModel.findById(req.user.id).populate('company').exec(function(err, foundUser){
+    db.User.findById(req.user.id).populate('company').exec(function(err, foundUser){
       if (err) { console.log(err); }
       
-      companyModel.findById(foundUser.company._id)
+      db.Company.findById(foundUser.company._id)
       .populate('users')
       .exec(function(err, foundCompany){
         if (err) { console.log(err); }
@@ -163,14 +160,14 @@ router.put("/:car_id/edit", middleware.isUserSteward, function(req, res){
     manufactureYear: req.body.manufactureYear
   };
   
-  userModel.findById(req.user.id).populate('company')
+  db.User.findById(req.user.id).populate('company')
   .exec(function(err, foundUser){
     if (err) { console.log(err); }
     
-    companyModel.findById(foundUser.company._id).exec(function(err, company){
+    db.Company.findById(foundUser.company._id).exec(function(err, company){
         if (err) { console.log(err); }
         
-        carModel.findByIdAndUpdate(req.params.car_id, updateCar, function(err, updatedCar){
+        db.Car.findByIdAndUpdate(req.params.car_id, updateCar, function(err, updatedCar){
             if (err) { console.log(err); }
             
             console.log("###########################");
@@ -192,12 +189,12 @@ router.put("/:car_id/edit", middleware.isUserSteward, function(req, res){
               // If no old driver defined but new does defined  
               } else if ( !oldDriver && (newDriver && newDriver != 'undefined') ) {
                 
-                userModel.findById(newDriver, function(err, foundNewDriver){
+                db.User.findById(newDriver, function(err, foundNewDriver){
                   if (err) { console.log(err); }
                   
                   // If found user is already attached to car need to detach and reattach to currently updated car. 
                   if (foundNewDriver.isAttachedToCar) {
-                    carModel.findOne({ driver: newDriver }, function(err, foundCarToUpdate){
+                    db.Car.findOne({ driver: newDriver }, function(err, foundCarToUpdate){
                       if (err) { console.log(err); }
                       
                       foundCarToUpdate.driver = undefined;
@@ -219,7 +216,7 @@ router.put("/:car_id/edit", middleware.isUserSteward, function(req, res){
                 
               // If old driver defined but new not
               } else if ( oldDriver && newDriver == 'undefined') {
-                userModel.findById(oldDriver, function(err, foundOldDriver){
+                db.User.findById(oldDriver, function(err, foundOldDriver){
                   if (err) { console.log(err); }
                   
                   foundOldDriver.isAttachedToCar = false;
@@ -233,18 +230,18 @@ router.put("/:car_id/edit", middleware.isUserSteward, function(req, res){
               
               // If both old and new driver defined and new is different than old
               } else if( (oldDriver && (newDriver || newDriver != 'undefined')) && (oldDriver != newDriver) ) {
-                userModel.findById(oldDriver, function(err, foundOldDriver){
+                db.User.findById(oldDriver, function(err, foundOldDriver){
                   if (err) { console.log(err); }
                   
                   foundOldDriver.isAttachedToCar = false;
                   foundOldDriver.save();
                   
-                  userModel.findById(newDriver, function(err, foundNewDriver){
+                  db.User.findById(newDriver, function(err, foundNewDriver){
                     if (err) { console.log(err); }
                   
                     // If found user is already attached to car need to detach and reattach to currently updated car. 
                     if (foundNewDriver.isAttachedToCar) {
-                      carModel.findOne({ driver: newDriver }, function(err, foundCarToUpdate){
+                      db.Car.findOne({ driver: newDriver }, function(err, foundCarToUpdate){
                         if (err) { console.log(err); }
                         
                         foundCarToUpdate.driver = undefined;
@@ -277,22 +274,22 @@ router.put("/:car_id/edit", middleware.isUserSteward, function(req, res){
 //DELETE - Delete car route
 router.delete("/:id", middleware.isUserSteward, function(req, res){
   
-  carModel.findById(req.params.id, function(err, foundCar) {
+  db.Car.findById(req.params.id, function(err, foundCar) {
     if (err) { console.log(err); }
 
     // If car is not contractor we need to update driver that he is not attached to car
     if ((foundCar.driver && foundCar.driver != undefined) && !foundCar.isContractor) {
-      carModel.findById(req.params.id).populate('driver').exec(function(err, newFoundCar) {
+      db.Car.findById(req.params.id).populate('driver').exec(function(err, newFoundCar) {
         if (err) { console.log(err); }
         
         removeCarFromCompanyList(req.user.id, req.params.id);
         var driver = {};
         driver.isAttachedToCar = false;
         console.log(newFoundCar.driver);
-        userModel.findByIdAndUpdate(newFoundCar.driver._id, driver, function(err, updatedUser){
+        db.User.findByIdAndUpdate(newFoundCar.driver._id, driver, function(err, updatedUser){
           if (err) { console.log(err); }
           
-          carModel.findByIdAndRemove(req.params.id, function(err, user){
+          db.Car.findByIdAndRemove(req.params.id, function(err, user){
             if (err) {
                console.log(err);
                res.redirect("back");
@@ -306,7 +303,7 @@ router.delete("/:id", middleware.isUserSteward, function(req, res){
       // Remove company is case no driver attached
       removeCarFromCompanyList(req.user.id, req.params.id);
       
-      carModel.findByIdAndRemove(req.params.id, function(err, car){
+      db.Car.findByIdAndRemove(req.params.id, function(err, car){
         if (err) {
            console.log(err);
            res.redirect("back");
@@ -320,10 +317,10 @@ router.delete("/:id", middleware.isUserSteward, function(req, res){
 
 
 function removeCarFromCompanyList(user_id, car_id) {
-  userModel.findById(user_id, function(err, foundUser){
+  db.User.findById(user_id, function(err, foundUser){
     if (err) { console.log(err); }
     
-    companyModel.findById(foundUser.company, function(err, foundCompany){
+    db.Company.findById(foundUser.company, function(err, foundCompany){
       if (err) { console.log(err); }
       
       var carIndex = foundCompany.cars.indexOf(car_id);

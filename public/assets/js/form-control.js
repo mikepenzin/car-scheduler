@@ -61,7 +61,14 @@
             phone: true,
             phoneRegionCode: 'IL'
         });
-        
-        
     });
+    
+    for(let field of $("input[class*='inputForAddStop_']").toArray()){
+        new Cleave(field, {
+            numericOnly: true,
+            phone: true,
+            phoneRegionCode: 'IL'
+        });
+    }
+    
 }(jQuery));

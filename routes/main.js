@@ -1,7 +1,6 @@
 var express         = require("express");
 var middleware      = require('../middleware');
-var companyModel    = require('../models/company');
-var userModel       = require('../models/user');
+var db              = require('../models');
 var router          = express.Router();
 
 
@@ -17,7 +16,7 @@ router.use(function timeLog (req, res, next) {
 //root route
 router.get("/", middleware.isLoggedIn , function(req, res){
   
-  userModel.findById(req.user.id).populate({ 
+  db.User.findById(req.user.id).populate({ 
      path: 'company',
      populate: {
        path: 'vendors',
@@ -37,7 +36,7 @@ router.get("/", middleware.isLoggedIn , function(req, res){
         totalRides += foundUser.company.vendors[t].rides.length;
       }
       
-      userModel.find({company: foundUser.company._id}, function(err, relevantUsers){
+      db.User.find({company: foundUser.company._id}, function(err, relevantUsers){
         if (err) { console.log(err); }
         
         for(var i = 0; i < relevantUsers.length; i++) {
@@ -46,7 +45,7 @@ router.get("/", middleware.isLoggedIn , function(req, res){
           }
         }
         
-        companyModel.findById(foundUser.company._id).populate('cars').exec(function(err, foundCompany){
+        db.Company.findById(foundUser.company._id).populate('cars').exec(function(err, foundCompany){
           if (err) { console.log(err); }
           
           for(var y = 0; y < foundCompany.cars.length; y++) {

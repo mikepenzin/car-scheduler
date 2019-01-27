@@ -1,91 +1,157 @@
 <% include ../partials/header %>
 <% include ../partials/navbar %>
 
+<% var newDate = currentDay.split('/'); %>
+<% var dd = newDate[1] + '/' + newDate[0] + '/' + newDate[2]; %>
+<% var pd = Date.parse(dd); %>
+<% var today = new Date(); %>
+<% todayForParse = (today.getMonth() + 1) + '/' + today.getDate() + '/' + today.getUTCFullYear() %>
+<% var todayParsed = Date.parse(todayForParse) %>
+<% today = today.getDate() + '%2F' + (today.getMonth() + 1) + '%2F' + today.getUTCFullYear() %>
+<% var tomorrow = new Date(pd); %>
+<% tomorrow.setDate(tomorrow.getDate() + 1); %>
+<% tomorrow = tomorrow.getDate() + '%2F' + (tomorrow.getMonth() + 1) + '%2F' + tomorrow.getUTCFullYear(); %>
+<% var yesterday = new Date(pd); %>
+<% yesterday.setDate(yesterday.getDate() - 1); %>
+<% yesterday = yesterday.getDate() + '%2F' + (yesterday.getMonth() + 1) + '%2F' + yesterday.getUTCFullYear(); %>
+<% var isItToday = (todayParsed == pd) %>
+
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-sm-12 col-lg-10">
-            <div class="d-flex justify-content-between mt-4 independant-card card-body bg-light">
-                <div class="justify-content-center align-self-center">
-                    <a href="#" class="btn btn-default btn-round"> 
-                       <i class="fal fa-arrow-right"></i>
-                    </a>
+            <div class="justify-content-between mt-4 independant-card card-body bg-light">
+                <div class="row">
+                    <div class="col-12 col-sm-12 d-inline-flex">
+                        <div class="justify-content-center align-self-center">
+                            <a href="?date=<%= yesterday %>" class="btn btn-default btn-round"> 
+                               <i class="fal fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="mx-auto d-flex align-self-center justify-content-center mb-sm-3 mt-sm-3">
+                            <%= currentDay %>
+                        </div>
+                        <div class="justify-content-center align-self-center">
+                            <a href="?date=<%= tomorrow %>" class="btn btn-default btn-round"> 
+                              <i class="fal fa-arrow-left"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <% if(!isItToday) { %>
+                        <div class="col-12 d-flex justify-content-center mt-2">
+                            <a href="?date=<%= today %>" class="btn btn-default btn-round"> 
+                              עבור לתאריך של היום
+                            </a>
+                        </div>
+                    <% } %>   
                 </div>
-                <div class="mx-auto d-flex align-self-center justify-content-center mb-sm-3 mt-sm-3">
-                    <%= today %>
-                </div>
-                <div class="justify-content-center align-self-center">
-                    <a href="#" class="btn btn-default btn-round"> 
-                      <i class="fal fa-arrow-left"></i>
-                    </a>
-                </div>
-            </div>    
+            </div>  
         </div>
        
         <% if (rides.length > 0) { %>
-            <% rides.forEach(function(ride) { %>
-                <div class="col-sm-12 col-lg-10">
-                    <div class="independant-card card-body bg-light align-items-center" style="margin-bottom: 10px;" id="<%= ride._id %>">
-                        <div class="row align-items-baseline">
-                            <div class="col-4">
-                                שם נסיעה: 
-                                <br class="d-none d-sm-block">
+            <% rides.forEach(function(ride, i) { %>
+                <% if(!(todayParsed <= pd)) { %>
+                    <div class="col-sm-12 col-lg-10 disabled" style="background: transparent;">
+                <% } else { %>
+                     <div class="col-sm-12 col-lg-10">
+                <% } %>
+                    <div class="independant-card card-body bg-light align-items-center" style="margin-bottom: 25px;" id="<%= ride._id %>">
+                        <div class="row align-items-baseline mb-4">
+                            <div class="col-12 mt-2 text-center">
+                                <h4 class="m-0">
+                                    <%= ride.name %>
+                                </h4>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <strong>
+                                    שם נסיעה:   
+                                </strong>
+                                <br class="">
                                 <%= ride.name %>
                             </div>
-                            <div class="col-4">
-                                שעת נסיעה:
-                                <br class="d-none d-sm-block">
-                                <%= ride.startTime + ' - ' + ride.endTime %>
+                            <div class="col-12 col-md-3 mt-2">
+                                <strong>
+                                    שעת נסיעה:
+                                </strong>
+                                <br class="">
+                                <%= ride.startTimeParsed + ' - ' + ride.endTimeParsed %>
                             </div>
-                            <div class="col-4">
-                                מספר נוסעים: 
-                                <br class="d-none d-sm-block">
+                            <div class="col-12 col-md-3 mt-2">
+                                <strong>
+                                    שם המזמין:   
+                                </strong>
+                                <br class="">
+                                <%= ride.vendor.name %>
+                            </div>
+                            <div class="col-12 col-md-3 mt-2">
+                                <strong>
+                                    מספר נוסעים:
+                                </strong>
+                                <br class="">
                                 <%= ride.numberOfPassengers %>
                             </div>
+                            <% if (ride.notes) { %>
+                                <div class="col-12 mt-2">
+                                    <strong>
+                                        הערות:
+                                    </strong>
+                                    <br class="">
+                                    <%- ride.notes.replace(/(?:\r\n|\r|\n)/g, '<br>') %>
+                                </div>
+                            <% } %>
                         </div>
                         
-                        <% ride.addresses.forEach(function(stop) { %>
-                            <div class="row align-items-baseline mt-2 pt-2" style="border-top: 1px solid rgba(127,127,127,0.3);">
+                        <div class="col-12 mt-4 mb-1 text-center">
+                            <h4 class="m-0">
+                                תחנות
+                            </h4>
+                        </div>
+                        <% ride.addresses.forEach(function(stop, index) { %>
+                            <div class="row align-items-baseline pt-2 pb-3" style="border-top: 1px solid rgba(127,127,127,0.3);">
                                 <div class="col-12 col-md-2">
-                                    שם תחנה: 
-                                    <br class="d-none d-sm-block">
+                                    <strong>
+                                        שם תחנה: 
+                                    </strong>
+                                    <br class="">
                                     <%= stop.stopName %>
                                 </div>
-                                <div class="col-12 col-md-4">
-                                    כתובת:
-                                    <br class="d-none d-sm-block">
+                                <div class="col-12 col-md-4 mt-2">
+                                    <strong>
+                                        כתובת:
+                                    </strong>
+                                    <br class="">
                                     <%= stop.stopAddress %>
                                 </div>
-                                <div class="col-12 col-md-2">
-                                    מספר נוסעים: 
-                                    <br class="d-none d-sm-block">
-                                    <%= stop.numberOfPeopleToCollect %>
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    רכב מס' 1
-                                    <select name="car" class="form-control col-12" onchange="checkSelection('<%= ride._id %>', '<%= stop.stopName %>')">
-                                        <option value="" selected> </option>
-                                        <% cars.forEach(function(car){ %>
-                                            <option value="<%= car._id %>">
-                                                <%= car.isContractor ? ' קבלן - ' + car.carName + ' (' + car.numberOfSeats + ')' :  car.carName + ' (' + car.numberOfSeats + ')' %>
-                                            </option>
-                                        <% }) %>
-                                    </select>
-                                    <span id="addCars"></span>
-                                           רכב מס' 2
-                                    <select name="car" class="form-control col-12">
-                                        <option value="" selected> </option>
-                                        <% cars.forEach(function(car){ %>
-                                            <option value="<%= car._id %>">
-                                                <%= car.isContractor ? ' קבלן - ' + car.carName + ' (' + car.numberOfSeats + ')' :  car.carName + ' (' + car.numberOfSeats + ')' %>
-                                            </option>
-                                        <% }) %>
-                                    </select>
-                                </div>
+                                <% if (index != ride.addresses.length-1) { %>
+                                    <div class="col-12 col-md-2 mt-2">
+                                        <strong>
+                                            מספר נוסעים: 
+                                        </strong>
+                                        <br class="">
+                                        <%= stop.numberOfPeopleToCollect %>
+                                    </div>
+                                    <div class="col-12 col-md-4 mt-4" id="<%= stop._id %>">
+                                        <strong>
+                                            רכבים:
+                                        </strong>
+                                        <select name="car" class="form-control col-12 mb-2" onchange="checkSelection('<%= stop._id %>', '<%= stop.numberOfPeopleToCollect %>')">
+                                            <option selected="true" disabled="disabled"> -- </option>
+                                            <% cars.forEach(function(car){ %>
+                                                <option value="<%= car._id %>" numberOfSeats="<%= car.numberOfSeats %>">
+                                                    <%= car.isContractor ? ' קבלן - ' + car.carName + ' (' + car.numberOfSeats + ')' :  car.carName + ' (' + car.numberOfSeats + ')' %>
+                                                </option>
+                                            <% }) %>
+                                        </select>
+                                        <div id="addCars_<%= stop._id %>"></div>
+                                    </div>
+                                <% } %>    
                             </div>
                         <% }); %>    
                     </div>    
                 </div>
             <% }); %>
+            <div class="col-6 col-md-6 mt-3 mb-3">
+                <a href="#" class="btn btn-primary btn-round btn-block">עדכן</a>
+            </div>
         <% } else { %>
             <div class="col-11 col-md-10">
                 <div class="d-flex justify-content-center independant-card card-body bg-light">
@@ -133,25 +199,31 @@ $(document).ready(function(){
     console.log(newObject);
 });
 
-function checkSelection(id, stopName) {
-    var requestURL = "/company/<%= user.company._id %>/schedule/updateCars?ride_id=" + id + "&stopName=" + stopName + "&car_id=" + $('#' + id + ' select').val();
-    var infoObj = {
-        "ride_id" : id,
-        "stopName" : stopName,
-        "car_id" : $('#' + id + ' select').val()
-    };
-    console.log(requestURL, infoObj);
+function checkSelection(id, stopNumberOfPassenger) {
     
-    $.ajax({
-        method: 'GET',
-        url: requestURL,
-        success: function(response) {
-            console.log(response);
-        },
-        error: function(xhr) {
-            console.warn("Error: ", xhr)
+    var numberRemainPassengers = Number(stopNumberOfPassenger);
+    
+    $( '#' + id + ' select ' ).each(function( index ) {
+        if (numberRemainPassengers <= 0) {
+            $(this).remove();
         }
+        numberRemainPassengers = numberRemainPassengers - Number($( this ).find('option:selected').attr('numberOfSeats'));
     });
+    
+    var carSelectionElm = '<select name="car" class="form-control col-12 mb-2" onchange="checkSelection(' +'\'' + id + '\',' + '\'' + stopNumberOfPassenger + '\'' + ')">'
+                            + '<option selected="true" disabled="disabled"> -- </option>'
+                            <% cars.forEach(function(car){ %>
+                                + '<option value="<%= car._id %>" numberOfSeats="<%= car.numberOfSeats %>">'
+                                    + '<%= car.isContractor ? ' קבלן - ' + car.carName + ' (' + car.numberOfSeats + ')' :  car.carName + ' (' + car.numberOfSeats + ')' %>'
+                                + '</option>'
+                            <% }) %>
+                            + '</select>';
+    
+    if(!isNaN(numberRemainPassengers) && numberRemainPassengers > 0) {
+        $('#addCars_' + id).append(carSelectionElm).show('slow');
+    }
+    
+    
 }
 </script>
 <% include ../partials/closing_tags %>

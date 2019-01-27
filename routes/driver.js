@@ -1,9 +1,6 @@
 var express         = require("express");
 var middleware      = require('../middleware');
-var companyModel    = require('../models/company');
-var carModel        = require('../models/car');
-var userModel       = require('../models/user');
-var rideModel       = require('../models/ride');
+var db              = require('../models');
 var router          = express.Router();
 
 
@@ -33,21 +30,36 @@ function convertDate(date, backward) {
 
 //GET - Driver info route
 router.get('/:id', middleware.isUserDriver, function(req, res){
+    var newdate = '';
+    var currentWeekDay = 0;
+    
+    if(!req.query.date) {
+        // var dateObj = new Date();
+        // var month = dateObj.getUTCMonth() + 1;
+        // var day = dateObj.getUTCDate();
+        // var year = dateObj.getUTCFullYear();
+        
+        // var newdate = day + "/" + month + "/" + year;
+        // var currentWeekDay = dateObj.getDay();
+        newdate = '28/12/2018';
+        currentWeekDay = 5;
+    } else {
+        newdate = req.query.date;
+        
+        var dateParse = newdate.split('/');
+        var month = Number(dateParse[1]) < 10 ? '0' + dateParse[1] : dateParse[1];
+        var rightDate = Number(dateParse[0]) < 10 ? '0' + dateParse[0] : dateParse[0];
+        newdate = rightDate + '/' + month + '/' + dateParse[2];
+        
+        var cd = convertDate(newdate, false);
+        var dateParsed = Date.parse(cd);
+        currentWeekDay = new Date(dateParsed).getDay();
+    }
     
     var relevantCar = null;
-    // var dateObj = new Date();
-    // var month = dateObj.getUTCMonth() + 1;
-    // var day = dateObj.getUTCDate();
-    // var year = dateObj.getUTCFullYear();
-    
-    // var newdate = day + "/" + month + "/" + year;
-    // var currentWeekDay = dateObj.getDay();
-    
-    var newdate = '28/12/2018';
-    var currentWeekDay = 5;
-    
     var rides = [];
-    userModel.findById(req.user.id)
+    
+    db.User.findById(req.user.id)
     .populate({ 
         path: 'company',
         populate: {
@@ -58,14 +70,13 @@ router.get('/:id', middleware.isUserDriver, function(req, res){
         if (err) { console.log(err); }
         
         for (var i = 0; i < foundDriver.company.cars.length; i++) {
-         
             if (foundDriver.company.cars[i].driver && foundDriver.company.cars[i].driver.equals(foundDriver._id)) {
                 relevantCar = foundDriver.company.cars[i];
             }
-            
         }
         
-        rideModel.find({ $and: [{ rideStartDate: { $lte: Date.now() } }, { rideEndDate: { $gte: Date.now() } }]}).populate('vendor').exec(function(err, foundRides){
+        var parsedDate = convertDate(newdate, false);
+        db.Ride.find({ $and: [{ rideStartDate: { $lte: parsedDate } }, { rideEndDate: { $gte: parsedDate } }]}).populate('vendor').exec(function(err, foundRides){
             if (err) { console.log(err); }
             
             for (var i = 0; i < foundRides.length; i++) {
@@ -88,12 +99,15 @@ router.get('/:id', middleware.isUserDriver, function(req, res){
 //GET - Driver ride info route
 router.get('/:id/ride/:ride_id', middleware.isUserDriver, function(req, res){
   
-  userModel.findById(req.query.id).populate().exec(function(err, foundDriver){
+  db.User.findById(req.params.id).populate('company').exec(function(err, foundDriver){
     if (err) { console.log(err); }
     
-    res.render("driver/ride-details", {user: foundDriver});
+    db.Ride.findById(req.params.ride_id, function(err, foundRide){
+        if (err) { console.log(err); }
+        
+        res.render("driver/ride-details", {user: foundDriver, ride:foundRide});   
+    });
   });
-  
 });
 
 

@@ -36,7 +36,7 @@
                                 נהג
                             </label>
                             <select id="driverID" name="driverID" class="form-control">
-                                <option value="undefined"> </option>
+                                <option selected="true" disabled="disabled"> -- </option>
                                 <% drivers.forEach(function(driver){ %>
                                     <option value="<%= driver._id %>"><%= driver.personalID + " - " + driver.firstName + ' ' + driver.lastName %></option>
                                 <% }) %>

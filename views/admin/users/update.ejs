@@ -45,6 +45,7 @@
                             שייכות לחברה
                         </label>
                         <select id="company" name="company" class="form-control">
+                            <option selected="true" disabled="disabled"> -- </option>
                             <% companies.forEach(function(company){ %>
                                 <option value="<%= company._id %>"><%= company.name %></option>
                             <% }) %>

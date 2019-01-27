@@ -6,6 +6,81 @@
 /*@import 'https://pro.fontawesome.com/releases/v5.1.0/css/all.css';*/
 
 @import 'https://fonts.googleapis.com/css?family=Varela+Round';
+
+@media print {
+    .col-print-12 {
+        max-width: 100%;
+        flex: 0 0 100%;
+        -ms-flex: 0 0 100%;
+    }
+    
+    .col-print-11 {
+        -ms-flex: 0 0 91.666667%;
+        flex: 0 0 91.666667%;
+        max-width: 91.666667%;
+    }
+    
+    .col-print-10 {
+        -ms-flex: 0 0 83.333333%;
+        flex: 0 0 83.333333%;
+        max-width: 83.333333%;
+    }
+    
+    .col-print-9 {
+        -ms-flex: 0 0 75%;
+        flex: 0 0 75%;
+        max-width: 75%;
+    }
+    
+    .col-print-8 {
+        -ms-flex: 0 0 66.666667%;
+        flex: 0 0 66.666667%;
+        max-width: 66.666667%;
+    }
+    
+    .col-print-7 {
+        -ms-flex: 0 0 58.333333%;
+        flex: 0 0 58.333333%;
+        max-width: 58.333333%;
+    }
+    
+    .col-print-6 {
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    
+    .col-print-5 {
+        -ms-flex: 0 0 41.666667%;
+        flex: 0 0 41.666667%;
+        max-width: 41.666667%;
+    }
+    
+    .col-print-4 {
+        -ms-flex: 0 0 33.333333%;
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+    
+    .col-print-3 {
+        -ms-flex: 0 0 25%;
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+    
+    .col-print-2 {
+        -ms-flex: 0 0 16.666667%;
+        flex: 0 0 16.666667%;
+        max-width: 16.666667%;
+    }
+    
+    .col-print-1 {
+        -ms-flex: 0 0 8.333333%;
+        flex: 0 0 8.333333%;
+        max-width: 8.333333%;
+    }
+}
+
 body {
     padding: 0;
     margin: 0;
@@ -397,8 +472,8 @@ input[type="file"] {
 }
 
 .round-img-sm {
-    width: 4vh;
-    height: 4vh;
+    width: 2.5rem;
+    height: 2.5rem;
     object-fit: cover;
     border-radius: 50%;
 }
@@ -410,8 +485,8 @@ input[type="file"] {
 .cover-image {
     background-size:cover;
     background-position: center;
-    height: 15vh;
-    width: 15vh;
+    height: 10rem;
+    width: 10rem;
 }
 
 .cover-image-lg {
@@ -424,15 +499,15 @@ input[type="file"] {
 .cover-image-md {
     background-size:cover;
     background-position: center;
-    height: 6vh;
-    width: 6vh;
+    height: 4rem;
+    width: 4rem;
 }
 
 .cover-image-sm {
     background-size:cover;
     background-position: center;
-    height: 4vh;
-    width: 4vh;
+    height: 2.5rem;
+    width: 2.5rem;
 }
 
 .company-logo {
@@ -715,7 +790,6 @@ h3 {
 
 .ride-card {
     opacity: 0.8;
-    cursor:pointer;
     transition: linear 0.5s;
 }
 
@@ -749,6 +823,7 @@ h3 {
 }
 
 .alert-danger, .alert-success {
+    padding: 1.5rem 0.5rem;
     border-radius: 5px;
     box-shadow: 0 10px 40px 0 rgba(62, 57, 107, 0.07), 0 2px 9px 0 rgba(62, 57, 107, 0.06);
     text-align: center;
@@ -765,3 +840,16 @@ h3 {
 @media all and (max-width:480px) {
    .btn-only-sm-block { width: 100%; display:block; }
 } 
+
+hr {
+    border-top: 1px solid rgba(0,0,0,.2);
+}
+
+#advancedSearchForm {
+    display: none;
+}
+
+.today-label {
+    position: relative;
+    top: -1px;
+}

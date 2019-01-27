@@ -29,7 +29,7 @@ var CarSchema = new mongoose.Schema({
     },
     driver: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+        ref: "db.User."
     }
 });
 

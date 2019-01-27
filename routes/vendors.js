@@ -1,7 +1,5 @@
 var express         = require("express");
-var companyModel    = require('../models/company');
-var userModel       = require('../models/user');
-var vendorModel     = require('../models/vendor');
+var db              = require('../models');
 var middleware      = require('../middleware');
 var router          = express.Router();
 
@@ -28,7 +26,7 @@ function dynamicSort(property) {
 
 //GET - General vendors route
 router.get("/", middleware.isUserSteward, function(req, res){
-  userModel.findById(req.user.id)
+  db.User.findById(req.user.id)
   .populate({ 
      path: 'company',
      populate: {
@@ -38,7 +36,7 @@ router.get("/", middleware.isUserSteward, function(req, res){
   }).exec(function(err, foundUser){
     if (err) { console.log(err); }
     
-    vendorModel.find({}, function(err, foundVendors){
+    db.Vendor.find({}, function(err, foundVendors){
       if (err) { console.log(err); }
       
       foundVendors.sort(dynamicSort('vendorID'));
@@ -51,7 +49,7 @@ router.get("/", middleware.isUserSteward, function(req, res){
 
 //POST - User creation route
 router.post("/", middleware.isUserSteward, function(req, res){
-  var newVendor = new vendorModel({
+  var newVendor = new db.Vendor({
       name: req.body.name,
       address: req.body.address,
       vendorID: req.body.vendorID,
@@ -60,17 +58,17 @@ router.post("/", middleware.isUserSteward, function(req, res){
   });
   console.log("New vendor: ", newVendor);
   
-  vendorModel.create(newVendor, function(err, createdVendor){
+  db.Vendor.create(newVendor, function(err, createdVendor){
     if(err) { 
       console.log(err); 
       res.redirect("/");
     }
     
-    userModel.findById(req.user.id).populate('company').exec(function(err, foundUser){
+    db.User.findById(req.user.id).populate('company').exec(function(err, foundUser){
       if (err) { console.log(err); }
       
       // Need to find and update company with deleted user
-      companyModel.findById(foundUser.company._id, function(err, foundCompany){
+      db.Company.findById(foundUser.company._id, function(err, foundCompany){
         if (err) { console.log(err); }
 
         foundCompany.vendors.push(createdVendor);
@@ -87,10 +85,10 @@ router.post("/", middleware.isUserSteward, function(req, res){
 
 //GET - User card show route
 router.get("/:id", middleware.isUserSteward, function(req, res){
-  userModel.findById(req.params.id, function(err, foundUser){
+  db.User.findById(req.params.id, function(err, foundUser){
     if (err) { console.log(err); }
       
-    userModel.findById(req.user.id).populate('company').exec(function(err, currentUser){
+    db.User.findById(req.user.id).populate('company').exec(function(err, currentUser){
       if (err) { console.log(err); }
       
       res.render('users/profile',{user:currentUser, driver: foundUser});
@@ -101,10 +99,10 @@ router.get("/:id", middleware.isUserSteward, function(req, res){
 //GET - User update show route
 router.get("/:id/edit", middleware.isUserSteward, function(req, res){
   
-  vendorModel.findById(req.params.id, function(err, foundVendor){
+  db.Vendor.findById(req.params.id, function(err, foundVendor){
     if (err) { console.log(err); }
       
-    userModel.findById(req.user.id).populate('company').exec(function(err, currentUser){
+    db.User.findById(req.user.id).populate('company').exec(function(err, currentUser){
       if (err) { console.log(err); }
       
       res.render('vendors/update',{user:currentUser, vendor:foundVendor});
@@ -122,10 +120,10 @@ router.put("/:id/edit", middleware.isUserSteward, function(req, res){
   };
   
   
-  vendorModel.findByIdAndUpdate(req.params.id, updatedVendor, function(err, foundVendor){
+  db.Vendor.findByIdAndUpdate(req.params.id, updatedVendor, function(err, foundVendor){
     if (err) { console.log(err); }
       
-    userModel.findById(req.user.id).populate('company').exec(function(err, currentUser){
+    db.User.findById(req.user.id).populate('company').exec(function(err, currentUser){
       if (err) { console.log(err); }
       
       res.redirect("/company/" + currentUser.company._id + "/vendors");
@@ -137,7 +135,7 @@ router.put("/:id/edit", middleware.isUserSteward, function(req, res){
 //GET - Vendor route to update status 
 router.get("/:id/change-status", function(req, res){
     
-    vendorModel.findById(req.params.id, function(err, vendor){
+    db.Vendor.findById(req.params.id, function(err, vendor){
       if (err) {
         console.log(err);
       }
@@ -155,11 +153,11 @@ router.get("/:id/change-status", function(req, res){
 //DELETE - User route to delete item 
 router.delete("/:id", middleware.isUserSteward, function(req, res){
   
-  userModel.findById(req.user.id).populate('company').exec(function(err, foundUser){
+  db.User.findById(req.user.id).populate('company').exec(function(err, foundUser){
     if (err) { console.log(err); }
     
     // Need to find and update company with deleted vendor
-    companyModel.findById(foundUser.company._id, function(err, foundCompany){
+    db.Company.findById(foundUser.company._id, function(err, foundCompany){
       if (err) { console.log(err); }
 
       var foundUserIndex = foundCompany.vendors.indexOf(req.params.id);
@@ -169,7 +167,7 @@ router.delete("/:id", middleware.isUserSteward, function(req, res){
       }
       
       // After company was updated we will remove selected vendor
-      vendorModel.findByIdAndRemove(req.params.id, function(err, vendor){
+      db.Vendor.findByIdAndRemove(req.params.id, function(err, vendor){
         if (err) {
           console.log(err);
           res.redirect("/company/" + foundCompany._id + "/vendors");

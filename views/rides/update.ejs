@@ -11,6 +11,9 @@
                     <div class="row card2 card-body2 bg-light9">
                     
                     <div class="col-md-6 col-12 left-line">
+                            <div class="text-left lead" style="margin-top: .5rem;">
+                                פרטי נסיעה
+                            </div>
                             <div class="form-group">
                                 <label for="name">
                                     שם נסיעה
@@ -95,11 +98,11 @@
                                         <label for="startTime">
                                             שעת תחילת הנסיעה
                                         </label>
-                                        <input class="form-control input-time" id="time-form" name="startTime" value="<%= ride.startTime %>" placeholder="12:00">
+                                        <input class="form-control input-time" id="time-form" name="startTime" value="<%= ride.startTimeParsed %>" placeholder="12:00">
                                         <label for="endTime">
                                             שעת סיום הנסיעה
                                         </label>
-                                        <input class="form-control input-time" id="time-form" name="endTime" value="<%= ride.endTime %>" placeholder="13:30">
+                                        <input class="form-control input-time" id="time-form" name="endTime" value="<%= ride.endTimeParsed %>" placeholder="13:30">
                                     </div>
                                 <% } else { %>
                                 
@@ -111,11 +114,11 @@
                                         <label for="startTime">
                                             שעת תחילת הנסיעה
                                         </label>
-                                        <input class="form-control input-time" id="time-form" name="startTime" value="<%= ride.startTime %>" placeholder="12:00">
+                                        <input class="form-control input-time" id="time-form" name="startTime" value="<%= ride.startTimeParsed %>" placeholder="12:00">
                                         <label for="endTime">
                                             שעת סיום הנסיעה
                                         </label>
-                                        <input class="form-control input-time" id="time-form" name="endTime" value="<%= ride.endTime %>" placeholder="13:30">
+                                        <input class="form-control input-time" id="time-form" name="endTime" value="<%= ride.endTimeParsed %>" placeholder="13:30">
                                     </div>
                                 <% } %>
                                 
@@ -145,56 +148,94 @@
                                     </div>
                                     <input class="form-control input-price" id="priceAfterVAT" name="priceAfterVAT">
                                 </div>
-                               
+                                <label for="notes">
+                                    הערות
+                                </label>
+                                <textarea class="form-control" rows="5" id="notes" name="notes"><%= ride.notes %></textarea>
                             </div>
                     </div>
                     <div class="col-md-6 col-12">
-                        <a href="javascript:void(0)" id="addStop" class="btn btn-default btn-round btn-sm btn-block mt-2 mb-4">
-                            הוסף כתובת איסוף
-                        </a>
-                        <div id="stops">
-                        <% for (var c = 0; c < ride.addresses.length; c++) { %>
-                            <% var counterText = 'stop_' + c; %>
-                            <div id="inputForAddStop">
-                            <div class="text-left" style="margin-top: .5rem;">
-                                תחנה מספר - <%= ride.addresses.length - c %>
-                                <% if(c != ride.addresses.length-1) { %>
-                                    <span id="delete-stop" class="close-stop-item"><i class="fal fa-times-circle"></i></span>
-                                <% } %>    
+                         
+                        <div id="inputForAddStop">
+                            <div class="text-left lead" style="margin-top: .5rem;">
+                                תחנת תחילת הנסיעה
                             </div>
                             <label for="addresses">
                                 שם התחנה
                             </label>
-                            <input type="text" class="form-control" name="addresses[stopName]" value="<%= ride.addresses[c].stopName %>" placeholder="הכנס שם התחנה">
+                            <input type="text" class="form-control" name="addresses[stopName]"  value="<%= ride.addresses[0].stopName %>" placeholder="הכנס שם התחנה">
                             <label for="addresses">
-                                כתובת תחנה
+                                כתובת תחנה  
                             </label>
-                            <input type="text" class="form-control" id="inputForAddStop_<%= c %>" name="addresses[stopAddress]" value="<%= ride.addresses[c].stopAddress %>" placeholder="הכנס כתובת התחנה">
+                            <input type="text" id="inputForAddStop_start" class="form-control" name="addresses[stopAddress]"  value="<%= ride.addresses[0].stopAddress %>" placeholder="הכנס כתובת התחנה">
                             <label for="addresses">
                                 איש קשר לתחנה זו
-                            </label>'
-                            <input type="text" class="form-control" name="addresses[contactPerson]" value="<%= ride.addresses[c].contactPerson %>" placeholder="הכנס איש קשר לתחנה">
-                            <label for="addresses">
-                                טלפון   
                             </label>
-                            <input class="form-control input-stop-phone inputForAddStop" name="addresses[phoneNumber]" value="<%= ride.addresses[c].phoneNumber %>" placeholder="0XX-XXX-XXXX">
+                            <input type="text" class="form-control" name="addresses[contactPerson]" value="<%= ride.addresses[0].contactPerson %>" placeholder="הכנס איש קשר לתחנה">
+                            <label for="addresses">
+                                טלפון
+                            </label>
+                            <input class="form-control input-stop-phone inputForAddStop_start" name="addresses[phoneNumber]" value="<%= ride.addresses[0].phoneNumber %>" placeholder="0XX-XXX-XXXX">
                             <label for="addresses">
                                 כמות אנשים לאיסוף
                             </label>
-                            <input type="number" class="form-control" name="addresses[numberOfPeopleToCollect]" value="<%= ride.addresses[c].numberOfPeopleToCollect %>" placeholder="כמות אנשים לאיסוף">
+                            <input type="number" class="form-control" name="addresses[numberOfPeopleToCollect]" value="<%= ride.addresses[0].numberOfPeopleToCollect %>" placeholder="כמות אנשים לאיסוף">
+                            <a href="javascript:void(0)" id="addStop" class="btn btn-default btn-round btn-sm btn-block mt-4 mb-4">
+                               הוסף תחנת ביניים
+                            </a>
+                            <hr class="mb-4 mt-4">
+                        </div>
+                        <div id="stops">
+                        <% for (var c = 1; c < ride.addresses.length-1; c++) { %>
+                            <% var counterText = 'stop_' + c; %>
+                            <div id="inputForAddStop">
+                                <div class="align-items-baseline d-flex justify-content-between lead text-left">
+                                    תחנה ביניים
+                                <span id="delete-stop" class="close-stop-item text-muted h5"><i class="fal fa-times-circle" style="font-size: 1rem;"></i></span>
+                                </div>
+                                <label for="addresses">
+                                    שם התחנה
+                                </label>
+                                <input type="text" class="form-control" name="addresses[stopName]" value="<%= ride.addresses[c].stopName %>" placeholder="הכנס שם התחנה">
+                                <label for="addresses">
+                                    כתובת תחנה
+                                </label>
+                                <input type="text" class="form-control" id="inputForAddStop_<%= c %>" name="addresses[stopAddress]" value="<%= ride.addresses[c].stopAddress %>" placeholder="הכנס כתובת התחנה">
+                                <label for="addresses">
+                                    איש קשר לתחנה זו
+                                </label>'
+                                <input type="text" class="form-control" name="addresses[contactPerson]" value="<%= ride.addresses[c].contactPerson %>" placeholder="הכנס איש קשר לתחנה">
+                                <label for="addresses">
+                                    טלפון   
+                                </label>
+                                <input class="form-control input-stop-phone inputForAddStop" name="addresses[phoneNumber]" value="<%= ride.addresses[c].phoneNumber %>" placeholder="0XX-XXX-XXXX">
+                                <label for="addresses">
+                                    כמות אנשים לאיסוף
+                                </label>
+                                <input type="number" class="form-control" name="addresses[numberOfPeopleToCollect]" value="<%= ride.addresses[c].numberOfPeopleToCollect %>" placeholder="כמות אנשים לאיסוף">
                             </div>
-                            <% if(c != ride.addresses.length-1) { %>
-                                <hr class="mb-4 mt-4">
-                            <% } %>    
+                            <hr class="mb-4 mt-4">
                         <% } %>    
                         </div>
+                        <div id="inputForAddStop">
+                            <div class="text-left lead" style="margin-top: .5rem;">
+                                תחנת סיום הנסיעה
+                            </div>
+                            <label for="addresses">
+                                שם התחנה
+                            </label>
+                            <input type="text" class="form-control" name="addresses[stopName]" value="<%= ride.addresses[ride.addresses.length-1].stopName %>" placeholder="הכנס שם התחנה">
+                            <label for="addresses">
+                                כתובת תחנה  
+                            </label>
+                            <input type="text" id="inputForAddStop_finish" class="form-control" name="addresses[stopAddress]" value="<%= ride.addresses[ride.addresses.length-1].stopAddress %>" placeholder="הכנס כתובת התחנה">
+                        </div>
                     </div>
-                    
                 </div>
                 <div class="row align-items-center justify-content-center">
                     <div class="col-11 alert alert-warning text-center mt-3" role="alert">
                       <i class="fal fa-exclamation-triangle"></i>
-                      הזהרה! שמירה של עידכון של נסיעה תבטל שיוך רכב לנסיעה זו (אם היה משוייך)
+                      אזהרה! שמירה של עידכון של נסיעה תבטל שיוך רכב לנסיעה זו (אם היה משוייך)
                     </div>
                 </div>
                 <div class="row align-items-center justify-content-center">
@@ -225,8 +266,6 @@
 <% include ../partials/footer %>
 <script>
     var counter = <%= ride.addresses.length %>;
-    
-    
 </script>
 
 <script type="text/javascript" src="/assets/js/rides-update.js?v=<%= version %>"></script>
@@ -248,17 +287,24 @@
                     });
                 })
                 
-                for (var t = 0; t < counter; t++) {
-                    places({
-                        appId: "<%= PLACES_APP_ID %>",
-                        apiKey: "<%= PLACES_API_KEY %>",
-                        container: document.querySelector('#inputForAddStop_' + t)
-                    }).configure({
-                        countries: ['il'],
-                        language: 'he',
-                        style: false
-                    });
-                }
+                places({
+                    appId: "<%= PLACES_APP_ID %>",
+                    apiKey: "<%= PLACES_API_KEY %>",
+                    container: document.querySelector('#inputForAddStop_start')
+                }).configure({
+                    countries: ['il'],
+                    language: 'he',
+                    style: false
+                });
+                places({
+                    appId: "<%= PLACES_APP_ID %>",
+                    apiKey: "<%= PLACES_API_KEY %>",
+                    container: document.querySelector('#inputForAddStop_finish')
+                }).configure({
+                    countries: ['il'],
+                    language: 'he',
+                    style: false
+                });
             }, 400);
         });
     }(jQuery));
