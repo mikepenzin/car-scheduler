@@ -272,6 +272,19 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6, p, .navbar, .brand, .btn-s
     background-color: rgba(178, 0, 0, 0.1);
 }
 
+.btn-warning {
+    border-color: rgba(255, 69, 7, 0.8) !important;
+    color: rgba(255, 69, 7, 0.8) !important;
+    transition: linear 0.5s;
+}
+
+.btn-warning:hover,
+.btn-warning:active {
+    border-color: rgba(255, 69, 7, 1);
+    color: rgba(255, 69, 7, 1) !important;
+    background-color: rgba(255, 69, 7, 0.1);
+}
+
 .btn-default {
     border-color: rgba(119, 119, 119, 0.8)!important;
     color: rgba(119, 119, 119, 0.8) !important;
@@ -283,6 +296,10 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6, p, .navbar, .brand, .btn-s
     border-color: rgba(119, 119, 119, 1);
     color: rgba(119, 119, 119, 1);
     background-color: rgba(119, 119, 119, 0.1);
+}
+
+.text-warning, .text-warning:hover {
+    color: #ff4507 !important;
 }
 
 a {
@@ -576,11 +593,6 @@ label {
     border-radius: 0.25rem;
 }
 
-.centered-buttons-container {
-    display: flex;
-    align-items: center;
-}
-
 .delete-form {
     display: inline-block;
     margin-bottom: 0;
@@ -641,6 +653,11 @@ h3 {
 @media screen and (min-width: 768px) {
     .left-line {
         border-left: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .centered-buttons-container {
+        display: flex;
+        align-items: center;
     }
 }
 
@@ -852,4 +869,11 @@ hr {
 .today-label {
     position: relative;
     top: -1px;
+}
+
+.btn-primary:disabled, .btn-primary:disabled:hover{
+    background-color: transparent;
+    border-color: #888888; 
+    color: black;
+    cursor: not-allowed;
 }

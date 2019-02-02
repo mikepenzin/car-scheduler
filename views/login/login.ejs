@@ -6,17 +6,23 @@
         <div class="row align-items-center justify-content-center general-background login-wrapper">
             <div class="col-10 col-sm-10 col-md-8 col-lg-6 col-xl-4 general-login-box">
                 <form action="/auth/login" method="POST" class="col-md-auto">
-                    <div class="input-group">
+                    <label for="username" style="font-weight: bold;">
+                        שם משתמש (ת.ז.)
+                    </label>
+                    <div class="input-group m-0">
                         <div class="input-group-prepend">
                             <div class="input-group-text"><i class="fal fa-user"></i></div>
                         </div>
                         <input type="text" class="form-control" id="username" name="username" placeholder="שם משתמש">
                     </div>
-                    <div class="input-group">
+                    <label for="username"  style="font-weight: bold;">
+                        סיסמה
+                    </label>
+                    <div class="input-group m-0">
                         <div class="input-group-prepend">
                             <div class="input-group-text"><i class="fal fa-key"></i></div>
                         </div>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="סיסמה">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="סיסמה או קוד זיהוי">
                     </div>
                     <div class="form-group submit-btn-wrap">
                         <button type="submit" class="btn btn-primary btn-round btn-block btn-login">היכנס</button>

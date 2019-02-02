@@ -1,6 +1,6 @@
 var express         = require("express");
 var middleware      = require('../middleware');
-var db              = require('../models');
+var api             = require("../service_api");
 var router          = express.Router();
 
 
@@ -14,17 +14,10 @@ router.use(function timeLog (req, res, next) {
 
 
 //root route
-router.get("/", middleware.isLoggedIn , function(req, res){
+router.get("/", middleware.isLoggedInMainPage , function(req, res){
   
-  db.User.findById(req.user.id).populate({ 
-     path: 'company',
-     populate: {
-       path: 'vendors',
-       model: 'Vendor'
-     }
-  }).exec(function(err, foundUser){
-    if (err) { console.log(err); }
-    
+  api.User.getUserByIdAndPopulate(req.user.id, { path: 'company', populate: { path: 'vendors', model: 'Vendor' } })  
+  .then(function(foundUser){
     if( foundUser.role == 'steward' || foundUser.role == 'admin' ) {
       
       var driversCounter = 0;
@@ -36,17 +29,16 @@ router.get("/", middleware.isLoggedIn , function(req, res){
         totalRides += foundUser.company.vendors[t].rides.length;
       }
       
-      db.User.find({company: foundUser.company._id}, function(err, relevantUsers){
-        if (err) { console.log(err); }
-        
+      api.User.getQuery({company: foundUser.company._id})
+      .then(function(relevantUsers){
         for(var i = 0; i < relevantUsers.length; i++) {
           if(relevantUsers[i].role == 'driver') {
             driversCounter++;
           }
         }
         
-        db.Company.findById(foundUser.company._id).populate('cars').exec(function(err, foundCompany){
-          if (err) { console.log(err); }
+        api.Company.getCompanyByIdAndPopulate(foundUser.company._id, 'cars')  
+        .then(function(foundCompany){
           
           for(var y = 0; y < foundCompany.cars.length; y++) {
             if(foundCompany.cars[y].isContractor) {
@@ -62,7 +54,15 @@ router.get("/", middleware.isLoggedIn , function(req, res){
                                    carsCounter: carsCounter, 
                                    contractorCarsCounter:contractorCarsCounter, 
                                    totalRides:totalRides});
+        })
+        .catch(function(err){
+          console.log(err);
+          res.redirect("back");
         });
+      })
+      .catch(function(err){
+        console.log(err);
+        res.redirect("back");
       });
       
     } else {
@@ -70,12 +70,16 @@ router.get("/", middleware.isLoggedIn , function(req, res){
     }
 
     
+  })
+  .catch(function(err){
+    console.log(err);
+    res.redirect("back");
   });
 });
 
 //GET - 404 page route
 router.get("/404", function(req, res){
-      res.render("main/404");
+  res.render("main/404");
 });
 
 

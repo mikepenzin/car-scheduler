@@ -2,125 +2,192 @@
 <% include ../partials/navbar %>
 
 <div class="container-fluid">
-    <div class="row align-items-center justify-content-center mt-3">
-        <div id="open-form-dialog" class="btn btn-primary btn-round">
-            הוספת ספק חדש
-        </div>
-    </div>
-    <div id="form-dialog" class="container mt-2">
-        <div class="row justify-content-md-center">
-            <div class="col-12 col-md-6">
-                <form action="/company/<%= user.company._id %>/vendors" method="POST" class="card card-body bg-light">
-                    <div class="form-group">
-                        <label for="name">
-                            שם חברה
-                        </label>
-                        <input type="text" class="form-control" name="name" required placeholder="הכנס שם משתמש">
-                        <label for="vendorId">
-                            תג זיהוי ספק
-                        </label>
-                        <input type="text" readonly="readonly" class="form-control" required name="vendorID" value="<%= vendorID %>">
-                        <label for="personInfo">
-                            איש קשר
-                        </label>
-                        <input type="text" class="form-control" name="personInfo" required placeholder="הכנס איש קשר">
-                        <label for="address">
-                            כתובת
-                        </label>
-                        <input type="text" class="form-control" id="vendorAddress" name="address" required placeholder="הכנס כתובת">
-                        <label for="phoneNumber">
-                            טלפון
-                        </label>
-                        <input class="form-control input-phone" name="phoneNumber" required placeholder="0XX-XXX-XXXX">
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-round btn-block">
-                        שלח
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
+	<div class="row align-items-center justify-content-center mt-3">
+		<div id="open-form-dialog" class="btn btn-primary btn-round">
+			הוספת ספק חדש
+		</div>
+	</div>
+	<div id="form-dialog" class="container mt-2">
+		<div class="row justify-content-md-center">
+			<div class="col-12 col-md-6">
+				<form action="/company/<%= user.company._id %>/vendors" method="POST" class="card card-body bg-light">
+					<div class="form-group">
+						<label for="name">
+							שם חברה
+						</label>
+						<input type="text" class="form-control" name="name" required placeholder="הכנס שם משתמש">
+						<!--<label for="vendorId">-->
+						<!--	תג זיהוי ספק-->
+						<!--</label>-->
+						<!--<input type="text" readonly="readonly" class="form-control" required name="vendorID" value="<%= vendorID %>">-->
+						<label for="personInfo">
+							איש קשר
+						</label>
+						<input type="text" class="form-control" name="personInfo" required placeholder="הכנס איש קשר">
+						<label for="address">
+							כתובת
+						</label>
+						<input type="text" class="form-control" id="vendorAddress" name="address" required placeholder="הכנס כתובת">
+						<label for="phoneNumber">
+							טלפון
+						</label>
+						<input class="form-control input-phone" name="phoneNumber" required placeholder="0XX-XXX-XXXX">
+					</div>
+					<button type="submit" class="btn btn-primary btn-round btn-block">
+						שלח
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
 
-    <% if (user.company.vendors && user.company.vendors.length != 0) { %>
-        <div class="container mt-3 mb-3">
-            <div class="row align-items-center justify-content-center">
-                <% user.company.vendors.forEach(function(u){ %> 
-                    <div class="col-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
-                        <div class="card">
-                            <div class="card-info">
-                                <div class="media d-flex">
-                                    <div class="media-body text-left">
-                                       <h3>
-                                           <%= u.name  %>
-                                       </h3>
-                                       <small>
-                                           תג זיהוי:
-                                           <%= u.vendorID %></small>
-                                       <div>
-                                           איש קשר: 
-                                           <%= u.personInfo %>
-                                       </div>
-                                       <div>
-                                           כתובת: 
-                                           <div><small><%= u.address %></small></div>
-                                       </div>
-                                       <div>
-                                           טלפון: 
-                                           <div class="input-phone">
-                                               <small> 
-                                                <a href='tel:<%= u.phoneNumber.replace(/\s/g, '') %>'><%= u.phoneNumber %> </a>
-                                               </small>
-                                           </div>
-                                       </div>
+	<% if (user.company.vendors && user.company.vendors.length != 0) { %>
+		<div class="container mt-3 mb-3">
+			<div class="row align-items-center justify-content-center">
+				<% user.company.vendors.forEach(function(u){ %> 
+					<div class="col-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
+						<div class="card">
+							<div class="card-info">
+								<div class="media d-flex">
+									<div class="media-body text-left">
+									   <h3>
+										   <%= u.name  %>
+									   </h3>
+									   <small>
+										   תג זיהוי:
+										   <%= u.vendorID %></small>
+									   <div>
+										   איש קשר: 
+										   <%= u.personInfo %>
+									   </div>
+									   <div>
+										   כתובת: 
+										   <div><small><%= u.address %></small></div>
+									   </div>
+									   <div>
+										   טלפון: 
+										   <div class="input-phone">
+											   <small> 
+												<a href='tel:<%= u.phoneNumber.replace(/\s/g, '') %>'><%= u.phoneNumber %> </a>
+											   </small>
+										   </div>
+									   </div>
+									   <% if (u.isActive) { %>
+                                            <div id="not-active-<%= u._id %>" class="text-warning no-driver-message" style="display: none;">
+                                        <% } else { %>    
+                                            <div id="not-active-<%= u._id %>" class="text-warning no-driver-message">
+                                        <% } %>  
+                                            <i class="fal fa-exclamation-triangle"></i>
+                                            הספק מושבת, לא ניתן להשתמש בספק זה עד להפעלתו!
+                                        </div>
+									</div>
+									<div class="align-self-start" style="margin: 8px 10px 0 0;">
+										<i class="fal fa-building azure font-large-2 float-left"></i>
+									</div>
+								</div>
+								<div class="mt-4 centered-buttons-container">
+									<div class="row">
+                                        <div class="col-12 col-md-5 p-1">
+                                            <a class="btn btn-default btn-round btn-block btn-sm mr-2 mt-1 pl-3 pr-3" href="/company/<%= user.company._id %>/cars/<%= u._id %>/edit">עדכון</a>
+                                        </div>
+                                        <div class="col-12  col-md-7 p-1">
+                                            <% if (u.isActive) { %>
+        										<a href="javascript:void(0)" class="btn btn-warning btn-round btn-sm btn-block mr-2 mt-1 pl-3 pr-3 vendor-status" id="<%= u._id %>" data-url="/company/<%= user.company._id %>/cars/<%= u._id %>/change-status"> השבת <i class="fal fa-eye-slash ml-1"></i> </a>
+        									<% } else { %>
+        										<a href="javascript:void(0)" class="btn btn-warning btn-round btn-sm btn-block mr-2 mt-1 pl-3 pr-3 vendor-status" id="<%= u._id %>" data-url="/company/<%= user.company._id %>/cars/<%= u._id %>/change-status"> הפעלה <i class="fal fa-eye ml-1"></i> </a>
+        									<% } %>
+    									</div>
                                     </div>
-                                    <div class="align-self-center">
-                                        <i class="fal fa-building azure font-large-2 float-left"></i>
-                                    </div>
-                                </div>
-                                <div class="mt-4 centered-buttons-container">
-                                    <a class="btn btn-default btn-round btn-sm mr-2 pl-3 pr-3" href="/company/<%= user.company._id %>/vendors/<%= u._id %>/edit">עדכון</a>
-                                    <% if (u.currentStatus != 'disabled') { %>
-                                        <a class="btn btn-delete btn-round btn-sm mr-2 pl-3 pr-3" href="/company/<%= user.company._id %>/vendors/<%= u._id %>/change-status"> השבת <i class="fal fa-eye-slash ml-1"></i> </a>
-                                    <% } else { %>
-                                        <a class="btn btn-primary btn-round btn-sm mr-2 pl-3 pr-3" href="/company/<%= user.company._id %>/vendors/<%= u._id %>/change-status"> הפעלה <i class="fal fa-eye ml-1"></i> </a>
-                                    <% } %>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <% }); %>
-            </div>
-        </div>   
-        
-    <% } else { %>
-    
-        <div class="row justify-content-md-center">
-            <div class="mx-auto mt-3 card card-body bg-light col-8 text-center">
-     נראה שלא נוספו נהגים עדיין. הוסף נהג.
-            </div>
-        </div>
-        
-    <% } %>
-    
+								</div>
+							</div>
+						</div>
+					</div>
+				<% }); %>
+			</div>
+		</div>   
+		
+	<% } else { %>
+	
+		<div class="row justify-content-md-center">
+			<div class="mx-auto mt-3 card card-body bg-light col-8 text-center">
+	 נראה שלא נוספו נהגים עדיין. הוסף נהג.
+			</div>
+		</div>
+		
+	<% } %>
+	
 </div>
 
 <% include ../partials/footer %>
 <script>
-    (function ($) {
-        $(document).ready( function() {
-            setTimeout(function(){
-                places({
-                    appId: "<%= PLACES_APP_ID %>",
-                    apiKey: "<%= PLACES_API_KEY %>",
-                    container: document.querySelector('#vendorAddress')
-                }).configure({
-                    countries: ['il'],
-                    language: 'he',
-                    style: false
-                });
-            }, 400);
-        });
-    }(jQuery));
+	(function ($) {
+		$(document).ready( function() {
+			
+			var vendorData = {
+				<% user.company.vendors.forEach(function(u, index){ %> 
+					'<%= u._id %>': <%= u.isActive %><% if (index != user.company.vendors.length - 1){ %>,<% } %>
+				<% }); %>
+			};
+			
+			console.log(vendorData);
+				
+			$('.vendor-status').each(function(index, elm){
+				$(this).data('active', vendorData[$(this)[0].id]);
+			});
+			
+			$('.vendor-status').on('click', function(event){
+				event.stopPropagation();
+    			event.stopImmediatePropagation();
+				var elm = $(this)[0];
+				var activity = $(this).data('active');
+				console.log("ID: " + elm.id,'Activity: ' + activity, typeof(activity));
+				updateVendorStatus(elm.id, elm.dataset.url, !activity);
+			})
+			
+			function updateVendorStatus(id, url, active) {
+				var updateUrl = url;
+				var updateData = { isActive: active};
+				
+				console.log(updateData);
+				
+				$.ajax({
+					method: 'PUT',
+					url: updateUrl,
+				    data: updateData
+				})
+				.then(function(updatedVendor){
+					
+					var result = updatedVendor;
+				    var element = $("#" + id);
+				    // element.toggleClass('btn-delete');
+				    element.data('active', result.isActive);
+				    
+				    console.log(result.isActive, element.data());
+				    
+				    if(result.isActive) {
+				    	element.html(' השבת <i class="fal fa-eye-slash ml-1"></i>');
+				    	$('#not-active-' + id).hide('slow');
+				    } else {
+				    	element.html(' הפעלה <i class="fal fa-eye ml-1">');
+				    	$('#not-active-' + id).show('slow');
+				    }
+				    
+				});
+			}
+		
+			setTimeout(function(){
+				places({
+					appId: "<%= PLACES_APP_ID %>",
+					apiKey: "<%= PLACES_API_KEY %>",
+					container: document.querySelector('#vendorAddress')
+				}).configure({
+					countries: ['il'],
+					language: 'he',
+					style: false
+				});
+			}, 400);
+		});
+	}(jQuery));
 </script>
 
 <% include ../partials/closing_tags %>

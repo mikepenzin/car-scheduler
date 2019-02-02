@@ -60,3 +60,111 @@ form {
 .form-group {
     margin-bottom: 0;
 }
+
+.btn-primary:disabled, .btn-primary:disabled:hover{
+    background-color: transparent;
+    border-color: #888888; 
+    color: black;
+    cursor: not-allowed;
+}
+
+.btn {
+    opacity: 1;
+}
+
+.btn-primary:not(:disabled):not(.disabled).active, .btn-primary:not(:disabled):not(.disabled):active, .show>.btn-primary.dropdown-toggle {
+    color: #fff;
+    /*background-color: #0062cc;*/
+    background-color: rgba(142, 84, 233, 1);
+    border-color: rgba(142, 84, 233, 1);
+}
+
+.btn-primary, .btn-primary:link, a.btn-primary {
+    border-color: rgba(142, 84, 233, 0.8);
+    color: rgba(142, 84, 233, 1);
+    transition: linear 0.5s;
+}
+
+.btn-primary:visited,
+.btn-primary:hover,
+.btn-primary:active {
+    border-color: rgba(142, 84, 233, 1);
+    color: rgba(142, 84, 233, 1);
+    background-color: rgba(142, 84, 233, 0.1);
+}
+
+.btn-white:not(:disabled):not(.disabled).active, .btn-white:not(:disabled):not(.disabled):active, .show>.btn-white.dropdown-toggle {
+    color: #fff;
+    /*background-color: #0062cc;*/
+    background-color: rgba(255, 255, 255, 1);
+    border-color: rgba(255, 255, 255, 1);
+}
+
+.btn-white, .btn-white:link, a.btn-white {
+    border-color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 1);
+    transition: linear 0.5s;
+}
+
+.btn-white:visited,
+.btn-white:hover,
+.btn-white:active {
+    border-color: rgba(255, 255, 255, 1);
+    color: rgba(255, 255, 255, 1);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-delete {
+    border-color: rgba(178, 0, 0, 0.8) !important;
+    color: rgba(178, 0, 0, 0.8) !important;
+    transition: linear 0.5s;
+}
+
+.btn-delete:hover,
+.btn-delete:active {
+    border-color: rgba(178, 0, 0, 1);
+    color: rgba(178, 0, 0, 1) !important;
+    background-color: rgba(178, 0, 0, 0.1);
+}
+
+.btn-warning {
+    border-color: rgba(255, 69, 7, 0.8) !important;
+    color: rgba(255, 69, 7, 0.8) !important;
+    transition: linear 0.5s;
+}
+
+.btn-warning:hover,
+.btn-warning:active {
+    border-color: rgba(255, 69, 7, 1);
+    color: rgba(255, 69, 7, 1) !important;
+    background-color: rgba(255, 69, 7, 0.1);
+}
+
+.btn-default {
+    border-color: rgba(119, 119, 119, 0.8)!important;
+    color: rgba(119, 119, 119, 0.8) !important;
+    transition: linear 0.5s;
+}
+
+.btn-default:hover,
+.btn-default:active {
+    border-color: rgba(119, 119, 119, 1);
+    color: rgba(119, 119, 119, 1);
+    background-color: rgba(119, 119, 119, 0.1);
+}
+
+.text-warning, .text-warning:hover {
+    color: #ff4507 !important;
+}
+
+a {
+    cursor: pointer;
+    color: rgba(119, 119, 119, 1);
+    transition: linear 0.3s;
+}
+
+a:hover,
+a:active,
+a:focus {
+    color: rgba(119, 119, 119, 1);
+}

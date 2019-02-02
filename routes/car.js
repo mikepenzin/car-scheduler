@@ -1,5 +1,5 @@
 var express         = require("express");
-var db              = require('../models');
+var api             = require("../service_api");
 var middleware      = require('../middleware');
 var router          = express.Router();
 
@@ -11,56 +11,27 @@ router.use(function timeLog (req, res, next) {
   next();
 });
 
-function dynamicSort(property) {
-    var sortOrder = 1;
-    if(property[0] === "-") {
-        sortOrder = -1;
-        property = property.substr(1);
-    }
-    return function (a,b) {
-        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
-        return result * sortOrder;
-    };
-}
-
 //GET - Show general cars route
 router.get("/", middleware.isUserSteward, function(req, res){
   var drivers = [];
-  db.User.findById(req.user.id)
-  .populate({ 
-     path: 'company',
-     populate: {
-       path: 'cars',
-       model: 'Car'
-     }
-  }).exec(function(err, foundUser){
-    if (err) { console.log(err); }
-    
-    db.Company.findById(foundUser.company._id)
-      .populate('users')
-      .exec(function(err, foundCompany){
-        if (err) { console.log(err); }
+  
+  api.User.getUserByIdAndPopulate(req.user.id, {path: 'company',populate: {path: 'cars',model: 'Car'}})
+    .then(function(foundUser){
       
+    api.Company.getCompanyByIdAndPopulate(foundUser.company._id, 'users')
+      .then(function(foundCompany) {
         for (var i = 0; i < foundCompany.users.length; i++) {
           if (foundCompany.users[i].role == 'driver' && !foundCompany.users[i].isAttachedToCar) {
             drivers.push(foundCompany.users[i]);
           }
         }
       
-        db.Company.findById(foundUser.company._id)
-        .populate({ 
-           path: 'cars',
-           populate: {
-             path: 'driver',
-             model: 'User'
-           }
-        })
-        .exec(function(err, foundCars){
-          if (err) { console.log(err); }
+        api.Company.getCompanyByIdAndPopulate(foundUser.company._id, {path: 'cars', populate: {path: 'driver', model: 'User'}})
+          .then(function(foundCars) {
           
-          db.Car.find({}, function(err, foundCarForID){
+          api.Car.getAllCars('carId')
+            .then(function(foundCarForID){
             
-            if (foundCarForID) { foundCarForID.sort(dynamicSort('carId')); }
             var carIdNumber = foundCarForID.length > 0 ? (foundCarForID[foundCarForID.length-1].carId + 1) : 10;
             
             res.render("cars/show", {user: foundUser, drivers:drivers, carIdNumber: carIdNumber, cars: foundCars.cars});
@@ -72,7 +43,7 @@ router.get("/", middleware.isUserSteward, function(req, res){
 
 //POST - Add car route
 router.post("/", middleware.isUserSteward, function(req, res){
-    var newCar = new db.Car({
+    var newCar = {
         carName: req.body.carName,
         licensePlate: req.body.licensePlate,
         model:  req.body.model,
@@ -80,33 +51,31 @@ router.post("/", middleware.isUserSteward, function(req, res){
         numberOfSeats: req.body.numberOfSeats,
         manufactureYear: req.body.manufactureYear,
         isContractor: (req.body.isContractor === 'true' ? true : false)
-    });
+    };
     
-    db.User.findById(req.user.id).populate('company')
-    .exec(function(err, foundUser){
-      if (err) { console.log(err); }
-      
-      db.Company.findById(foundUser.company._id).exec(function(err, company){
-          if (err) { console.log(err); }
+    api.User.getUserByIdAndPopulate(req.user.id, 'company')
+    .then(function(foundUser){
+
+      api.Company.getCompanyById(foundUser.company._id)    
+        .then(function(company){
           
-          db.Car.create(newCar, function (err, createdCar){
-              if (err) { console.log(err); }
+          api.Car.createCar(newCar)
+            .then(function(createdCar){
               
               if (!createdCar.isContractor) {
-                db.User.findById(req.body.driverID, function(err, foundDriver){
-                  if (err) { console.log(err); }
-                  
-                  console.log(createdCar, foundDriver);
-                  createdCar.driver = foundDriver;
-                  createdCar.save();
-                  
-                  foundDriver.isAttachedToCar = true;
-                  foundDriver.save();
-                  
-                  company.cars.push(createdCar);
-                  company.save();
-                  
-                  res.redirect("/company/" + company._id + "/cars");
+
+                api.User.getUserById(req.body.driverID)
+                  .then(function(foundDriver){
+                    createdCar.driver = foundDriver;
+                    createdCar.save();
+                    
+                    foundDriver.isAttachedToCar = true;
+                    foundDriver.save();
+                    
+                    company.cars.push(createdCar);
+                    company.save();
+                    
+                    res.redirect("/company/" + company._id + "/cars");
                 });
               } else {
                 company.cars.push(createdCar);
@@ -119,31 +88,26 @@ router.post("/", middleware.isUserSteward, function(req, res){
   });
 });
 
-
 //GET - Show one car route
 router.get("/:car_id/edit", middleware.isUserSteward, function(req, res){
   console.log(req.params.car_id);
   var drivers = [];
-  db.Car.findById(req.params.car_id).populate('driver').exec(function(err, foundCar){
-    if (err) { console.log(err); }
-    console.log(foundCar.driver);
-    
-    db.User.findById(req.user.id).populate('company').exec(function(err, foundUser){
-      if (err) { console.log(err); }
-      
-      db.Company.findById(foundUser.company._id)
-      .populate('users')
-      .exec(function(err, foundCompany){
-        if (err) { console.log(err); }
-        
-        for (var i = 0; i < foundCompany.users.length; i++) {
-          if (foundCompany.users[i].role == 'driver') {
-            drivers.push(foundCompany.users[i]);
-          }
-        }
-        console.log(drivers, foundCar);
 
-        res.render("cars/update", {drivers:drivers, car: foundCar, user:foundUser});
+  api.User.getUserByIdAndPopulate(req.user.id, 'company')
+    .then(function(foundUser){
+    
+    api.Car.getCarByIdAndPopulate(req.params.car_id, 'driver')
+    .then(function(foundCar){  
+
+      api.Company.getCompanyByIdAndPopulate(foundUser.company._id, 'users') 
+        .then(function(foundCompany){  
+          
+          for (var i = 0; i < foundCompany.users.length; i++) {
+            if (foundCompany.users[i].role == 'driver') {
+              drivers.push(foundCompany.users[i]);
+            }
+          }
+          res.render("cars/update", {drivers:drivers, car: foundCar, user:foundUser});
       });
     });
   });
@@ -160,16 +124,14 @@ router.put("/:car_id/edit", middleware.isUserSteward, function(req, res){
     manufactureYear: req.body.manufactureYear
   };
   
-  db.User.findById(req.user.id).populate('company')
-  .exec(function(err, foundUser){
-    if (err) { console.log(err); }
+  api.User.getUserByIdAndPopulate(req.user.id, 'company')
+    .then(function(foundUser){
     
-    db.Company.findById(foundUser.company._id).exec(function(err, company){
-        if (err) { console.log(err); }
-        
-        db.Car.findByIdAndUpdate(req.params.car_id, updateCar, function(err, updatedCar){
-            if (err) { console.log(err); }
-            
+    api.Company.getCompanyById(foundUser.company._id)  
+      .then(function(company){
+      
+      api.Car.getCarByIdAndUpdate(req.params.car_id, updateCar)
+        .then(function(updatedCar){
             console.log("###########################");
             console.log(updatedCar);
             console.log("###########################");
@@ -189,61 +151,14 @@ router.put("/:car_id/edit", middleware.isUserSteward, function(req, res){
               // If no old driver defined but new does defined  
               } else if ( !oldDriver && (newDriver && newDriver != 'undefined') ) {
                 
-                db.User.findById(newDriver, function(err, foundNewDriver){
-                  if (err) { console.log(err); }
-                  
-                  // If found user is already attached to car need to detach and reattach to currently updated car. 
-                  if (foundNewDriver.isAttachedToCar) {
-                    db.Car.findOne({ driver: newDriver }, function(err, foundCarToUpdate){
-                      if (err) { console.log(err); }
-                      
-                      foundCarToUpdate.driver = undefined;
-                      foundCarToUpdate.save();
-                      updatedCar.driver = foundNewDriver;
-                      updatedCar.save();
-                      
-                      res.redirect("/company/" + company._id + "/cars");
-                    });
-                  } else {
-                      foundNewDriver.isAttachedToCar = true;
-                      foundNewDriver.save();
-                      updatedCar.driver = foundNewDriver;
-                      updatedCar.save();
-                      
-                      res.redirect("/company/" + company._id + "/cars");
-                  }
-                });
-                
-              // If old driver defined but new not
-              } else if ( oldDriver && newDriver == 'undefined') {
-                db.User.findById(oldDriver, function(err, foundOldDriver){
-                  if (err) { console.log(err); }
-                  
-                  foundOldDriver.isAttachedToCar = false;
-                  foundOldDriver.save();
-                  updatedCar.driver = undefined;
-                  updatedCar.save();
-                  
-                  res.redirect("/company/" + company._id + "/cars");
-                  
-                });
-              
-              // If both old and new driver defined and new is different than old
-              } else if( (oldDriver && (newDriver || newDriver != 'undefined')) && (oldDriver != newDriver) ) {
-                db.User.findById(oldDriver, function(err, foundOldDriver){
-                  if (err) { console.log(err); }
-                  
-                  foundOldDriver.isAttachedToCar = false;
-                  foundOldDriver.save();
-                  
-                  db.User.findById(newDriver, function(err, foundNewDriver){
-                    if (err) { console.log(err); }
-                  
+                console.log("THERE!!!!", newDriver);
+                api.User.getUserById(newDriver)  
+                  .then(function(foundNewDriver){
                     // If found user is already attached to car need to detach and reattach to currently updated car. 
                     if (foundNewDriver.isAttachedToCar) {
-                      db.Car.findOne({ driver: newDriver }, function(err, foundCarToUpdate){
-                        if (err) { console.log(err); }
-                        
+                      api.Car.getOneCar({ driver: newDriver })
+                      .then(function(foundCarToUpdate){
+                          
                         foundCarToUpdate.driver = undefined;
                         foundCarToUpdate.save();
                         updatedCar.driver = foundNewDriver;
@@ -259,7 +174,65 @@ router.put("/:car_id/edit", middleware.isUserSteward, function(req, res){
                         
                         res.redirect("/company/" + company._id + "/cars");
                     }
+                })
+                .catch(function(err){
+                  console.log(err);
+                });
+                
+              // If old driver defined but new not
+              } else if ( oldDriver && newDriver == 'undefined') {
+                api.User.getUserById(oldDriver)  
+                .then(function(foundOldDriver){
+                  foundOldDriver.isAttachedToCar = false;
+                  foundOldDriver.save();
+                  updatedCar.driver = undefined;
+                  updatedCar.save();
+                    
+                  res.redirect("/company/" + company._id + "/cars");
+                }).
+                catch(function(err){
+                  console.log(err);
+                });
+              
+              // If both old and new driver defined and new is different than old
+              } else if( (oldDriver && (newDriver || newDriver != 'undefined')) && (oldDriver != newDriver) ) {
+                api.User.getUserById(oldDriver)  
+                  .then(function(foundOldDriver){
+                    
+                    foundOldDriver.isAttachedToCar = false;
+                    foundOldDriver.save();
+                    
+                    api.User.getUserById(newDriver)  
+                      .then(function(foundNewDriver){
+                        // If found user is already attached to car need to detach and reattach to currently updated car. 
+                        if (foundNewDriver.isAttachedToCar) {
+                          api.Car.getOneCar({ driver: newDriver })  
+                          .then(function(foundCarToUpdate){
+                            foundCarToUpdate.driver = undefined;
+                            foundCarToUpdate.save();
+                            updatedCar.driver = foundNewDriver;
+                            updatedCar.save();
+                            
+                            res.redirect("/company/" + company._id + "/cars");
+                          }).
+                          catch(function(err){
+                            console.log(err);
+                          });
+                        } else {
+                            foundNewDriver.isAttachedToCar = true;
+                            foundNewDriver.save();
+                            updatedCar.driver = foundNewDriver;
+                            updatedCar.save();
+                            
+                            res.redirect("/company/" + company._id + "/cars");
+                        }
+                  }).
+                  catch(function(err){
+                    console.log(err);
                   });
+                }).
+                catch(function(err){
+                  console.log(err);
                 });
               } else {
                 res.redirect("/company/" + company._id + "/cars");
@@ -270,65 +243,79 @@ router.put("/:car_id/edit", middleware.isUserSteward, function(req, res){
   });
 });
 
+//GET - Vendor route to update status 
+router.put("/:id/change-status", function(req, res){
+
+    var isActive = {isActive: req.body.isActive == 'true'};
+    console.log(req.params.id, isActive);
+
+    api.Car.getCarByIdAndUpdate(req.params.id, isActive)
+    .then(function(car){
+      
+      res.json(isActive);
+    })
+    .catch(function(err){
+      console.log(err);
+    });
+});
 
 //DELETE - Delete car route
 router.delete("/:id", middleware.isUserSteward, function(req, res){
   
-  db.Car.findById(req.params.id, function(err, foundCar) {
-    if (err) { console.log(err); }
+  api.Car.getCarById(req.params.id)
+  .then(function(foundCar){
+  // If car is not contractor we need to update driver that he is not attached to car
+  if ((foundCar.driver && foundCar.driver != undefined) && !foundCar.isContractor) {
 
-    // If car is not contractor we need to update driver that he is not attached to car
-    if ((foundCar.driver && foundCar.driver != undefined) && !foundCar.isContractor) {
-      db.Car.findById(req.params.id).populate('driver').exec(function(err, newFoundCar) {
-        if (err) { console.log(err); }
-        
-        removeCarFromCompanyList(req.user.id, req.params.id);
-        var driver = {};
-        driver.isAttachedToCar = false;
-        console.log(newFoundCar.driver);
-        db.User.findByIdAndUpdate(newFoundCar.driver._id, driver, function(err, updatedUser){
-          if (err) { console.log(err); }
-          
-          db.Car.findByIdAndRemove(req.params.id, function(err, user){
-            if (err) {
-               console.log(err);
-               res.redirect("back");
-            } else {
-               res.redirect("back");
-            }        
-          }); 
-        });
-      });  
-    } else {
-      // Remove company is case no driver attached
-      removeCarFromCompanyList(req.user.id, req.params.id);
+    api.Car.getCarByIdAndPopulate(req.params.id, 'driver')
+    .then(function(newFoundCar){  
       
-      db.Car.findByIdAndRemove(req.params.id, function(err, car){
-        if (err) {
-           console.log(err);
-           res.redirect("back");
-        } else {
-           res.redirect("back");
-        }        
+      removeCarFromCompanyList(req.user.id, req.params.id);
+      var driver = {};
+      driver.isAttachedToCar = false;
+      console.log(newFoundCar.driver);
+      
+      api.User.getUserByIdAndUpdate(newFoundCar.driver._id, driver)
+      .then(function(updatedUser){
+        
+        api.Car.removeCarById(req.params.id)
+        .then(function(removedCar){
+          res.redirect("back");
+        })
+        .catch(function(err){
+          console.log(err);
+          res.redirect("back");
+        });
       });
-    }
+    });  
+  } else {
+    // Remove company is case no driver attached
+    removeCarFromCompanyList(req.user.id, req.params.id);
+    
+    api.Car.removeCarById(req.params.id)
+    .then(function(removedCar){
+      res.redirect("back");
+    })
+    .catch(function(err){
+      console.log(err);
+      res.redirect("back");
+    });
+  }
+    
   });
 });
 
-
 function removeCarFromCompanyList(user_id, car_id) {
-  db.User.findById(user_id, function(err, foundUser){
-    if (err) { console.log(err); }
-    
-    db.Company.findById(foundUser.company, function(err, foundCompany){
-      if (err) { console.log(err); }
-      
+  api.User.getUserById(user_id)
+  .then(function(foundUser){
+
+    api.Company.getCompanyById(foundUser.company)
+    .then(function(foundCompany){
       var carIndex = foundCompany.cars.indexOf(car_id);
       if (carIndex != -1) {
         foundCompany.cars.splice(carIndex, 1);
         foundCompany.save();
       }
-      
     });
   });
 }

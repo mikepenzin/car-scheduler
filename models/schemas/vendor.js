@@ -16,6 +16,10 @@ var RideSchema = new mongoose.Schema({
         type: String, 
         default: "enabled"
     },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
     rides: [
         {
             type: mongoose.Schema.Types.ObjectId,

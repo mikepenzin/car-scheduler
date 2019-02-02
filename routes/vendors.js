@@ -1,5 +1,6 @@
 var express         = require("express");
-var db              = require('../models');
+// var db              = require('../models');
+var api             = require("../service_api");
 var middleware      = require('../middleware');
 var router          = express.Router();
 
@@ -12,101 +13,85 @@ router.use(function timeLog (req, res, next) {
   next();
 });
 
-function dynamicSort(property) {
-    var sortOrder = 1;
-    if(property[0] === "-") {
-        sortOrder = -1;
-        property = property.substr(1);
-    }
-    return function (a,b) {
-        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
-        return result * sortOrder;
-    };
-}
-
 //GET - General vendors route
 router.get("/", middleware.isUserSteward, function(req, res){
-  db.User.findById(req.user.id)
-  .populate({ 
-     path: 'company',
-     populate: {
-       path: 'vendors',
-       model: 'Vendor'
-     }
-  }).exec(function(err, foundUser){
-    if (err) { console.log(err); }
+
+  api.User.getUserByIdAndPopulate(req.user.id, { path: 'company', populate: {path: 'vendors', model: 'Vendor'} })
+  .then(function(foundUser){
     
-    db.Vendor.find({}, function(err, foundVendors){
-      if (err) { console.log(err); }
-      
-      foundVendors.sort(dynamicSort('vendorID'));
+    api.Vendor.getAllVendors().sort('vendorID')
+    .then(function(foundVendors){
       
       var vendorID = foundVendors.length > 0 ? (foundVendors[foundVendors.length-1].vendorID + 1) : 10;
       res.render('vendors/show',{vendors: foundUser.company.vendors, user: foundUser, vendorID:vendorID });
+    })
+    .catch(function(err){
+      console.log(err);
+      res.redirect('back');
     });
+  })
+  .catch(function(err){
+    console.log(err);
+    res.redirect('back');
   });
 });  
 
 //POST - User creation route
 router.post("/", middleware.isUserSteward, function(req, res){
-  var newVendor = new db.Vendor({
+  var newVendor = {
       name: req.body.name,
       address: req.body.address,
       vendorID: req.body.vendorID,
       personInfo: req.body.personInfo,
       phoneNumber: req.body.phoneNumber
-  });
+  };
   console.log("New vendor: ", newVendor);
   
-  db.Vendor.create(newVendor, function(err, createdVendor){
-    if(err) { 
-      console.log(err); 
-      res.redirect("/");
-    }
+  api.Vendor.createVendor(newVendor)
+  .then(function(createdVendor){
     
-    db.User.findById(req.user.id).populate('company').exec(function(err, foundUser){
-      if (err) { console.log(err); }
+    api.Company.getCompanyByUserId([req.user.id])
+    .then(function(foundCompany){
       
-      // Need to find and update company with deleted user
-      db.Company.findById(foundUser.company._id, function(err, foundCompany){
-        if (err) { console.log(err); }
-
-        foundCompany.vendors.push(createdVendor);
-        foundCompany.save();
-        createdVendor.company = foundCompany._id;
-        createdVendor.save();
-        
-        console.log("### Added new user #####", newVendor);
-        res.redirect("/company/" + foundCompany._id + "/vendors");
-      });
+      foundCompany[0].vendors.push(createdVendor);
+      foundCompany[0].save();
+      createdVendor.company = foundCompany[0]._id;
+      createdVendor.save();
+      
+      console.log("### Added new user #####", newVendor);
+      res.redirect("/company/" + foundCompany[0]._id + "/vendors");
+      
+    })
+    .catch(function(err){
+      console.log(err);
+      res.redirect('back');
     });
+  })
+  .catch(function(err){
+    console.log(err);
+    res.redirect('back');
   });  
-});
-
-//GET - User card show route
-router.get("/:id", middleware.isUserSteward, function(req, res){
-  db.User.findById(req.params.id, function(err, foundUser){
-    if (err) { console.log(err); }
-      
-    db.User.findById(req.user.id).populate('company').exec(function(err, currentUser){
-      if (err) { console.log(err); }
-      
-      res.render('users/profile',{user:currentUser, driver: foundUser});
-    });
-  });
 });
 
 //GET - User update show route
 router.get("/:id/edit", middleware.isUserSteward, function(req, res){
   
-  db.Vendor.findById(req.params.id, function(err, foundVendor){
-    if (err) { console.log(err); }
-      
-    db.User.findById(req.user.id).populate('company').exec(function(err, currentUser){
-      if (err) { console.log(err); }
+  api.Vendor.getVendorById(req.params.id)
+  .then(function(foundVendor){
+    
+    api.User.getUserByIdAndPopulate(req.user.id, 'company')
+    .then(function(currentUser){
       
       res.render('vendors/update',{user:currentUser, vendor:foundVendor});
+    })
+    .catch(function(err){
+      console.log(err);
+      res.redirect('back');
     });
+  })
+  .catch(function(err){
+    console.log(err);
+    res.redirect('back');
   });
 });
 
@@ -119,51 +104,51 @@ router.put("/:id/edit", middleware.isUserSteward, function(req, res){
       phoneNumber: req.body.phoneNumber
   };
   
-  
-  db.Vendor.findByIdAndUpdate(req.params.id, updatedVendor, function(err, foundVendor){
-    if (err) { console.log(err); }
+
+  api.Vendor.getVendorByIdAndUpdate(req.params.id, updatedVendor)   
+  .then(function(foundVendor){
+
+    api.Company.getCompanyByUserId([req.user.id])
+    .then(function(foundCompanies){
       
-    db.User.findById(req.user.id).populate('company').exec(function(err, currentUser){
-      if (err) { console.log(err); }
-      
-      res.redirect("/company/" + currentUser.company._id + "/vendors");
+      res.redirect("/company/" + foundCompanies[0]._id + "/vendors");
+    })
+    .catch(function(err){
+      console.log(err);
+      res.redirect('back');
     });
+  })
+  .catch(function(err){
+    console.log(err);
+    res.redirect('back');
   });
 });
 
-
 //GET - Vendor route to update status 
-router.get("/:id/change-status", function(req, res){
-    
-    db.Vendor.findById(req.params.id, function(err, vendor){
-      if (err) {
-        console.log(err);
-      }
+router.put("/:id/change-status", function(req, res){
+
+    var isActive = {isActive: req.body.isActive === 'true'};
+    console.log(req.params.id, isActive);
+
+    api.Vendor.getVendorByIdAndUpdate(req.params.id, isActive)
+    .then(function(vendor){
       
-      console.log(vendor);
-      
-      vendor.currentStatus = vendor.currentStatus == 'enabled' ? vendor.currentStatus = 'disabled' : vendor.currentStatus = 'enabled';
-      vendor.save();
-      
-      res.redirect("/company/" + vendor.company + "/vendors");
+      res.json(isActive);
+    })
+    .catch(function(err){
+      console.log(err);
     });
-    
 });
 
 //DELETE - User route to delete item 
 router.delete("/:id", middleware.isUserSteward, function(req, res){
   
-  db.User.findById(req.user.id).populate('company').exec(function(err, foundUser){
-    if (err) { console.log(err); }
-    
-    // Need to find and update company with deleted vendor
-    db.Company.findById(foundUser.company._id, function(err, foundCompany){
-      if (err) { console.log(err); }
-
-      var foundUserIndex = foundCompany.vendors.indexOf(req.params.id);
+  api.Company.getCompanyByUserId([req.user.id])
+  .then(function(foundCompany){
+      var foundUserIndex = foundCompany[0].vendors.indexOf(req.params.id);
       if (foundUserIndex != -1) {
-        foundCompany.vendors.splice(foundUserIndex, 1);
-        foundCompany.save();
+        foundCompany[0].vendors.splice(foundUserIndex, 1);
+        foundCompany[0].save();
       }
       
       // After company was updated we will remove selected vendor
@@ -175,7 +160,6 @@ router.delete("/:id", middleware.isUserSteward, function(req, res){
           res.redirect("/company/" + foundCompany._id + "/vendors");
         }        
       });
-    });
   });
 });
 

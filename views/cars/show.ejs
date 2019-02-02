@@ -16,10 +16,10 @@
                            שם תיאור רכב
                         </label>
                         <input type="text" class="form-control" required name="carName" placeholder="שם תיאור רכב">
-                        <label for="carId">
-                            תג זיהוי רכב
-                        </label>
-                        <input type="number" readonly="readonly" required class="form-control" name="carId" value="<%= carIdNumber %>">
+                        <!--<label for="carId">-->
+                        <!--    תג זיהוי רכב-->
+                        <!--</label>-->
+                        <!--<input type="number" readonly="readonly" required class="form-control" name="carId" value="<%= carIdNumber %>">-->
                         <label for="licensePlate">
                             מספר רישוי
                         </label>
@@ -80,7 +80,11 @@
                             <div class="card-info">
                                 <div class="media d-flex">
                                     <div class="media-body text-left">
-                                        <h3><%= car.carName + ' (' + car.carId + ')' %></h3>
+                                        <h3><%= car.carName %></h3>
+                                        <small>
+										   תג זיהוי:
+										   <%= car.carId %></small>
+                                        
                                         <div><%= car.model + " / " + car.manufactureYear %></div>
                                         <% if (!car.isContractor) { %>
                                             <% if (!car.driver) { %>
@@ -98,8 +102,17 @@
                                                 נהג קבלן
                                             </div>
                                         <% } %>
+                                        <!--<span id="not-active-<%= car._id %>"></span>-->
+                                        <% if (car.isActive) { %>
+                                            <div id="not-active-<%= car._id %>" class="text-warning no-driver-message" style="display: none;">
+                                        <% } else { %>    
+                                            <div id="not-active-<%= car._id %>" class="text-warning no-driver-message">
+                                        <% } %>  
+                                                <i class="fal fa-exclamation-triangle"></i>
+                                                הרכב מושבת, לא ניתן להשתמש ברכב זה עד להפעלתו!
+                                            </div>
                                     </div>
-                                    <div class="align-self-center">
+                                    <div class="align-self-start" style="margin: 8px 10px 0 0;">
                                         <% if (!car.isContractor) { %>
                                             <i class="fal fa-car azure font-large-2 float-left"></i>
                                         <% } else { %>
@@ -108,10 +121,23 @@
                                     </div>
                                 </div>
                                 <div class="mt-4 centered-buttons-container">
-                                    <a class="btn btn-default btn-round btn-sm mr-2 pl-3 pr-3" href="/company/<%= user.company._id %>/cars/<%= car._id %>/edit">עדכון</a>
-                                    <form action="/company/<%= user.company._id %>/cars/<%= car._id %>?_method=DELETE" method="POST" class="delete-form">
-                		                <button class="btn btn-delete btn-round btn-sm pl-3 pr-3"> מחיקה  <i class="fal fa-trash-alt ml-2"></i></button>
-                		            </form>
+                                    <div class="row">
+                                        <div class="col-12 col-md-4 p-1">
+                                            <a class="btn btn-default btn-round btn-block btn-sm mr-2 mt-1 pl-3 pr-3" href="/company/<%= user.company._id %>/cars/<%= car._id %>/edit">עדכון</a>
+                                        </div>
+                                        <div class="col-12  col-md-4 p-1">
+                                            <% if (car.isActive) { %>
+        										<a href="javascript:void(0)" class="btn btn-warning btn-round btn-sm btn-block mr-2 mt-1 pl-3 pr-3 car-status" id="<%= car._id %>" data-url="/company/<%= user.company._id %>/cars/<%= car._id %>/change-status"> השבת <i class="fal fa-eye-slash ml-1"></i> </a>
+        									<% } else { %>
+        										<a href="javascript:void(0)" class="btn btn-warning btn-round btn-sm btn-block mr-2 mt-1 pl-3 pr-3 car-status" id="<%= car._id %>" data-url="/company/<%= user.company._id %>/cars/<%= car._id %>/change-status"> הפעלה <i class="fal fa-eye ml-1"></i> </a>
+        									<% } %>
+    									</div>
+    									<div class="col-12  col-md-4 p-1">
+                                            <form action="/company/<%= user.company._id %>/cars/<%= car._id %>?_method=DELETE" method="POST" style="margin-block-end: 0;">
+                        		                <button class="btn btn-delete btn-round btn-sm btn-block mt-1 pl-3 pr-3"> מחיקה  <i class="fal fa-trash-alt ml-2"></i></button>
+                        		            </form>
+                    		            </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -135,6 +161,60 @@
 <% include ../partials/footer %>
 <script>
     $(document).ready( function() { 
+        
+        var carsData = {
+				<% cars.forEach(function(u, index){ %> 
+					'<%= u._id %>': <%= u.isActive %><% if (index != cars.length - 1){ %>,<% } %>
+				<% }); %>
+			};
+			
+			console.log(carsData);
+				
+			$('.car-status').each(function(index, elm){
+				$(this).data('active', carsData[$(this)[0].id]);
+			});
+			
+			$('.car-status').on('click', function(event){
+				event.stopPropagation();
+    			event.stopImmediatePropagation();
+				var elm = $(this)[0];
+				var activity = $(this).data('active');
+				console.log("ID: " + elm.id,'Activity: ' + activity, typeof(activity));
+				updateVendorStatus(elm.id, elm.dataset.url, !activity);
+			})
+			
+			function updateVendorStatus(id, url, active) {
+				var updateUrl = url;
+				var updateData = { isActive: active};
+				
+				console.log(updateData);
+				
+				$.ajax({
+					method: 'PUT',
+					url: updateUrl,
+				    data: updateData
+				})
+				.then(function(updatedCar){
+					
+					var result = updatedCar;
+				    var element = $("#" + id);
+				    // element.toggleClass('btn-warning');
+				    element.data('active', result.isActive);
+				    
+				    console.log(result.isActive, element.data());
+				    
+				    if(result.isActive) {
+				    	element.html(' השבת <i class="fal fa-eye-slash ml-1"></i>');
+				    	$('#not-active-' + id).hide('slow');
+				    } else {
+				    	element.html(' הפעלה <i class="fal fa-eye ml-1">');
+				    	$('#not-active-' + id).show('slow');
+				    }
+				    
+				});
+			}
+        
+        
         if(!$('#isContractor').val() == 'true'){
            $('#labelForDriverID').hide();
            $('#driverID').hide();

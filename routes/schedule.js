@@ -1,5 +1,4 @@
 var express     = require("express");
-var db          = require('../models');
 var api         = require("../service_api");
 var middleware  = require('../middleware');
 var router      = express.Router();
@@ -76,9 +75,10 @@ router.get("/", middleware.isUserSteward, function(req, res){
     
     var rides = [];
     
-    api.User.getUserByIdPopulateCompanyVendors(req.user.id)
+    api.User.getUserByIdAndPopulate(req.user.id,'company')
     .then(function(foundUser){
-        api.Ride.getRidesBetweeenDates(convertDate(newdate, false), convertDate(newdate, false))
+        
+        api.Ride.getRidesBetweeenDates(convertDate(newdate, false), convertDate(newdate, false), foundUser.company.vendors)
         .then(function(foundRides){
             for (var i = 0; i < foundRides.length; i++) {
                 
@@ -107,14 +107,12 @@ router.get("/", middleware.isUserSteward, function(req, res){
       });
 });
 
-
 router.get("/updateCars", function(req, res){
     var objJson = {};
     
     api.Ride.getRideById(req.query.ride_id).then(function(foundRide) { 
         api.Car.getCarById(req.query.car_id).then(function(foundCar) {
             for (var i = 0; i < foundRide.addresses.length; i++) {
-                
                 console.log(foundRide.addresses[i].stopName, req.query.stopName, foundCar.numberOfSeats, foundRide.addresses[i].numberOfPeopleToCollect);
                 
                 if (foundRide.addresses[i].stopName == req.query.stopName) {

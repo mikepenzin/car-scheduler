@@ -1,6 +1,6 @@
 var express         = require("express");
 var middleware      = require('../middleware');
-var db              = require('../models');
+var api             = require("../service_api");
 var router          = express.Router();
 
 
@@ -32,22 +32,23 @@ function convertDate(date, backward) {
 router.get('/:id', middleware.isUserDriver, function(req, res){
     var newdate = '';
     var currentWeekDay = 0;
+    var month;
     
     if(!req.query.date) {
-        // var dateObj = new Date();
-        // var month = dateObj.getUTCMonth() + 1;
-        // var day = dateObj.getUTCDate();
-        // var year = dateObj.getUTCFullYear();
+        var dateObj = new Date();
+        month = dateObj.getUTCMonth() + 1;
+        var day = dateObj.getUTCDate();
+        var year = dateObj.getUTCFullYear();
         
-        // var newdate = day + "/" + month + "/" + year;
-        // var currentWeekDay = dateObj.getDay();
-        newdate = '28/12/2018';
-        currentWeekDay = 5;
+        newdate = day + "/" + month + "/" + year;
+        currentWeekDay = dateObj.getDay();
+        // newdate = '28/12/2018';
+        // currentWeekDay = 5;
     } else {
         newdate = req.query.date;
         
         var dateParse = newdate.split('/');
-        var month = Number(dateParse[1]) < 10 ? '0' + dateParse[1] : dateParse[1];
+        month = Number(dateParse[1]) < 10 ? '0' + dateParse[1] : dateParse[1];
         var rightDate = Number(dateParse[0]) < 10 ? '0' + dateParse[0] : dateParse[0];
         newdate = rightDate + '/' + month + '/' + dateParse[2];
         
@@ -58,16 +59,9 @@ router.get('/:id', middleware.isUserDriver, function(req, res){
     
     var relevantCar = null;
     var rides = [];
-    
-    db.User.findById(req.user.id)
-    .populate({ 
-        path: 'company',
-        populate: {
-            path: 'cars',
-            model: 'Car'
-        }
-    }).exec(function(err, foundDriver){
-        if (err) { console.log(err); }
+
+    api.User.getUserByIdAndPopulate(req.user.id, {path: 'company', populate: {path: 'cars', model: 'Car'}})  
+    .then(function(foundDriver){    
         
         for (var i = 0; i < foundDriver.company.cars.length; i++) {
             if (foundDriver.company.cars[i].driver && foundDriver.company.cars[i].driver.equals(foundDriver._id)) {
@@ -76,8 +70,9 @@ router.get('/:id', middleware.isUserDriver, function(req, res){
         }
         
         var parsedDate = convertDate(newdate, false);
-        db.Ride.find({ $and: [{ rideStartDate: { $lte: parsedDate } }, { rideEndDate: { $gte: parsedDate } }]}).populate('vendor').exec(function(err, foundRides){
-            if (err) { console.log(err); }
+
+        api.Ride.getRidesBetweeenDatesAndPopulate(parsedDate, parsedDate, foundDriver.company.vendors, 'vendor')
+        .then(function(foundRides){
             
             for (var i = 0; i < foundRides.length; i++) {
                 if(foundRides[i].rideType == 'onetime') {
@@ -92,22 +87,37 @@ router.get('/:id', middleware.isUserDriver, function(req, res){
             
             console.log(relevantCar, rides);
             res.render("driver/main", {user: foundDriver, relevantCar:relevantCar, rides:rides, currentDay: newdate}); 
+        })
+        .catch(function(err){
+            console.log(err);
+            res.redirect("back");
         });
+    })
+    .catch(function(err){
+        console.log(err);
+        res.redirect("back");
     });
 });
 
 //GET - Driver ride info route
 router.get('/:id/ride/:ride_id', middleware.isUserDriver, function(req, res){
-  
-  db.User.findById(req.params.id).populate('company').exec(function(err, foundDriver){
-    if (err) { console.log(err); }
     
-    db.Ride.findById(req.params.ride_id, function(err, foundRide){
-        if (err) { console.log(err); }
-        
-        res.render("driver/ride-details", {user: foundDriver, ride:foundRide});   
+    api.User.getUserByIdAndPopulate(req.params.id, 'company')
+    .then(function(foundDriver){
+        api.Ride.getRideById(req.params.ride_id)
+        .then(function(foundRide){
+            res.render("driver/ride-details", {user: foundDriver, ride:foundRide});   
+        })
+        .catch(function(err){
+            console.log(err);
+            res.redirect("back");
+        });
+    })
+    .catch(function(err){
+        console.log(err);
+        res.redirect("back");
     });
-  });
+    
 });
 
 

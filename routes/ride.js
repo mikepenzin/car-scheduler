@@ -1,5 +1,5 @@
 var express         = require("express");
-var db              = require('../models');
+var api             = require("../service_api");
 var middleware      = require('../middleware');
 var router          = express.Router();
 
@@ -60,16 +60,8 @@ function converTimeToString(time) {
 router.get("/", middleware.isUserSteward, function(req, res){
   var vendors = [];
   
-  db.User.findById(req.user.id)
-  .populate({ 
-     path: 'company',
-     populate: {
-       path: 'vendors',
-       model: 'Vendor'
-     }
-  }).exec(function(err, foundUser){
-    if (err) { console.log(err); }
-    
+  api.User.getUserByIdAndPopulate(req.user.id, {path: 'company',populate: {path: 'vendors', model: 'Vendor'}})
+  .then(function(foundUser){
     foundUser.company.vendors.forEach(function(vendor){
       if (vendor.currentStatus == "enabled") {
         vendors.push(vendor);
@@ -77,8 +69,8 @@ router.get("/", middleware.isUserSteward, function(req, res){
     });
     
     // rideEndDate: { $gte: Date.now() } 
-    db.Ride.find({}).sort({rideID: 1}).populate('vendor').exec(function(err, foundRides){
-      if (err) { console.log(err); }
+    api.Ride.getAllRidesAndPopulate(vendors, 'vendor').sort({rideID: 1})
+    .then(function(foundRides){
       
       for ( var o = 0; o < foundRides.length; o++ ) {
           foundRides[o].rideStartDateParsed = convertDate(foundRides[o].rideStartDate, true);
@@ -90,8 +82,15 @@ router.get("/", middleware.isUserSteward, function(req, res){
       // TODO - need to add ability to show only future rides
       var rideID = foundRides.length > 0 ? (foundRides[foundRides.length-1].rideID + 1) : 10;
       
+      console.log("IT!!!!!!!!!!!!!!!  ", foundRides);
       res.render("rides/show", { user: foundUser, vendors:vendors, rides:foundRides.sort(dynamicSort('-rideID')), rideID : rideID });
+    })
+    .catch(function(err){
+      console.log(err);
     });
+  })
+  .catch(function(err){
+    console.log(err);
   });
 });
 
@@ -99,15 +98,16 @@ router.get("/", middleware.isUserSteward, function(req, res){
 router.post("/", middleware.isUserSteward, function(req, res){
 
   // Start Buiiding new ride object in order to add to DB
-  var newRide = new db.Ride({
+  var newRide = {
     name: req.body.name,
     rideID: req.body.rideID,
     personInfo: req.body.personInfo,
     phoneNumber: req.body.phoneNumber,
     rideType: req.body.rideType,
     priceBeforeVAT: Number(req.body.priceBeforeVAT.split(',').join('')),
-    notes: req.body.notes.replace(/(?:\r\n|\r|\n)/g, '\n')
-  });
+    notes: req.body.notes ? req.body.notes.replace(/(?:\r\n|\r|\n)/g, '\n') : undefined,
+    addresses: []
+  };
   
   // TODO - Add ability to use vendor contact person if no one is entered.
   
@@ -171,23 +171,16 @@ router.post("/", middleware.isUserSteward, function(req, res){
   
   // Finished - Building new ride object
   
-  db.User.findById(req.user.id)
-  .populate({ 
-     path: 'company',
-     populate: {
-       path: 'vendors',
-       model: 'Vendor'
-     }
-  }).exec(function(err, foundUser){
-    if (err) { console.log(err); }
+  api.User.getUserByIdAndPopulate(req.user.id, {path: 'company',populate: {path: 'vendors',model: 'Vendor'}})
+  .then(function(foundUser){
     
-    db.Ride.create(newRide, function(err, createdRide) {
-      if (err) { console.log(err); }
+    api.Ride.createNewRide(newRide)
+    .then(function(createdRide){
       
       console.log('New ride ' + createdRide.name + ' - ' + createdRide.rideID + ' was created');
       
-      db.Vendor.findById(req.body.vendor, function(err, foundVendor){
-        if (err) { console.log(err); }
+      api.Vendor.getVendorById(req.body.vendor)  
+      .then(function(foundVendor){
         
         createdRide.vendor = foundVendor;
         createdRide.save();
@@ -205,26 +198,27 @@ router.post("/", middleware.isUserSteward, function(req, res){
 
 // GET - Show specific ride route
 router.get("/:ride_id", middleware.isUserSteward, function(req, res){
-  db.User.findById(req.user.id)
-  .populate({ 
-     path: 'company',
-     populate: {
-       path: 'vendors',
-       model: 'Vendor'
-     }
-  }).exec(function(err, foundUser){
-    if (err) { console.log(err); }
+  api.User.getUserByIdAndPopulate(req.user.id, {path: 'company',populate: {path: 'vendors', model: 'Vendor'}})
+  .then(function(foundUser){  
     
-    db.Ride.findById(req.params.ride_id).populate('vendor').exec(function(err, foundRide){
-      if (err) { console.log(err); }
-      
+    api.Ride.getRideByIdAndPopulate(req.params.ride_id, 'vendor')
+    .then(function(foundRide){
+    
       foundRide.rideStartDateParsed = convertDate(foundRide.rideStartDate, true);
       foundRide.rideEndDateParsed = convertDate(foundRide.rideEndDate, true);
       foundRide.startTimeParsed = converTimeToString(foundRide.startTime);
       foundRide.endTimeParsed = converTimeToString(foundRide.endTime);
       
       res.render("rides/update", { user: foundUser, ride:foundRide });
+    })
+    .catch(function(err){
+      console.log(err);
+      res.redirect('back');
     });
+  })
+  .catch(function(err){
+    console.log(err);
+    res.redirect('back');
   });  
 });
 
@@ -238,7 +232,8 @@ router.put("/:ride_id", middleware.isUserSteward, function(req, res){
       phoneNumber: req.body.phoneNumber,
       priceBeforeVAT: Number(req.body.priceBeforeVAT.split(',').join('')),
       rideType: req.body.rideType,
-      notes: req.body.notes.replace(/(?:\r\n|\r|\n)/g, '\n')
+      notes: req.body.notes ? req.body.notes.replace(/(?:\r\n|\r|\n)/g, '\n') : undefined,
+      addresses: []
   };
   
   // TODO - Add ability to use vendor contact person if no one is entered.
@@ -302,23 +297,15 @@ router.put("/:ride_id", middleware.isUserSteward, function(req, res){
   
   // Finished - Building new ride object
   
-  db.User.findById(req.user.id)
-  .populate({ 
-     path: 'company',
-     populate: {
-       path: 'vendors',
-       model: 'Vendor'
-     }
-  }).exec(function(err, foundUser){
-    if (err) { console.log(err); }
+  api.User.getUserByIdAndPopulate(req.user.id, {path: 'company',populate: {path: 'vendors', model: 'Vendor'}})
+  .then(function(foundUser){  
     
-    db.Ride.findByIdAndUpdate(req.params.ride_id, updatedRide, function(err, createdRide) {
-      if (err) { console.log(err); }
+    api.Ride.updateRidebyId(req.params.ride_id, updatedRide)
+    .then(function(createdRide){
       
       console.log('Ride ' + createdRide.name + ' - ' + createdRide.rideID + ' was updated');
       
       // TODO - add delete ride from calendar and deattach car
-      
       res.redirect("/company/" + foundUser.company._id + "/rides");
     });
   });
@@ -326,30 +313,34 @@ router.put("/:ride_id", middleware.isUserSteward, function(req, res){
 
 //DELETE - Delete car route
 router.delete("/:id", middleware.isUserSteward, function(req, res){
-  
-  db.Ride.findById(req.params.id).populate('vendor').exec(function(err, foundRide) {
-    if (err) { console.log(err); }
-    
+
+  api.Ride.getRideByIdAndPopulate(req.params.id, 'vendor')
+  .then(function(foundRide){  
     // TODO - add delete ride from calendar and deattach car
     
-    db.Vendor.findById(foundRide.vendor._id, function(err, foundVendor) {
-      if (err) { console.log(err); }
-    
+    api.Vendor.getVendorById(foundRide.vendor._id)
+    .then(function(foundVendor){
       var rideIndex = foundVendor.rides.indexOf(req.params.id);
       if (rideIndex != -1) {
         foundVendor.rides.splice(rideIndex, 1);
         foundVendor.save();
       }
       
-      db.Ride.findByIdAndRemove(req.params.id, function(err, deletedRide) {
-        if (err) {
-          console.log(err);
-          res.redirect("/company/" + foundVendor.company + "/rides");
-        } else {
-          res.redirect("/company/" + foundVendor.company + "/rides");
-        }
+      api.Ride.removeRidebyId(req.params.id)
+      .then(function(deletedRide){
+        res.redirect("/company/" + foundVendor.company + "/rides");
+      })
+      .catch(function(err){
+        console.log(err);
+        res.redirect("/company/" + foundVendor.company + "/rides");
       });
+    })
+    .catch(function(err){
+      console.log(err);
     });
+  })
+  .catch(function(err){
+    console.log(err);
   });
 });
 

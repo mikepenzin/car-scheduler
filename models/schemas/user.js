@@ -11,6 +11,7 @@ var userSchema = new mongoose.Schema({
         dropDups: true 
     },
     password: String,
+    passwordToken: String,
     firstName: String,
     lastName: String,
     personalID: { 
@@ -36,6 +37,10 @@ var userSchema = new mongoose.Schema({
         default: "driver"
     },
     isAttachedToCar: {
+        type: Boolean,
+        default: false
+    },
+    isActivated: {
         type: Boolean,
         default: false
     },
