@@ -78,7 +78,7 @@ router.get("/", middleware.isUserSteward, function(req, res){
     api.User.getUserByIdAndPopulate(req.user.id,'company')
     .then(function(foundUser){
         
-        api.Ride.getRidesBetweeenDates(convertDate(newdate, false), convertDate(newdate, false), foundUser.company.vendors)
+        api.Ride.getRidesBetweeenDates(convertDate(newdate, false), convertDate(newdate, false), currentWeekDay, foundUser.company.vendors)
         .then(function(foundRides){
             for (var i = 0; i < foundRides.length; i++) {
                 

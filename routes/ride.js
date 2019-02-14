@@ -116,6 +116,9 @@ router.post("/", middleware.isUserSteward, function(req, res){
     newRide.rideEndDate = convertDate(req.body.rideStartDate[1], false);
     newRide.startTime = Number(req.body.startTime[1].replace(':', ''));
     newRide.endTime = Number(req.body.endTime[1].replace(':', ''));
+    var dateParsed = Date.parse(newRide.rideStartDate);
+    newRide.weekDays.push(new Date(dateParsed).getDay());
+    
   } else {
     newRide.rideStartDate = convertDate(req.body.rideStartDate[0], false);
     newRide.rideEndDate = convertDate(req.body.rideEndDate, false);
@@ -241,8 +244,12 @@ router.put("/:ride_id", middleware.isUserSteward, function(req, res){
   updatedRide.endTime = Number(req.body.endTime.replace(':', ''));
     
   if( updatedRide.rideType === 'onetime' ) {
+    
     updatedRide.rideStartDate = convertDate(req.body.rideStartDate, false);
     updatedRide.rideEndDate = convertDate(req.body.rideStartDate, false);
+    var dateParsed = Date.parse(updatedRide.rideStartDate);
+    updatedRide.weekDays.push(new Date(dateParsed).getDay());
+    
   } else {
     updatedRide.rideStartDate = convertDate(req.body.rideStartDate, false);
     updatedRide.rideEndDate = convertDate(req.body.rideEndDate, false);

@@ -30,11 +30,12 @@ rideAPI.removeRidebyId = function(ride_id) {
     return db.Ride.findByIdAndRemove(ride_id);  
 };
 
-rideAPI.getRidesBetweeenDates = function(firstDate, secondDate, vendors_list){
+rideAPI.getRidesBetweeenDates = function(firstDate, secondDate,currentWeekDay, vendors_list){
     return db.Ride.find({ 
         $and: [
             { rideStartDate: { $lte: firstDate } },
             { rideEndDate: { $gte: secondDate } }, 
+            { weekDays: { $in: currentWeekDay } },
             { vendor: { $in: vendors_list } }
         ]
     });

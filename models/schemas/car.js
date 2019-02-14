@@ -3,12 +3,6 @@ var mongoose = require('mongoose');
 	
 var CarSchema = new mongoose.Schema({
 	carName: String,
-	carId: { 
-		type: Number, 
-		unique: true, 
-		required: true, 
-		dropDups: true 
-	},
 	licensePlate: String,
 	model: String,
 	numberOfSeats: {

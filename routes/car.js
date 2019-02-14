@@ -16,42 +16,83 @@ router.get("/", middleware.isUserSteward, function(req, res){
   var drivers = [];
   
   api.User.getUserByIdAndPopulate(req.user.id, {path: 'company',populate: {path: 'cars',model: 'Car'}})
-    .then(function(foundUser){
+  .then(function(foundUser){
       
     api.Company.getCompanyByIdAndPopulate(foundUser.company._id, 'users')
-      .then(function(foundCompany) {
+    .then(function(foundCompany) {
         for (var i = 0; i < foundCompany.users.length; i++) {
           if (foundCompany.users[i].role == 'driver' && !foundCompany.users[i].isAttachedToCar) {
             drivers.push(foundCompany.users[i]);
           }
         }
-      
-        api.Company.getCompanyByIdAndPopulate(foundUser.company._id, {path: 'cars', populate: {path: 'driver', model: 'User'}})
-          .then(function(foundCars) {
-          
-          api.Car.getAllCars('carId')
-            .then(function(foundCarForID){
-            
-            var carIdNumber = foundCarForID.length > 0 ? (foundCarForID[foundCarForID.length-1].carId + 1) : 10;
-            
-            res.render("cars/show", {user: foundUser, drivers:drivers, carIdNumber: carIdNumber, cars: foundCars.cars});
-          });
-        });
+        
+        res.render("cars/show", {user: foundUser, drivers:drivers});
     });
   });
 });
 
+//GET - get all cars as array
+router.get("/getAllCars",  function(req, res){
+  api.User.getUserByIdAndPopulate(req.user.id, {path: 'company',populate: {path: 'cars',model: 'Car'}})
+  .then(function(foundUser){
+      
+    api.Company.getCompanyByIdAndPopulate(foundUser.company._id, {path: 'cars', populate: {path: 'driver', model: 'User'}})
+      .then(function(foundCars) {
+        
+        res.json({data:foundCars.cars});
+    });
+    
+  });
+});
+
 //POST - Add car route
+// router.post("/", middleware.isUserSteward, function(req, res){
+//     var newCar = {
+//         carName: req.body.carName,
+//         licensePlate: req.body.licensePlate,
+//         model:  req.body.model,
+//         numberOfSeats: req.body.numberOfSeats,
+//         manufactureYear: req.body.manufactureYear,
+//         isContractor: (req.body.isContractor === 'true' ? true : false)
+//     };
+    
+//     api.User.getUserByIdAndPopulate(req.user.id, 'company')
+//     .then(function(foundUser){
+
+//       api.Company.getCompanyById(foundUser.company._id)    
+//         .then(function(company){
+          
+//           api.Car.createCar(newCar)
+//             .then(function(createdCar){
+              
+//               if (!createdCar.isContractor) {
+
+//                 api.User.getUserById(req.body.driverID)
+//                   .then(function(foundDriver){
+//                     createdCar.driver = foundDriver;
+//                     createdCar.save();
+                    
+//                     foundDriver.isAttachedToCar = true;
+//                     foundDriver.save();
+                    
+//                     company.cars.push(createdCar);
+//                     company.save();
+                    
+//                     res.redirect("/company/" + company._id + "/cars");
+//                 });
+//               } else {
+//                 company.cars.push(createdCar);
+//                 company.save();
+                
+//                 res.redirect("/company/" + company._id + "/cars");
+//               }
+//           });
+//       });
+//   });
+// });
+
 router.post("/", middleware.isUserSteward, function(req, res){
-    var newCar = {
-        carName: req.body.carName,
-        licensePlate: req.body.licensePlate,
-        model:  req.body.model,
-        carId: req.body.carId,
-        numberOfSeats: req.body.numberOfSeats,
-        manufactureYear: req.body.manufactureYear,
-        isContractor: (req.body.isContractor === 'true' ? true : false)
-    };
+    console.log('HERE!!!', req.body);
     
     api.User.getUserByIdAndPopulate(req.user.id, 'company')
     .then(function(foundUser){
@@ -59,7 +100,7 @@ router.post("/", middleware.isUserSteward, function(req, res){
       api.Company.getCompanyById(foundUser.company._id)    
         .then(function(company){
           
-          api.Car.createCar(newCar)
+          api.Car.createCar(req.body)
             .then(function(createdCar){
               
               if (!createdCar.isContractor) {
@@ -75,13 +116,13 @@ router.post("/", middleware.isUserSteward, function(req, res){
                     company.cars.push(createdCar);
                     company.save();
                     
-                    res.redirect("/company/" + company._id + "/cars");
+                    res.json(createdCar);
                 });
               } else {
                 company.cars.push(createdCar);
                 company.save();
                 
-                res.redirect("/company/" + company._id + "/cars");
+                res.json(createdCar);
               }
           });
       });
@@ -244,7 +285,7 @@ router.put("/:car_id/edit", middleware.isUserSteward, function(req, res){
 });
 
 //GET - Vendor route to update status 
-router.put("/:id/change-status", function(req, res){
+router.put("/:id/change-status",  middleware.isUserSteward, function(req, res){
 
     var isActive = {isActive: req.body.isActive == 'true'};
     console.log(req.params.id, isActive);
@@ -264,44 +305,43 @@ router.delete("/:id", middleware.isUserSteward, function(req, res){
   
   api.Car.getCarById(req.params.id)
   .then(function(foundCar){
-  // If car is not contractor we need to update driver that he is not attached to car
-  if ((foundCar.driver && foundCar.driver != undefined) && !foundCar.isContractor) {
-
-    api.Car.getCarByIdAndPopulate(req.params.id, 'driver')
-    .then(function(newFoundCar){  
-      
-      removeCarFromCompanyList(req.user.id, req.params.id);
-      var driver = {};
-      driver.isAttachedToCar = false;
-      console.log(newFoundCar.driver);
-      
-      api.User.getUserByIdAndUpdate(newFoundCar.driver._id, driver)
-      .then(function(updatedUser){
+    // If car is not contractor we need to update driver that he is not attached to car
+    if ((foundCar.driver && foundCar.driver != undefined) && !foundCar.isContractor) {
+  
+      api.Car.getCarByIdAndPopulate(req.params.id, 'driver')
+      .then(function(newFoundCar){  
         
-        api.Car.removeCarById(req.params.id)
-        .then(function(removedCar){
-          res.redirect("back");
-        })
-        .catch(function(err){
-          console.log(err);
-          res.redirect("back");
+        removeCarFromCompanyList(req.user.id, req.params.id);
+        var driver = {};
+        driver.isAttachedToCar = false;
+        console.log(newFoundCar.driver);
+        
+        api.User.getUserByIdAndUpdate(newFoundCar.driver._id, driver)
+        .then(function(updatedUser){
+          
+          api.Car.removeCarById(req.params.id)
+          .then(function(removedCar){
+            res.json('done');
+          })
+          .catch(function(err){
+            console.log(err);
+            res.json('failed');
+          });
         });
+      });  
+    } else {
+      // Remove company is case no driver attached
+      removeCarFromCompanyList(req.user.id, req.params.id);
+      
+      api.Car.removeCarById(req.params.id)
+      .then(function(removedCar){
+        res.json('done');
+      })
+      .catch(function(err){
+        console.log(err);
+        res.json('failed');
       });
-    });  
-  } else {
-    // Remove company is case no driver attached
-    removeCarFromCompanyList(req.user.id, req.params.id);
-    
-    api.Car.removeCarById(req.params.id)
-    .then(function(removedCar){
-      res.redirect("back");
-    })
-    .catch(function(err){
-      console.log(err);
-      res.redirect("back");
-    });
-  }
-    
+    }
   });
 });
 
