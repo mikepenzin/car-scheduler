@@ -1,5 +1,6 @@
 var express     = require("express");
 var api         = require("../service_api");
+var mongoose    = require("mongoose");
 var middleware  = require('../middleware');
 var router      = express.Router();
 
@@ -78,27 +79,32 @@ router.get("/", middleware.isUserSteward, function(req, res){
     api.User.getUserByIdAndPopulate(req.user.id,'company')
     .then(function(foundUser){
         
-        api.Ride.getRidesBetweeenDates(convertDate(newdate, false), convertDate(newdate, false), currentWeekDay, foundUser.company.vendors)
-        .then(function(foundRides){
-            for (var i = 0; i < foundRides.length; i++) {
-                
-                if(foundRides[i].rideType == 'onetime') {
-                    if(newdate == convertDate(foundRides[i].rideStartDate, true)) {
-                        foundRides[i].startTimeParsed = converTimeToString(foundRides[i].startTime);
-                        foundRides[i].endTimeParsed = converTimeToString(foundRides[i].endTime);
-                        rides.push(foundRides[i]);
-                    }
-                } else {
-                    if (foundRides[i].weekDays.indexOf(currentWeekDay) != -1) {
-                        foundRides[i].startTimeParsed = converTimeToString(foundRides[i].startTime);
-                        foundRides[i].endTimeParsed = converTimeToString(foundRides[i].endTime);
-                        rides.push(foundRides[i]);    
+        api.Vendor.getActiveVendors({_id: true})
+        .then(function(foundVendors){
+            let vendorsIds = foundVendors.map(a => a._id);
+            
+            api.Ride.getRidesForDate(convertDate(newdate, false), [currentWeekDay], vendorsIds)
+            .then(function(foundRides){
+                for (var i = 0; i < foundRides.length; i++) {
+                    
+                    if(foundRides[i].rideType == 'onetime') {
+                        if(newdate == convertDate(foundRides[i].rideStartDate, true)) {
+                            foundRides[i].startTimeParsed = converTimeToString(foundRides[i].startTime);
+                            foundRides[i].endTimeParsed = converTimeToString(foundRides[i].endTime);
+                            rides.push(foundRides[i]);
+                        }
+                    } else {
+                        if (foundRides[i].weekDays.indexOf(currentWeekDay) != -1) {
+                            foundRides[i].startTimeParsed = converTimeToString(foundRides[i].startTime);
+                            foundRides[i].endTimeParsed = converTimeToString(foundRides[i].endTime);
+                            rides.push(foundRides[i]);    
+                        }
                     }
                 }
-            }
-            
-            api.Car.getAllCars().then(function(foundCars){
-                res.render("schedule/show", {user:foundUser, currentDay: newdate, rides: rides, cars:foundCars});
+                
+                api.Car.getAllCars().then(function(foundCars){
+                    res.render("schedule/show", {user:foundUser, currentDay: newdate, rides: rides, cars:foundCars});
+                });  
             });
         });
       })

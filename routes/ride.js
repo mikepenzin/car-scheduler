@@ -63,7 +63,7 @@ router.get("/", middleware.isUserSteward, function(req, res){
   api.User.getUserByIdAndPopulate(req.user.id, {path: 'company',populate: {path: 'vendors', model: 'Vendor'}})
   .then(function(foundUser){
     foundUser.company.vendors.forEach(function(vendor){
-      if (vendor.currentStatus == "enabled") {
+      if (vendor.isActive) {
         vendors.push(vendor);
       }
     });
@@ -82,7 +82,6 @@ router.get("/", middleware.isUserSteward, function(req, res){
       // TODO - need to add ability to show only future rides
       var rideID = foundRides.length > 0 ? (foundRides[foundRides.length-1].rideID + 1) : 10;
       
-      console.log("IT!!!!!!!!!!!!!!!  ", foundRides);
       res.render("rides/show", { user: foundUser, vendors:vendors, rides:foundRides.sort(dynamicSort('-rideID')), rideID : rideID });
     })
     .catch(function(err){

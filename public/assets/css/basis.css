@@ -1,6 +1,6 @@
-@import 'bootstrap/dist/css/rtl/bootstrap.min.css';
-@import 'assets/css/gsdk.css';
-@import 'fontawesome/css/fontawesome_all.css';
+@import '../lib/bootstrap/dist/css/rtl/bootstrap.min.css';
+@import 'gsdk.css';
+@import '../lib/fontawesome/css/fontawesome_all.css';
 @import '//cdnjs.cloudflare.com/ajax/libs/animate.css/3.2.0/animate.min.css';
 
 /*@import 'https://pro.fontawesome.com/releases/v5.1.0/css/all.css';*/

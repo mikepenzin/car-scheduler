@@ -14,12 +14,6 @@ var userSchema = new mongoose.Schema({
     passwordToken: String,
     firstName: String,
     lastName: String,
-    personalID: { 
-        type: Number, 
-        unique: true, 
-        required: true, 
-        dropDups: true 
-    },
     phoneNumber: String,
     address: String,
     userPic: {

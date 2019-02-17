@@ -3,12 +3,6 @@ var mongoose = require('mongoose');
 
 var RideSchema = new mongoose.Schema({
     name: String,
-    vendorID: { 
-        type: Number, 
-        unique: true, 
-        required: true, 
-        dropDups: true 
-    },
     personInfo: String,
     address: String,
     phoneNumber: String,

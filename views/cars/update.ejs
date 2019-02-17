@@ -11,10 +11,6 @@
                            שם תיאור רכב
                         </label>
                         <input type="text" class="form-control" name="carName" required value="<%= car.carName %>">
-                        <label for="carId">
-                            תג זיהוי רכב
-                        </label>
-                        <input type="number" readonly="readonly" class="form-control" required name="carId" value="<%= car.carId %>">
                         <label for="licensePlate">
                             מספר רישוי
                         </label>
@@ -74,13 +70,13 @@
         משתמש יקר,
         <br>
 נהג מכונית שנבחר כבר מחובר למכונית אחרת.
-<br>
+<br><br>
 על ידי לחיצה על "המשך", אנא הקפידו לצרף נהג חדש למכונית ללא נהג    
         </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default btn-round btn-sm pl-3 pr-3" onclick="revertChange()" data-dismiss="modal">חזור</button>  
-        <button type="button" class="btn btn-default btn-round btn-sm pl-3 pr-3" data-dismiss="modal">המשך</button>
+        <button type="button" class="btn btn-primary btn-round btn-sm pl-3 pr-3" data-dismiss="modal">המשך</button>
       </div>
     </div>
   </div>

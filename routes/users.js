@@ -21,13 +21,15 @@ var multipartMiddleware = multipart();
 router.get("/", middleware.isUserSteward, function(req, res){
   api.User.getUserByIdAndPopulate(req.user.id, { path: 'company', populate: {path: 'users', model: 'User'} })
   .then(function(foundUser){
- 
-    api.User.getQueryAndPopulate({}, 'company').sort({personalID : 1})
-    .then(function(foundUsers){
+      res.render('users/show',{user: foundUser});
+  });
+});  
 
-      var userIdNumber = foundUsers.length > 0 ? (foundUsers[foundUsers.length-1].personalID + 1) : 10;
-      res.render('users/show',{currentuser:foundUser, users: foundUser.company.users, user: foundUser, userIdNumber:userIdNumber});
-    });
+//GET - General users route
+router.get("/getAllUsers", middleware.isUserSteward, function(req, res){
+  api.User.getUserByIdAndPopulate(req.user.id, { path: 'company', populate: {path: 'users', model: 'User'} })
+  .then(function(foundUser){
+    res.json(foundUser.company.users);
   });
 });  
 
@@ -37,23 +39,21 @@ router.post("/", middleware.isUserSteward, function(req, res){
       username: req.body.username,
       firstName: req.body.firstName,
       lastName:  req.body.lastName,
-      personalID: req.body.personalID,
       address: req.body.address,
       phoneNumber: req.body.phoneNumber,
       role: req.body.role
   };
+  
   console.log("New user: ", newUser);
   
-  // api.User.createNewUser(newUser, req.body.password)
-  // .then(function(createdUser){
-  var password = "" + Math.floor(Math.random()*90000) + 10000;
-  
+  var password = ("" + Math.random()).substring(2,7);
+    
   db.User.register(newUser, password, function(err, createdUser) {  
     if(err) {console.log(err);}
     
     api.Company.getCompanyByUserId([req.user.id])
     .then(function(foundCompany){
-
+  
         foundCompany[0].users.push(createdUser);
         foundCompany[0].save();
         createdUser.company = foundCompany[0]._id;
@@ -63,7 +63,7 @@ router.post("/", middleware.isUserSteward, function(req, res){
         var message = 'שלום רב, ' + createdUser.firstName + ' ' +  createdUser.lastName + '. ' + ' קוד זמני לכניסה ראשונית למערכת חברת '
         + foundCompany[0].name + ' '
         + ' הינו : '+ password
-        + ' להמשך  הרשמה לחץ על לינק הבאה: ' + 'https://car-scheduler.io/';
+        + ' להמשך  הרשמה לחץ על לינק הבאה: ' + 'https://app.scheduler.co.il/';
         
         var phoneNumber = '';
         if (process.env.ENV === 'production') {
@@ -71,15 +71,16 @@ router.post("/", middleware.isUserSteward, function(req, res){
         } else {
           phoneNumber = '972544958954';
         }
+        
         api.SMS.send(phoneNumber, message);
         
-        console.log("### Added new user #####", newUser.firstName + ' ' + newUser.lastName);
-        res.redirect("/company/" + foundCompany[0]._id + "/users");
-      })
-      .catch(function(err){
-        console.log(err);
-        res.redirect("back");
-      });
+        console.log("### Added new user #####", createdUser.firstName + ' ' + createdUser.lastName);
+        res.json(createdUser);
+    })
+    .catch(function(err){
+      console.log(err);
+      res.json("fail");
+    });
   });  
 });
 
@@ -186,17 +187,16 @@ router.delete("/:id", middleware.isUserSteward, function(req, res){
     // After company was updated we will remove selected user
     api.User.getUserByIdAndRemove(req.params.id)
     .then(function(user){
-      res.redirect("/company/" + foundCompany._id + "/users");
+      res.json("success");
     })
     .catch(function(){
-      res.redirect("/company/" + foundCompany._id + "/users");
+      res.json("fail");
     });
   })
   .catch(function(err){
     console.log(err);
-    res.redirect("back");
+    res.json("fail");
   });
 });  
-  
 
 module.exports = router;
