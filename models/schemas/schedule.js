@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var DateOnly = require('mongoose-dateonly')(mongoose);
-    
+
 var ScheduleSchema = new mongoose.Schema({
     name: String,
     personInfo: String,

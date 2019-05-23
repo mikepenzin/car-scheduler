@@ -1,14 +1,8 @@
 var mongoose = require('mongoose');
 var DateOnly = require('mongoose-dateonly')(mongoose);
-    
+
 var RideSchema = new mongoose.Schema({
     name: String,
-    rideID: { 
-        type: Number, 
-        unique: true, 
-        required: true, 
-        dropDups: true 
-    },
     personInfo: String,
     phoneNumber: String,
     rideStartDate: DateOnly,
@@ -23,15 +17,12 @@ var RideSchema = new mongoose.Schema({
         numberOfPeopleToCollect: Number,
         contactPerson: String,
         phoneNumber: String,
-        notes: String,
-        usedCars: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Car"
-        }]
+        stopTime: Number,
+        notes: String
     }],
     rideType: {
-      type: String,
-      default: 'onetime'
+        type: String,
+        default: 'onetime'
     },
     saveForFutureUse: {
         type: Boolean,
@@ -42,7 +33,7 @@ var RideSchema = new mongoose.Schema({
         default: false
     },
     numberOfPassengers: {
-        type: Number, 
+        type: Number,
         default: 0
     },
     priceBeforeVAT: {
@@ -50,7 +41,7 @@ var RideSchema = new mongoose.Schema({
         default: 0
     },
     currentStatus: {
-        type: String, 
+        type: String,
         default: "new"
     },
     vendor: {

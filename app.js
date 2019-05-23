@@ -1,23 +1,23 @@
-var express                 = require("express"),
-    bodyParser              = require("body-parser"),
-    compression             = require('compression'),
-    methodOverride          = require('method-override'),
-    morgan                  = require('morgan'),
-    mongoose                = require('mongoose'),
-    passport                = require("passport"),
-    LocalStrategy           = require("passport-local"),
-    cloudinary              = require("cloudinary"),
-    db                      = require("./models"),
-    flash                   = require('express-flash'),
-    helmet                  = require('helmet'),
-    dotenv                  = require('dotenv'),
+'use strict';
+
+var express = require("express"),
+    bodyParser = require("body-parser"),
+    compression = require('compression'),
+    methodOverride = require('method-override'),
+    passport = require("passport"),
+    LocalStrategy = require("passport-local"),
+    cloudinary = require("cloudinary"),
+    db = require("./models"),
+    flash = require('express-flash'),
+    helmet = require('helmet'),
+    dotenv = require('dotenv'),
     // schedule                = require('node-schedule'),
     // cronJobs                = require('./schedule/index'),
-    sslRedirect             = require('heroku-ssl-redirect'),
-    cookieParser            = require('cookie-parser'),
-    pjson                   = require('./package.json'),
+    sslRedirect = require('heroku-ssl-redirect'),
+    cookieParser = require('cookie-parser'),
+    pjson = require('./package.json'),
     // seedData                = require('./seeds/index'),
-    app                     = express();
+    app = express();
 
 // Perform seed jobs in order to align with DB changes.
 // seedData.addImageToUsers();
@@ -39,46 +39,47 @@ app.locals.version = pjson.version;
 app.locals.PLACES_APP_ID = process.env.PLACES_APP_ID;
 app.locals.PLACES_API_KEY = process.env.PLACES_API_KEY;
 
-cloudinary.config({ 
-  cloud_name: process.env.CLOUDINARY_NAME, 
-  api_key: process.env.CLOUDINARY_API, 
-  api_secret: process.env.CLOUDINARY_SECRET 
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_API,
+    api_secret: process.env.CLOUDINARY_SECRET
 });
 
 
 // Requring routes
-var mainRoutes      = require("./routes/main"),
-    adminRoutes     = require("./routes/admin"),
-    userRoutes      = require("./routes/users"),
-    driverRoutes    = require("./routes/driver"),
-    authRoutes      = require("./routes/auth"),
-    rideRoutes      = require("./routes/ride"),
-    scheduleRoutes  = require("./routes/schedule"),
-    companyRoutes   = require("./routes/company"),
-    carRoutes       = require("./routes/car"),
-    vendorRoutes    = require("./routes/vendors");
+var mainRoutes = require("./routes/main"),
+    adminRoutes = require("./routes/admin"),
+    userRoutes = require("./routes/users"),
+    driverRoutes = require("./routes/driver"),
+    authRoutes = require("./routes/auth"),
+    rideRoutes = require("./routes/ride"),
+    scheduleRoutes = require("./routes/schedule"),
+    companyRoutes = require("./routes/company"),
+    carRoutes = require("./routes/car"),
+    vendorRoutes = require("./routes/vendors");
 
 
 // Configure public folder for static files
 if (process.env.ENV === 'production') {
     app.use(express.static(__dirname + "/public", { maxAge: 8640000000 }));
-} else {
+}
+else {
     app.use(express.static(__dirname + "/public", { maxAge: 0 }));
 }
 
 // Configure view engine
-app.set("view engine","ejs");
+app.set("view engine", "ejs");
 app.locals.rmWhitespace = true;
 
 app.use(methodOverride("_method"));
 
 //Configure to use body-parser
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 //app to use flash
 app.use(flash());
 
-app.use(function(req, res, next){
+app.use(function(req, res, next) {
     res.locals.currentUser = req.user;
     next();
 });
@@ -114,7 +115,7 @@ passport.deserializeUser(db.User.deserializeUser());
 // END - Passport configuration
 //=========================
 
-app.use(function(req, res, next){
+app.use(function(req, res, next) {
     res.locals.currentUser = req.user;
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
@@ -135,8 +136,8 @@ app.use("/company/:id/cars", carRoutes);
 app.use("/company/:id/vendors", vendorRoutes);
 
 
-app.get('*', function(req, res){
-   res.redirect('/404');
+app.get('*', function(req, res) {
+    res.redirect('/404');
 });
 
 //=========================
@@ -156,16 +157,16 @@ app.get('*', function(req, res){
 
 // Production error handler
 if (process.env.ENV === 'production') {
-  app.use(function(err, req, res, next) {
-    console.error(err.stack);
-    res.sendStatus(err.status || 500);
-  });
+    app.use(function(err, req, res, next) {
+        console.error(err.stack);
+        res.sendStatus(err.status || 500);
+    });
 }
 
-app.listen(process.env.PORT, process.env.IP, function(){
+app.listen(process.env.PORT, process.env.IP, function() {
     console.log("=========================");
     console.log("All Servers has started!");
     console.log("=========================");
 });
 
-module.exports = app;  // for testing
+module.exports = app; // for testing

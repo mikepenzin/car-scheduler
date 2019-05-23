@@ -1,6 +1,6 @@
 var express         = require("express");
 var db              = require('../models');
-var api             = require("../service_api");
+var api             = require("../services/api");
 var middleware      = require('../middleware');
 var cloudinary      = require("cloudinary");
 var multipart       = require("connect-multiparty");

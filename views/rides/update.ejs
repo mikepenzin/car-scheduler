@@ -7,7 +7,7 @@
     <div class="container mt-2">
         <div class="row justify-content-md-center mt-4">
             <div class="col-12 col-xl-10">
-                <form action="/company/<%= user.company._id %>/rides/<%= ride._id %>?_method=PUT" method="POST" class="card card-body bg-light">
+                <form action="/company/<%= user.company._id %>/rides/<%= ride._id %>?_method=PUT" method="POST" id="ride-update" class="card card-body bg-light">
                     <div class="row card2 card-body2 bg-light9">
                     
                     <div class="col-md-6 col-12 left-line">
@@ -98,11 +98,11 @@
                                         <label for="startTime">
                                             שעת תחילת הנסיעה
                                         </label>
-                                        <input class="form-control input-time" id="time-form" name="startTime" value="<%= ride.startTimeParsed %>" placeholder="12:00">
+                                        <input class="form-control input-time start-time" id="time-form" name="startTime" value="<%= ride.startTimeParsed %>" placeholder="12:00">
                                         <label for="endTime">
                                             שעת סיום הנסיעה
                                         </label>
-                                        <input class="form-control input-time" id="time-form" name="endTime" value="<%= ride.endTimeParsed %>" placeholder="13:30">
+                                        <input class="form-control input-time end-time" id="time-form" name="endTime" value="<%= ride.endTimeParsed %>" placeholder="13:30">
                                     </div>
                                 <% } else { %>
                                 
@@ -169,6 +169,10 @@
                             </label>
                             <input type="text" id="inputForAddStop_start" class="form-control" name="addresses[stopAddress]"  value="<%= ride.addresses[0].stopAddress %>" placeholder="הכנס כתובת התחנה">
                             <label for="addresses">
+                                שעת איסוף 
+                            </label>
+                            <input class="form-control input-time stop-time" class="form-control" value="<%= ride.addresses[0].stopTimeParsed %>" name="addresses[stopTime]" placeholder="13:45">
+                            <label for="addresses">
                                 איש קשר לתחנה זו
                             </label>
                             <input type="text" class="form-control" name="addresses[contactPerson]" value="<%= ride.addresses[0].contactPerson %>" placeholder="הכנס איש קשר לתחנה">
@@ -202,6 +206,10 @@
                                 </label>
                                 <input type="text" class="form-control" id="inputForAddStop_<%= c %>" name="addresses[stopAddress]" value="<%= ride.addresses[c].stopAddress %>" placeholder="הכנס כתובת התחנה">
                                 <label for="addresses">
+                                    שעת איסוף 
+                                </label>
+                                <input class="form-control input-time stop-time" class="form-control" value="<%= ride.addresses[c].stopTimeParsed %>" name="addresses[stopTime]" placeholder="13:45">
+                                <label for="addresses">
                                     איש קשר לתחנה זו
                                 </label>'
                                 <input type="text" class="form-control" name="addresses[contactPerson]" value="<%= ride.addresses[c].contactPerson %>" placeholder="הכנס איש קשר לתחנה">
@@ -213,8 +221,8 @@
                                     כמות אנשים לאיסוף
                                 </label>
                                 <input type="number" class="form-control" name="addresses[numberOfPeopleToCollect]" value="<%= ride.addresses[c].numberOfPeopleToCollect %>" placeholder="כמות אנשים לאיסוף">
+                                <hr class="mb-4 mt-4">
                             </div>
-                            <hr class="mb-4 mt-4">
                         <% } %>    
                         </div>
                         <div id="inputForAddStop">

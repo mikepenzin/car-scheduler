@@ -9,7 +9,7 @@
             </div>
         </div>
         <div id="form-dialog" class="col-10 col-lg-8 container mt-2 bg-light" style="padding: 1.5rem;">
-            <form action="/company/<%= user.company._id %>/rides" method="POST" class="">
+            <form action="/company/<%= user.company._id %>/rides" id="new-ride" method="POST" class="">
                 <div class="row card2 card-body2 bg-light9">
                     
                     <div class="col-md-6 col-12 left-line">
@@ -21,10 +21,6 @@
                                     שם נסיעה
                                 </label>
                                 <input type="text" class="form-control" name="name" placeholder="שם נסיעה">
-                                <!--<label for="rideID">-->
-                                <!--    תג זיהוי נסיעה-->
-                                <!--</label>-->
-                                <!--<input type="number" readonly="readonly" class="form-control" name="rideID" value="<%= rideID %>">-->
                                 <label for="personInfo">
                                     שם איש קשר
                                 </label>
@@ -37,7 +33,7 @@
                                     סוג נסיעה
                                 </label>
                                 <select id="rideType" name="rideType" class="form-control">
-                                    <option selected="true" disabled="disabled"> בחר סוג נסיעה </option>
+                                    <option selected="true" disabled="disabled" value="default"> בחר סוג נסיעה </option>
                                     <option value="regular">
                                         נסיעה קבוע
                                     </option>
@@ -99,11 +95,11 @@
                                     <label for="startTime">
                                         שעת תחילת הנסיעה
                                     </label>
-                                    <input class="form-control input-time" id="time-form" name="startTime" placeholder="12:00">
+                                    <input class="form-control input-time start-time" id="time-form" name="startTime" placeholder="12:00">
                                     <label for="endTime">
                                         שעת סיום הנסיעה
                                     </label>
-                                    <input class="form-control input-time" id="time-form" name="endTime" placeholder="13:30">
+                                    <input class="form-control input-time end-time" id="time-form" name="endTime" placeholder="13:30">
                                 </div>
                                 
                                 <div id="onetime-ride-form" class="container" style="display: none;">
@@ -114,11 +110,11 @@
                                     <label for="startTime">
                                         שעת תחילת הנסיעה
                                     </label>
-                                    <input class="form-control input-time" id="time-form" name="startTime" placeholder="12:00">
+                                    <input class="form-control input-time start-time" id="time-form" name="startTime" placeholder="12:00">
                                     <label for="endTime">
                                         שעת סיום הנסיעה
                                     </label>
-                                    <input class="form-control input-time" id="time-form" name="endTime" placeholder="13:30">
+                                    <input class="form-control input-time end-time" id="time-form" name="endTime" placeholder="13:30">
                                 </div>
                                 
                                 
@@ -157,7 +153,7 @@
                                 <textarea class="form-control" rows="5" id="notes" name="notes"></textarea>
                             </div>
                     </div>
-                    <div class="col-md-6 col-12">
+                    <div class="col-md-6 col-12 stops-data">
                         
                         <div id="inputForAddStop">
                             <div class="text-left lead" style="margin-top: .5rem;">
@@ -171,6 +167,10 @@
                                 כתובת תחנה  
                             </label>
                             <input type="text" id="inputForAddStop_start" class="form-control" name="addresses[stopAddress]" placeholder="הכנס כתובת התחנה">
+                            <label for="addresses">
+                                שעת איסוף 
+                            </label>
+                            <input class="form-control input-time stop-time" class="form-control" name="addresses[stopTime]" placeholder="13:45">
                             <label for="addresses">
                                 איש קשר לתחנה זו
                             </label>
@@ -228,16 +228,16 @@
                         <input class="form-control col-7 col-md-9"  id="searchInput" placeholder="הכנס מילות חיפוש">
                     </div>
                     <div id="advancedSearchForm" class="col-12 bg-light advancesSearch">
-                        <div class="p-3">
+                        <div class="p-3 col-xl-8 offset-xl-2">
                             <form action="/company/<%= user.company._id %>/rides" method="GET" style="margin:0;">
                                 <div class="form-group input-group">
-                                    <label for="name">
+                                    <label for="name" class="col-12 pl-2">
                                     סנן נסיעות בתווך תאריכים
                                     </label>
                                     <div class="align-items-center form-row justify-content-start">
                                         
                                         <div class="col-12 col-md-6 input-group mb-sm-2">
-                                            <label class="col-12 col-md-4 col-sm-5">
+                                            <label class="col-12 col-md-4 col-sm-5 p-0 pl-md-2">
                                                 מתאריך
                                             </label>    
                                             <div class="input-group-prepend">
@@ -252,7 +252,7 @@
                                         </div>
                                         
                                         <div class="col-12 col-md-6 input-group mb-sm-2">
-                                          <label class="col-12 col-md-4 col-sm-5">
+                                          <label class="col-12 col-md-4 col-sm-5 p-0 pl-md-2">
                                             עד תאריך
                                           </label>
                                           <div class="input-group-prepend">
@@ -268,7 +268,7 @@
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4 mt-5 offset-md-4">
-                                    <button class="btn btn-primary btn-round btn-block">עדכן חיפוש</button>
+                                    <button class="btn btn-primary btn-round btn-sm btn-block">עדכן חיפוש</button>
                                 </div>
                                 
                             </form>    
@@ -334,13 +334,12 @@
                                     <%= ride.priceBeforeVAT %> ₪ 
                                     </small>
                             </div>
-                            <div class="align-self-center col-1 d-flex d-print-none">
+                            <div class="align-self-center col-1 d-flex d-print-none justify-content-center">
                                 <a href="rides/<%= ride._id %>"> 
                                   <i class="fal fa-chevron-left"></i>
                                 </a>
                             </div>
                         </div>
-                    <!--</a>-->
                 <% }); %>
             </div>
         
@@ -372,21 +371,20 @@
             
             $(".today-checkbox").change(function() {
                 var dateObj = new Date();
-                var month = dateObj.getUTCMonth() + 1 < 10 ? ("" + dateObj.getUTCMonth() + 1) : dateObj.getUTCMonth() + 1;
-                console.log(month, dateObj.getUTCMonth() + 1)
-                var day = dateObj.getUTCDate() + 1 < 10 ? ("" + dateObj.getUTCDate() + 1) : dateObj.getUTCDate() + 1;
-                var year = dateObj.getUTCFullYear();
                 
-                var newdate = day + "/" + month + "/" + year;
+                var currentMonth = Number(dateObj.getUTCMonth()) + 1;
+                currentMonth = currentMonth < 10 ? ("0"+ currentMonth) : currentMonth;
                 
-                var attr = $(this).attr( "id" );
+                var currentDay = Number(dateObj.getUTCDate()) + 1;
+                currentDay = currentDay < 10 ? ("" + currentDay) : currentDay;
+                
+                var element = $(this).attr( "id" );
                 
                 if(this.checked) {
-                    $( "input[name='"+ attr +"']" ).val(newdate).attr( "readonly", "readonly" );
+                    $( "input[name='"+ element +"']" ).val(currentDay + "/" + currentMonth + "/" + dateObj.getUTCFullYear()).attr( "readonly", "readonly" );
                 } else {
-                    $( "input[name='"+ attr +"']" ).removeAttr( "readonly" );
+                    $( "input[name='"+ element +"']" ).removeAttr( "readonly" );
                 }
-                
             });
                         
             setTimeout(function(){

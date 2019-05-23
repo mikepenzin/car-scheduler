@@ -1,5 +1,5 @@
 var express         = require("express");
-var api             = require("../service_api");
+var api             = require("../services/api");
 var middleware      = require('../middleware');
 var router          = express.Router();
 
