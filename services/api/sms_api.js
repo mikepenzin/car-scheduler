@@ -19,17 +19,17 @@ smsAPI.send = function(phoneNumber, message){
 		"charset": "UTF-8"
 	};
 	
-    // var url = "https://platform.clickatell.com/messages/http/send?apiKey=" + process.env.SMS_API_KEY + "&to=" + phoneNumber + "&content=" + message;
-    // console.log("URL: " + url);
+    var url = "https://platform.clickatell.com/messages/http/send?apiKey=" + process.env.SMS_API_KEY + "&to=" + phoneNumber + "&content=" + message;
+    console.log("URL: " + url);
 	
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "https://platform.clickatell.com/messages/http/send?apiKey=J1ce8b3_Qf-zoGgL5z4f-A==&to=972544958954&content=" + message, true);
-	xhr.onreadystatechange = function(){
-		if (xhr.readyState == 4 && xhr.status == 200) {
-			console.log('success');
-		}
-	};
-	xhr.send();
+	// var xhr = new XMLHttpRequest();
+	// xhr.open("GET", "https://platform.clickatell.com/messages/http/send?apiKey=J1ce8b3_Qf-zoGgL5z4f-A==&to=972544958954&content=" + message, true);
+	// xhr.onreadystatechange = function(){
+	// 	if (xhr.readyState == 4 && xhr.status == 200) {
+	// 		console.log('success');
+	// 	}
+	// };
+	// xhr.send();
 
 
 	
@@ -46,18 +46,18 @@ smsAPI.send = function(phoneNumber, message){
 	// 	console.log(resp.body);
 	// });
 	
-		// request(encodeURI(url), function(err, response, body){
-		// console.log(response.body);
-		// var resp = JSON.parse(response.body);
-		// if(resp.messages[0].accepted || resp.messages[0].error == null || response.statusCode == 200) {
-		// console.log('#######################');
-		// console.log('SMS was sent to: ' + phoneNumber);
-		// console.log('Message content: ', message);
-		// console.log('#######################');
-		// } else {
-		// console.log(err, response.status);
-		// }
-		// });
+		request(encodeURI(url), function(err, response, body){
+		console.log(response.body);
+		var resp = JSON.parse(response.body);
+		if(resp.messages[0].accepted || resp.messages[0].error == null || response.statusCode == 200) {
+		console.log('#######################');
+		console.log('SMS was sent to: ' + phoneNumber);
+		console.log('Message content: ', message);
+		console.log('#######################');
+		} else {
+		console.log(err, response.status);
+		}
+		});
 };
 
 module.exports = smsAPI;
