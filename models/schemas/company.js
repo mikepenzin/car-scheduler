@@ -4,16 +4,10 @@ var mongoose = require('mongoose');
 // Schema setup
 var companySchema = new mongoose.Schema({
     name: String,
-    companyID: { 
-        type: Number, 
-        unique: true, 
-        required: true, 
-        dropDups: true 
-    },
     companyLogo:  {
         url: {
             type: String, 
-            default: "https://car-scheduler-penzin.c9db.User.s.io/assets/img/company_logo.png"
+            default: "/assets/img/company_logo.png"
         }
     },
     address: String,

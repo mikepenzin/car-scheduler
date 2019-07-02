@@ -8,6 +8,7 @@ var express = require("express"),
     LocalStrategy = require("passport-local"),
     cloudinary = require("cloudinary"),
     db = require("./models"),
+	
     flash = require('express-flash'),
     helmet = require('helmet'),
     dotenv = require('dotenv'),
@@ -32,6 +33,17 @@ app.use(helmet());
 
 app.use(sslRedirect(['production']));
 
+var api = require("./services/api");
+
+var createdUser = {firstName: "מיכאל", lastName: "פנזין"}
+var message = 'שלום רב, ' + createdUser.firstName + ' ' +  createdUser.lastName + '. ' + ' קוד זמני לכניסה ראשונית למערכת חברת '
+        + 'גלי הסעות' + ' '
+        + ' הינו : '+ 9786
+        + ' להמשך  הרשמה לחץ על לינק הבאה: ' + 'https://app.scheduler.co.il/';
+        
+var phoneNumber = '972544958954';
+
+api.SMS.send(phoneNumber, message);
 // app.use(morgan('tiny'));
 
 // Add version number from package.json
@@ -163,7 +175,7 @@ if (process.env.ENV === 'production') {
     });
 }
 
-app.listen(process.env.PORT, process.env.IP, function() {
+app.listen(process.env.PORT || 3000, process.env.IP, function() {
     console.log("=========================");
     console.log("All Servers has started!");
     console.log("=========================");

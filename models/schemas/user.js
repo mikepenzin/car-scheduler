@@ -19,7 +19,7 @@ var userSchema = new mongoose.Schema({
     userPic: {
         url: {
             type: String, 
-            default: "https://car-scheduler-penzin.c9users.io/assets/img/user_placeholder_man.jpg"
+            default: "/assets/img/user_placeholder_man.jpg"
         }
     },
     currentStatus: {

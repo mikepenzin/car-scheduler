@@ -72,6 +72,8 @@ router.post("/", middleware.isUserSteward, function(req, res){
           phoneNumber = '972544958954';
         }
         
+		console.log("### Going to send ###");
+		console.log(phoneNumber, message);
         api.SMS.send(phoneNumber, message);
         
         console.log("### Added new user #####", createdUser.firstName + ' ' + createdUser.lastName);
