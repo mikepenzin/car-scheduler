@@ -49,7 +49,7 @@ smsAPI.send = function(phoneNumber, message){
 		request(encodeURI(url), function(err, response, body){
 		console.log(response.body);
 		var resp = JSON.parse(response.body);
-		if(resp.messages[0].accepted || resp.messages[0].error == null || response.statusCode == 200) {
+		if(response.statusCode == 200) {
 		console.log('#######################');
 		console.log('SMS was sent to: ' + phoneNumber);
 		console.log('Message content: ', message);
