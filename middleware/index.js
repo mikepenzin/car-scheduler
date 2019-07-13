@@ -3,18 +3,11 @@ var middlewareObj = {};
 
 middlewareObj.isLoggedInMainPage = function (req, res, next) {
     if(req.isAuthenticated()){
-        api.User.getUserById(req.params.user_id)
-        .then(function(foundUser){
-            if(foundUser.isActivated) {
-                return next();
-            } else {
-                res.render("login/activation", {foundUser:foundUser});
-            }
-        })
-        .catch(function(err){
-            console.log(err);
-            res.redirect("/auth/login");
-        });        
+        if(req.user.isActivated) {
+            return next();
+        } else {
+            res.render("login/activation", {foundUser:foundUser});
+        }        
     } else {
         res.redirect("/auth/login");
     }

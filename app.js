@@ -76,8 +76,7 @@ var mainRoutes = require("./routes/main"),
 // Configure public folder for static files
 if (process.env.ENV === 'production') {
     app.use(express.static(__dirname + "/public", { maxAge: 8640000000 }));
-}
-else {
+} else {
     app.use(express.static(__dirname + "/public", { maxAge: 0 }));
 }
 
@@ -177,7 +176,7 @@ if (process.env.ENV === 'production') {
     });
 }
 
-app.listen(process.env.PORT || 3000, process.env.IP, function() {
+app.listen(process.env.PORT || 3000, process.env.IP || '127.0.0.1', function() {
     console.log("=========================");
     console.log("All Servers has started!");
     console.log("=========================");

@@ -69,6 +69,7 @@ router.post("/", middleware.isUserSteward, function(req, res) {
     newRide.startTime = Number(req.body.startTime[1].replace(':', ''));
     newRide.endTime = Number(req.body.endTime[1].replace(':', ''));
     var dateParsed = Date.parse(newRide.rideStartDate);
+    newRide.weekDays = [];
     newRide.weekDays.push(new Date(dateParsed).getDay());
 
   }
@@ -209,6 +210,7 @@ router.put("/:ride_id", middleware.isUserSteward, function(req, res) {
     updatedRide.rideStartDate = converter.convertDate(req.body.rideStartDate, false);
     updatedRide.rideEndDate = converter.convertDate(req.body.rideStartDate, false);
     var dateParsed = Date.parse(updatedRide.rideStartDate);
+    updateRide.weekDays = [];
     updatedRide.weekDays.push(new Date(dateParsed).getDay());
 
   }
