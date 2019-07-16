@@ -6,7 +6,7 @@ middlewareObj.isLoggedInMainPage = function (req, res, next) {
         if(req.user.isActivated) {
             return next();
         } else {
-            res.render("login/activation", {foundUser:foundUser});
+            res.render("login/activation", {foundUser:req.user});
         }        
     } else {
         res.redirect("/auth/login");
