@@ -1,5 +1,6 @@
 var express         = require("express");
 var db              = require('../models');
+var middleware      = require('../middleware');
 var cloudinary      = require("cloudinary");
 var multipart       = require("connect-multiparty");
 var router          = express.Router();
@@ -12,6 +13,9 @@ router.use(function timeLog (req, res, next) {
   console.log('Time: ', n);
   next();
 });
+
+//admin authenitication middleware
+router.use(middleware.isUserAdmin);
 
 var multipartMiddleware = multipart();
 
